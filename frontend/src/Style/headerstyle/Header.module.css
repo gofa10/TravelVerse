@@ -1,0 +1,13 @@
+.logo{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.header{
+    background: rgba(192,202,212,1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* height: 100px; */
+/* background: linear-gradient(0deg, rgba(30,75,153,1) 0%, rgba(34,124,150,1) 30%, rgba(192,202,212,1) 68%); */
+}

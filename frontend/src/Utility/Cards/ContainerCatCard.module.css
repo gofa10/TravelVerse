@@ -1,0 +1,115 @@
+/* 
+ * TripCard / ContainerCatCard styles
+ * Uses design system CSS variables for consistency
+ */
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card {
+  background-color: var(--bg-secondary, white);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-base, 0.2s ease),
+    box-shadow var(--transition-base, 0.2s ease);
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Dark mode card styling */
+:global(.dark) .card {
+  background-color: var(--bg-secondary, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+}
+
+.imageWrapper {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-slow, 0.3s ease);
+}
+
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+.content {
+  padding: var(--space-4, 16px);
+}
+
+.title {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: 600;
+  margin-bottom: var(--space-2, 8px);
+  color: var(--text-primary, #0f172a);
+  line-height: 1.4;
+}
+
+:global(.dark) .title {
+  color: var(--text-primary, #f8fafc);
+}
+
+.location {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--text-secondary, #475569);
+  margin-bottom: var(--space-1, 4px);
+}
+
+:global(.dark) .location {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.description {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--text-muted, #64748b);
+  margin-top: var(--space-2, 8px);
+  min-height: 2.5em;
+  line-height: 1.5;
+}
+
+:global(.dark) .description {
+  color: var(--text-muted, #94a3b8);
+}
+
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--space-3, 12px);
+  padding-top: var(--space-3, 12px);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+:global(.dark) .bottomRow {
+  border-top-color: var(--border-color, #334155);
+}
+
+.price {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: 600;
+  color: var(--color-success, #10b981);
+}
+
+.rate {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-warning, #f59e0b);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+}

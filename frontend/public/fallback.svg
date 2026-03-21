@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect fill="#f1f5f9" width="400" height="300"/>
+  <g fill="#94a3b8">
+    <!-- Image icon -->
+    <path d="M200 100 L150 170 L175 145 L190 165 L210 135 L240 170 L200 170 Z" opacity="0.5"/>
+    <rect x="140" y="95" width="120" height="85" rx="8" fill="none" stroke="#94a3b8" stroke-width="3"/>
+    <circle cx="170" cy="120" r="8" fill="#94a3b8" opacity="0.6"/>
+    <!-- Text -->
+    <text x="200" y="215" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="500">
+      Image Unavailable
+    </text>
+  </g>
+</svg>

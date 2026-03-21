@@ -1,0 +1,29 @@
+/* الوضع العادي (Light Mode) */
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* الوضع المظلم (Dark Mode) */
+.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* زر التبديل */
+.toggle-dark-mode {
+  padding: 10px 15px;
+  /* margin: 20px; */
+  font-size: 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.toggle-dark-mode:hover {
+  background-color: #0056b3;
+}

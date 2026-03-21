@@ -1,0 +1,25 @@
+.poster {
+    margin-bottom: 20px;
+    width: 100%;
+    height: 100px;
+    background-color: rgb(28, 39, 140);
+    padding: 10px 0;
+    text-align: center;
+    /* padding: 20px; */
+
+  }
+  
+  h2, h3 {
+    margin: 0 40px;
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  h2 {
+    color: white;
+  }
+  
+  h3 {
+    color: black;
+  }
+  

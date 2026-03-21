@@ -1,0 +1,94 @@
+.hexagon {
+    display: inline-block;
+    width: 150px;
+    height: 130px;
+    margin: 10px;
+    position: relative;
+  }
+  
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+  .hexagon image {
+    object-fit: cover;
+  }  
+
+  /* giraffes-african-landscape */
+
+.text{
+    position: absolute;
+width: 671px;
+height: 626px;
+left: 599px;
+top: 353px;
+
+background: url(`../../../../Assets/images/group-elephants-big-green-tree-wilderness.jpg);
+}
+
+
+/* male-female-lions-laying-sand-resting */
+/* 
+position: absolute;
+width: 351px;
+height: 316px;
+left: 1041px;
+top: 144px;
+
+background: url(male-female-lions-laying-sand-resting); */
+
+
+/* group-zebras-grazing-tsavo-east-national-park-kenya-africa */
+
+/* position: absolute;
+width: 351px;
+height: 316px;
+left: 1393px;
+top: 83px;
+
+background: url(group-zebras-grazing-tsavo-east-national-park-kenya-africa); */
+
+
+/* landscape-with-tree-africa */
+
+/* position: absolute;
+width: 351px;
+height: 302px;
+left: 1258px;
+top: 387px;
+
+background: url(landscape-with-tree-africa); */
+
+
+/* Star 4 */
+
+/* position: absolute;
+width: 351px;
+height: 316px;
+left: 1085px;
+top: 663px;
+
+background: #FD9707; */
+
+
+/* medium-shot-african-man-outdoors */
+
+/* position: absolute;
+width: 343.34px;
+height: 638px;
+left: 1461.66px;
+top: 653.61px;
+
+background: url(medium-shot-african-man-outdoors); */
+
+
+/* african-hut-rural-scene-surrounded-by-sand-generated-by-ai */
+/* 
+position: absolute;
+width: 276px;
+height: 302px;
+left: 966px;
+top: 945px;
+
+background: url(african-hut-rural-scene-surrounded-by-sand-generated-by-ai); */
+

@@ -1,0 +1,21 @@
+# Backend
+backend/vendor/
+backend/.env
+backend/storage/*.key
+backend/.phpunit.result.cache
+backend/public/hot
+backend/public/storage
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# General
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+.zed/

@@ -1,0 +1,88 @@
+.slider{
+  position: relative;
+}
+/* Full width and height for the video */
+.vid {
+    object-fit: cover;
+    width: 100%;
+    height: 100%; /* Changed to ensure the video fills the container */
+  }
+  
+  /* Ensures the image is positioned and rotated within the carousel */
+  .image {
+    position: absolute;
+    right: 0;
+    top: 10%;
+    transform: rotateZ(-16deg);
+    width: 700px;
+    object-fit: cover;
+  }
+  
+  /* Style for carousel caption */
+  .carousel-caption {
+    color: white;
+    padding: 20px;
+    text-align: left;
+  }
+  
+  /* Customizing the carousel and its components */
+  .carousel-item {
+    position: relative;
+    height: 100vh; /* Ensure all carousel items have the same height */
+  }
+  
+  /* Centering the main heading and text */
+  .caption_main {
+    position: absolute;
+    top: 70%;
+    left: 5%;
+    transform: translateY(-50%);
+    text-align: left;
+    
+  }
+  
+  /* Add spacing between buttons */
+  .carousel-control-prev, .carousel-control-next {
+    position: absolute;
+    left: 10%;
+    top: 90%;
+    transform: translateY(-50%);
+    padding: 10px;
+    width: fit-content;
+  }
+  .carousel-control-next{
+    left: 15%;
+  }
+  
+  /* Adjust arrows to avoid overlapping */
+  .carousel-control-prev-icon, .carousel-control-next-icon {
+    background-color: #000; /* Set the arrows' background color */
+    border-radius: 50%; /* Make the arrows circular */
+    padding: 10px;
+  }
+  
+  /* Optional: adding responsiveness for images and video */
+  @media (max-width: 768px) {
+    .img, .vid {
+      height: 80vh; /* Make video and images smaller on mobile */
+    }
+  
+    /* Center the text for smaller screens */
+    .caption-main {
+      left: 10%;
+      top: 60%;
+    }
+  }
+  
+  /* Styling the text in the bottom-right */
+  .caption-bottom {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.5); /* Background with transparency */
+    color: black;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+  }
+  

@@ -1,0 +1,36 @@
+.info{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+
+}
+.info ul{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+.comment{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 10px;
+  }
+  .text{
+    text-align: center;
+    margin-top: 30px;
+  }
+  .bg{
+    background-color: antiquewhite;
+    margin-top: 35px;
+    padding: 2px;
+    border-radius: 15px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -ms-border-radius: 15px;
+    -o-border-radius: 15px;
+}

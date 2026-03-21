@@ -1,0 +1,177 @@
+/* src/components/UserManagement.module.css */
+
+.content {
+  padding: 20px;
+}
+
+.card {
+  /* background-color: #fff; */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: scroll;
+}
+
+.card h2 {
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 8px 16px;
+  background-color: #1abc9c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #16a085;
+}
+/* src/components/UserTable.module.css */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th, .table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+/* .table th {
+  background-color: #f8f9fa;
+}
+
+.table tr:hover {
+  background-color: #f1f1f1;
+} */
+
+.actionButton {
+  padding: 6px 12px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.actionButton:hover {
+  background-color: #2980b9;
+}
+/* src/components/UserModal.module.css */
+
+.modal {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 50%;
+  max-height: 80vh;
+  position: relative;
+  overflow-y: scroll;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.modalContent h2 {
+  margin-bottom: 20px;
+}
+
+.modalContent form label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.modalContent form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modalButton {
+  width: 100%;
+  padding: 10px;
+  background-color: #1abc9c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modalButton:hover {
+  background-color: #16a085;
+}
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  padding: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.filterSelect {
+  padding: 8px;
+  min-width: 120px;
+}
+
+.btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.pagination button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background-color: #357acb;
+}
+
+.pagination span {
+  font-weight: bold;
+}

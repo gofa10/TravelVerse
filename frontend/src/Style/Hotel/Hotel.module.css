@@ -1,0 +1,25 @@
+
+.info{
+    display: flex;
+    /* justify-content: center; */
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    width: fit-content;
+
+
+}
+.info ul{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+.head{
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    /* margin: 20px ; */
+}

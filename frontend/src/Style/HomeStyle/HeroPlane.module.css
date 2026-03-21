@@ -1,0 +1,202 @@
+/* 
+ * Hero Section Styles
+ * Modern, clean design with subtle animations
+ */
+
+.video_container {
+    position: relative;
+    height: 70vh;
+    min-height: 500px;
+    max-height: 800px;
+    width: 100%;
+    overflow: visible;
+}
+
+.vid {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    filter: brightness(0.9);
+}
+
+/* Clip layer: sits behind content, clips the video to hero bounds */
+.vid_clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+}
+
+/* Gradient overlay for better text readability */
+.video_container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+            rgba(0, 0, 0, 0.3) 0%,
+            rgba(0, 0, 0, 0.1) 50%,
+            rgba(0, 0, 0, 0.2) 100%);
+    z-index: 0;
+}
+
+.info {
+    position: relative;
+    z-index: 1;
+    color: white;
+    padding-top: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+/* Row Layouts */
+.row_plane {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 5%;
+}
+
+/* Plane Animation - Subtle floating effect */
+.row_plane img {
+    position: relative;
+    left: 10%;
+    transform: rotateZ(-8deg);
+    animation: float 4s infinite ease-in-out;
+    max-width: 500px;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: rotateZ(-8deg) translateY(0);
+    }
+
+    50% {
+        transform: rotateZ(-8deg) translateY(-15px);
+    }
+}
+
+/* Container Styles */
+.container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.container_text {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+    position: absolute;
+    right: 5%;
+    bottom: 10%;
+    gap: var(--space-3, 12px);
+}
+
+/* Glassmorphism Text Cards */
+.small_text {
+    padding: var(--space-4, 16px) var(--space-6, 24px);
+    border-radius: var(--radius-xl, 16px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: var(--font-size-sm, 0.875rem);
+    font-weight: 500;
+    color: var(--color-slate-700, #334155);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.small_text:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.big_text {
+    padding: var(--space-6, 24px);
+    border-radius: var(--radius-xl, 16px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    max-width: 360px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.big_text:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.big_text h5 {
+    font-size: var(--font-size-xl, 1.25rem);
+    font-weight: 600;
+    color: var(--color-slate-900, #0f172a);
+    margin-bottom: var(--space-2, 8px);
+}
+
+.big_text p {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-slate-600, #475569);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Dark Mode Adjustments */
+:global(.dark) .small_text,
+:global(.dark) .big_text {
+    background: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:global(.dark) .small_text {
+    color: var(--color-slate-200, #e2e8f0);
+}
+
+:global(.dark) .big_text h5 {
+    color: var(--color-slate-50, #f8fafc);
+}
+
+:global(.dark) .big_text p {
+    color: var(--color-slate-300, #cbd5e1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .video_container {
+        height: 60vh;
+        min-height: 400px;
+    }
+
+    .container_text {
+        right: 5%;
+        bottom: 5%;
+        left: 5%;
+        align-items: stretch;
+    }
+
+    .big_text {
+        max-width: 100%;
+    }
+
+    .row_plane img {
+        display: none;
+    }
+}
