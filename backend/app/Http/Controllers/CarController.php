@@ -10,7 +10,36 @@ class CarController extends Controller
 {
     public function index(Request $request)
     {
-        $cars = Car::paginate(20);
+        $query = Car::query();
+
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('brand', 'like', '%'.$request->search.'%')
+                  ->orWhere('model', 'like', '%'.$request->search.'%')
+                  ->orWhere('location', 'like', '%'.$request->search.'%');
+            });
+        }
+
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        if ($request->sort === 'price_asc') {
+            $query->orderBy('price', 'asc');
+        } elseif ($request->sort === 'price_desc') {
+            $query->orderBy('price', 'desc');
+        } elseif ($request->sort === 'rating') {
+            $query->orderBy('rate', 'desc');
+        } else {
+            $query->latest();
+        }
+
+        $perPage = $request->per_page ?? 12;
+        $cars = $query->paginate($perPage);
 
         $data = $cars->getCollection()->map(function ($car) {
             // Get images using direct query since morph relationship isn't working

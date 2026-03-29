@@ -110,16 +110,16 @@ const UnifiedSearchBar = ({
           min-height: 64px;
           border-radius: 999px;
           border: 1px solid rgba(255, 255, 255, 0.82);
-          background: rgba(255, 255, 255, 0.95);
+          background: #ffffff;
           box-shadow: 0 18px 42px rgba(15, 23, 42, 0.14);
           overflow: visible;
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+          position: relative;
+          z-index: 1000;
         }
 
         .dark .hero-unified-search-shell {
           border: 1px solid rgba(71, 85, 105, 0.82);
-          background: rgba(30, 41, 59, 0.95);
+          background: #1e293b;
           box-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
         }
 
@@ -272,7 +272,7 @@ const UnifiedSearchBar = ({
           left: 18px;
           right: 18px;
           top: calc(100% + 12px);
-          z-index: 50;
+          z-index: 9999;
           overflow: hidden;
           border: 1px solid #e2e8f0;
           border-radius: 18px;
@@ -403,7 +403,7 @@ const UnifiedSearchBar = ({
             </button>
 
             {categoryOpen && (
-              <div className="absolute left-3 right-3 top-[calc(100%+12px)] z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-2xl shadow-slate-900/20">
+              <div className="absolute left-3 right-3 top-[calc(100%+12px)] z-[9999] overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-2xl shadow-slate-900/20">
                 {categoryOptions
                   .filter((option) => option.value !== form.category)
                   .map((option) => (

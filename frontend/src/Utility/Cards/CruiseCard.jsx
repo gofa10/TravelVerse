@@ -29,7 +29,7 @@ const getFullImageUrl = (img) => {
   return getStorageUrl(path);
 };
 
-const CruiseCardRow = ({ cruise, onCardClick }) => {
+export const CruiseCardRow = ({ cruise, onCardClick }) => {
   const { src: safeImageSrc, onError: handleImageError } = useImageFallback(
     getFullImageUrl(cruise.images?.[0])
   );

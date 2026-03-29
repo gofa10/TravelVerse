@@ -744,6 +744,21 @@
   },
   "common": {
     "bookNow": "Забронировать",
-    "comingSoon": "Скоро"
+    "comingSoon": "Скоро",
+    "viewAll": "Посмотреть все"
+  },
+  "listing": {
+    "search": "Поиск...",
+    "sortBy": "Сортировать",
+    "priceAsc": "Цена: возрастание",
+    "priceDesc": "Цена: убывание",
+    "topRated": "Высший рейтинг",
+    "minPrice": "Мин. цена",
+    "maxPrice": "Макс. цена",
+    "results": "результатов",
+    "noResults": "Результатов нет",
+    "showing": "Показано",
+    "of": "из",
+    "activities": "Все активности"
   }
 }

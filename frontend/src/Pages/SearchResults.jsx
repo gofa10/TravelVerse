@@ -115,7 +115,7 @@ const SearchResults = () => {
       try {
         const { data } = await api.get(`/search?${requestParams.toString()}`);
         if (!cancelled) {
-          setResults(Array.isArray(data) ? data : []);
+          setResults(Array.isArray(data.data) ? data.data : []);
         }
       } catch {
         if (!cancelled) {

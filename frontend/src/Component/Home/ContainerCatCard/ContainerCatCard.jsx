@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../../../Radux/axios';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Button } from 'react-bootstrap';
 import SkeletonGrid from '../../../Utility/Skeletons/SkeletonGrid';
 
 // ─── API ─────────────────────────────────────────────────────────────────────
@@ -174,7 +175,25 @@ const ContainerCatCard = ({
       `}</style>
 
       <div className="global-recommendations-section">
-        <h2 className="global-recommendations-title">{sectionTitle}</h2>
+        <div className="d-flex justify-content-between align-items-center mb-4 px-2">
+          <h2 className="global-recommendations-title mb-0">{sectionTitle}</h2>
+          <Button
+            variant="link"
+            className="text-primary text-decoration-none fw-bold p-0"
+            style={{ fontSize: '0.95rem' }}
+            onClick={() => {
+              if (type === 'flight') {
+                navigate(`/${getApiEndpoint(type)}/all`);
+              } else if (type === 'activitie') {
+                navigate('/search?category=activity');
+              } else {
+                navigate(`/search?category=${type}`);
+              }
+            }}
+          >
+            {t('common.viewAll')} →
+          </Button>
+        </div>
 
         {loading ? (
           <SkeletonGrid count={4} />

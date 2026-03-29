@@ -17,7 +17,14 @@ class HotelController extends Controller
 
     $query = Hotel::with('images')->withCount('reviews');
 
-    if ($request->filled('q')) {
+    if ($request->filled('search')) {
+        $search = $request->input('search');
+        $query->where(function ($builder) use ($search) {
+            $builder->where('name_en', 'LIKE', "%{$search}%")
+                ->orWhere('name_ar', 'LIKE', "%{$search}%")
+                ->orWhere('location', 'LIKE', "%{$search}%");
+        });
+    } elseif ($request->filled('q')) {
         $q = $request->input('q');
         $query->where(function ($builder) use ($q) {
             $builder->where('name_en', 'LIKE', "%{$q}%")
@@ -45,7 +52,18 @@ class HotelController extends Controller
         $query->where('rate', '<=', $request->input('max_rate'));
     }
 
-    $hotels = $query->paginate(20);
+    if ($request->sort === 'price_asc') {
+        $query->orderBy('price', 'asc');
+    } elseif ($request->sort === 'price_desc') {
+        $query->orderBy('price', 'desc');
+    } elseif ($request->sort === 'rating') {
+        $query->orderBy('rate', 'desc');
+    } else {
+        $query->latest();
+    }
+
+    $perPage = $request->per_page ?? 12;
+    $hotels = $query->paginate($perPage);
 
     // تعديل البيانات قبل الإرجاع
     $data = $hotels->getCollection()->map(function ($hotel) use ($locale) {

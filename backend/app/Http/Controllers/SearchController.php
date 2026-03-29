@@ -88,7 +88,7 @@ class SearchController extends Controller
                         'type' => $type,
                         'title' => $title,
                         'image' => (function() use ($item) {
-                            $url = $item->images[0]->url ?? null;
+                            $url = $item->images->first()?->url ?? null;
                             if ($url && (str_starts_with($url, '/storage/') || str_starts_with($url, 'storage/'))) {
                                 $url = str_starts_with($url, '/') ? $url : '/' . $url;
                                 return url($url);

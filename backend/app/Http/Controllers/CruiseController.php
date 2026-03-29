@@ -16,6 +16,23 @@ class CruiseController extends Controller
     $query = Cruise::with('images', 'reviews');
 
     // Apply filters
+    if ($request->filled('search')) {
+        $search = $request->input('search');
+        $query->where(function ($builder) use ($search) {
+            $builder->where('name_en', 'LIKE', "%{$search}%")
+                ->orWhere('name_ar', 'LIKE', "%{$search}%")
+                ->orWhere('location', 'LIKE', "%{$search}%");
+        });
+    }
+
+    if ($request->filled('min_price')) {
+        $query->where('price', '>=', $request->input('min_price'));
+    }
+
+    if ($request->filled('max_price')) {
+        $query->where('price', '<=', $request->input('max_price'));
+    }
+
     if ($request->has('property_type')) {
         $propertyTypes = $request->input('property_type');
         if (is_string($propertyTypes)) {
@@ -44,7 +61,18 @@ class CruiseController extends Controller
         });
     }
 
-    $cruises = $query->paginate(10);
+    if ($request->sort === 'price_asc') {
+        $query->orderBy('price', 'asc');
+    } elseif ($request->sort === 'price_desc') {
+        $query->orderBy('price', 'desc');
+    } elseif ($request->sort === 'rating') {
+        $query->orderBy('rate', 'desc');
+    } else {
+        $query->latest();
+    }
+
+    $perPage = $request->per_page ?? 12;
+    $cruises = $query->paginate($perPage);
 
     $data = $cruises->getCollection()->map(function ($cruise) use ($locale) {
         // Get images using direct query since morph relationship isn't working

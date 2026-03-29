@@ -99,8 +99,8 @@ const HotelCard = ({ data, type }) => {
     const { src: safeImageSrc, onError: handleImageError } = useImageFallback(getFullImageUrl(data.images));
 
     return (
-        <MDBRow className="justify-content-center mb-3">
-            <MDBCol md="12" xl="10">
+        <MDBRow className="mb-3">
+            <MDBCol md="12">
                 <MDBCard
                     className="shadow-0 rounded-xl! h-full transition-shadow duration-300 overflow-hidden"
                     style={{

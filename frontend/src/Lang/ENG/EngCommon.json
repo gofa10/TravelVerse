@@ -744,6 +744,21 @@
   },
   "common": {
     "bookNow": "Book Now",
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "viewAll": "View All"
+  },
+  "listing": {
+    "search": "Search...",
+    "sortBy": "Sort By",
+    "priceAsc": "Price: Low to High",
+    "priceDesc": "Price: High to Low",
+    "topRated": "Top Rated",
+    "minPrice": "Min Price",
+    "maxPrice": "Max Price",
+    "results": "results",
+    "noResults": "No results found",
+    "showing": "Showing",
+    "of": "of",
+    "activities": "All Activities"
   }
 }

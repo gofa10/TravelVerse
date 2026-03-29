@@ -40,7 +40,7 @@ const formatCarPrice = (value) => {
   return `$${Math.round(amount)}/day`;
 };
 
-const CarCardRow = ({ product, onCardClick }) => {
+export const CarCardRow = ({ product, onCardClick }) => {
   const specs = typeof product.car_specification === 'string'
     ? product.car_specification.toLowerCase()
     : '';

@@ -115,7 +115,7 @@ const SkeletonCard = () => (
  *  isLoading – boolean (renders skeleton when true)
  *  to      – optional Link destination (if provided, card wraps in Link)
  */
-const ItemCard = ({ id, image, title, rating = 0, meta = [], price, onClick, isLoading, to, type }) => {
+const ItemCard = ({ id, image, title, rating = 0, meta = [], price, onClick, isLoading, to, type, $fluid = false }) => {
      const { t } = useTranslation();
 
      if (isLoading) return <SkeletonCard />;
@@ -216,7 +216,7 @@ const ItemCard = ({ id, image, title, rating = 0, meta = [], price, onClick, isL
      }
 
      return (
-          <StyledWrapper {...wrapperProps}>
+          <StyledWrapper {...wrapperProps} $fluid={$fluid}>
                {cardContent}
           </StyledWrapper>
      );
@@ -230,7 +230,7 @@ const StyledWrapper = styled.div`
   /* Snap alignment – used when inside CardCarousel */
   scroll-snap-align: start;
   flex-shrink: 0;
-  width: 320px;
+  width: ${props => props.$fluid ? '100%' : '320px'};
   cursor: pointer;
   outline: none;
   text-decoration: none;

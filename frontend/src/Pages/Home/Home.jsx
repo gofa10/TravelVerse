@@ -302,6 +302,13 @@ const Home = () => {
             >
               {t('cars')}
             </h2>
+            <Button
+              variant="link"
+              className="text-primary text-decoration-none fw-bold p-0"
+              onClick={() => navigate('/search?category=car')}
+            >
+              {t('common.viewAll')} →
+            </Button>
           </div>
 
           {carsLoading ? (
@@ -336,6 +343,13 @@ const Home = () => {
             >
               {t('cruises')}
             </h2>
+            <Button
+              variant="link"
+              className="text-primary text-decoration-none fw-bold p-0"
+              onClick={() => navigate('/search?category=cruise')}
+            >
+              {t('common.viewAll')} →
+            </Button>
           </div>
 
           {cruisesLoading ? (

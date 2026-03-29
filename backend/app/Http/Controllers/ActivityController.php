@@ -26,7 +26,14 @@ class ActivityController extends Controller
 
         $query = Activity::query();
 
-        if ($request->filled('q')) {
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($builder) use ($search) {
+                $builder->where('name_en', 'LIKE', "%{$search}%")
+                    ->orWhere('name_ar', 'LIKE', "%{$search}%")
+                    ->orWhere('location', 'LIKE', "%{$search}%");
+            });
+        } elseif ($request->filled('q')) {
             $q = $request->input('q');
             $query->where(function ($builder) use ($q) {
                 $builder->where('name_en', 'LIKE', "%{$q}%")
@@ -54,7 +61,18 @@ class ActivityController extends Controller
             $query->where('rate', '<=', $request->input('max_rate'));
         }
 
-        $activities = $query->paginate(10);
+        if ($request->sort === 'price_asc') {
+            $query->orderBy('price', 'asc');
+        } elseif ($request->sort === 'price_desc') {
+            $query->orderBy('price', 'desc');
+        } elseif ($request->sort === 'rating') {
+            $query->orderBy('rate', 'desc');
+        } else {
+            $query->latest();
+        }
+
+        $perPage = $request->per_page ?? 12;
+        $activities = $query->paginate($perPage);
 
         $data = $activities->getCollection()->map(function ($activity) use ($locale) {
             // Get images using direct query since morph relationship isn't working
