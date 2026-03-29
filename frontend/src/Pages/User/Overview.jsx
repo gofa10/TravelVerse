@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../../Radux/axios';
 import { Calendar, Heart, Star, BoxSelect, Inbox } from 'lucide-react';
 
 const Overview = () => {
+     const { t } = useTranslation();
      const [stats, setStats] = useState({
           reservations: 0,
           favorites: 0,
@@ -10,6 +12,30 @@ const Overview = () => {
      });
      const [recentReservations, setRecentReservations] = useState([]);
      const [loading, setLoading] = useState(true);
+
+     const typeLabelMap = {
+          trip: t('trip'),
+          hotel: t('hotel'),
+          restaurant: t('restaurant'),
+          activity: t('activity'),
+          cruise: t('cruises'),
+          car: t('rental_cars'),
+          flight: t('flights'),
+          item: t('not_available'),
+     };
+
+     const statusLabelMap = {
+          saved: t('saved'),
+          redirect_pending: t('link_opened'),
+          booking_claimed: t('booked'),
+          booking_declined: t('not_booked'),
+          left_without_booking: t('no_response'),
+          cancelled: t('cancelled'),
+          pending: t('pending'),
+          accepted: t('booked'),
+          confirmed: t('booked'),
+          rejected: t('not_booked'),
+     };
 
      useEffect(() => {
           const fetchStats = async () => {
@@ -40,7 +66,7 @@ const Overview = () => {
                               (source.from_location && source.to_location
                                    ? `${source.from_location} \u2192 ${source.to_location}`
                                    : null) ||
-                              'Item';
+                              t('item');
                          const modelToTypeMap = {
                               'App\\Models\\Trip': 'trip',
                               'App\\Models\\Hotel': 'hotel',
@@ -84,7 +110,7 @@ const Overview = () => {
 
      return (
           <div className="space-y-6">
-               <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Overview</h2>
+               <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">{t('overview')}</h2>
 
                {/* STATS CARDS */}
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -105,7 +131,7 @@ const Overview = () => {
                                         <Calendar size={28} />
                                    </div>
                                    <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Reservations</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('total_reservations')}</p>
                                         <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.reservations}</p>
                                    </div>
                               </div>
@@ -115,7 +141,7 @@ const Overview = () => {
                                         <Heart size={28} />
                                    </div>
                                    <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Saved Favorites</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('saved_favorites')}</p>
                                         <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.favorites}</p>
                                    </div>
                               </div>
@@ -125,7 +151,7 @@ const Overview = () => {
                                         <Star size={28} />
                                    </div>
                                    <div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Reviews</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t('total_reviews')}</p>
                                         <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.reviews}</p>
                                    </div>
                               </div>
@@ -135,7 +161,7 @@ const Overview = () => {
 
                {/* RECENT RESERVATIONS */}
                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 mt-8 border border-gray-100 dark:border-gray-700">
-                    <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">Recent Reservations</h3>
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4">{t('recent_reservations')}</h3>
 
                     {loading ? (
                          <div className="animate-pulse space-y-4">
@@ -146,17 +172,17 @@ const Overview = () => {
                     ) : recentReservations.length === 0 ? (
                          <div className="flex flex-col items-center justify-center py-10 text-gray-500 dark:text-gray-400">
                               <Inbox size={48} className="mb-3 text-gray-300 dark:text-gray-600" />
-                              <p>No reservations yet 🌍</p>
+                              <p>{t('no_reservations_yet')}</p>
                          </div>
                     ) : (
                          <div className="overflow-x-auto">
                               <table className="w-full text-left border-collapse">
                                    <thead>
                                         <tr className="border-b border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400 text-sm">
-                                             <th className="pb-3 font-medium">Item Name</th>
-                                             <th className="pb-3 font-medium">Type</th>
-                                             <th className="pb-3 font-medium">Status</th>
-                                             <th className="pb-3 font-medium">Date</th>
+                                             <th className="pb-3 font-medium">{t('item_name')}</th>
+                                             <th className="pb-3 font-medium">{t('type')}</th>
+                                             <th className="pb-3 font-medium">{t('status')}</th>
+                                             <th className="pb-3 font-medium">{t('date')}</th>
                                         </tr>
                                    </thead>
                                    <tbody>
@@ -169,14 +195,14 @@ const Overview = () => {
                                                        }
                                                        <span className="font-medium text-gray-800 dark:text-white">{res.title}</span>
                                                   </td>
-                                                  <td className="py-3 capitalize text-gray-600 dark:text-gray-300">{res.type}</td>
+                                                  <td className="py-3 capitalize text-gray-600 dark:text-gray-300">{typeLabelMap[res.type] || res.type}</td>
                                                   <td className="py-3">
                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${res.status === 'accepted' || res.status === 'confirmed' ? 'bg-green-100 text-green-700' :
                                                             res.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                                                                  res.status === 'rejected' || res.status === 'cancelled' ? 'bg-red-100 text-red-700' :
                                                                       'bg-gray-100 text-gray-600'
                                                             }`}>
-                                                            {res.status}
+                                                            {statusLabelMap[res.status] || res.status}
                                                        </span>
                                                   </td>
                                                   <td className="py-3 text-gray-600 dark:text-gray-300">{res.date}</td>

@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Cruise;
 use Illuminate\Http\Request;
- use App\Models\Image;
+use App\Models\Image;
+use Illuminate\Support\Facades\DB;
 
 class CruiseController extends Controller
 {
@@ -12,9 +13,54 @@ class CruiseController extends Controller
 {
     $locale = $request->header('Accept-Language') ?? app()->getLocale();
 
-    $cruises = Cruise::with('images', 'reviews')->paginate(10);
+    $query = Cruise::with('images', 'reviews');
+
+    // Apply filters
+    if ($request->has('property_type')) {
+        $propertyTypes = $request->input('property_type');
+        if (is_string($propertyTypes)) {
+            $propertyTypes = [$propertyTypes];
+        }
+        $query->whereIn('property_type', $propertyTypes);
+    }
+    
+    if ($request->has('style')) {
+        $styles = $request->input('style');
+        if (is_string($styles)) {
+            $styles = [$styles];
+        }
+        $query->whereIn('style', $styles);
+    }
+    
+    if ($request->has('amenities')) {
+        $amenities = $request->input('amenities');
+        if (is_string($amenities)) {
+            $amenities = [$amenities];
+        }
+        $query->where(function($q) use ($amenities) {
+            foreach ($amenities as $amenity) {
+                $q->orWhereJsonContains('amenities', $amenity);
+            }
+        });
+    }
+
+    $cruises = $query->paginate(10);
 
     $data = $cruises->getCollection()->map(function ($cruise) use ($locale) {
+        // Get images using direct query since morph relationship isn't working
+        $images = DB::table('images')
+            ->where('imageable_id', $cruise->id)
+            ->where('imageable_type', 'App\\Models\\Cruise')
+            ->pluck('url')
+            ->map(function ($url) {
+                if (str_starts_with($url, '/storage/') || str_starts_with($url, 'storage/')) {
+                    $url = str_starts_with($url, '/') ? $url : '/' . $url;
+                    return url($url);
+                }
+                return $url;
+            })
+            ->toArray();
+
         return [
             'id' => $cruise->id,
             'name' => $locale === 'ar' ? $cruise->name_ar : $cruise->name_en,
@@ -29,18 +75,18 @@ class CruiseController extends Controller
             'return_time' => $cruise->return_time,
             'property_type' => $cruise->property_type,
             'style' => $cruise->style,
-            'amenities' => json_decode($cruise->amenities, true), // لو مخزنة كـ JSON
+            'amenities' => $cruise->amenities,
             'reviews_count' => $cruise->reviews->count(),
-            'images' => $cruise->images->pluck('url'),
+            'images' => $images,
         ];
     });
 
-    return response()->json([
+    return $this->success([
         'current_page' => $cruises->currentPage(),
         'last_page' => $cruises->lastPage(),
         'per_page' => $cruises->perPage(),
         'total' => $cruises->total(),
-        'data' => $data,
+        'items' => $data,
     ]);
 }
 
@@ -70,8 +116,6 @@ public function store(Request $request)
 
     ]);
 
-    $validated['amenities'] = isset($validated['amenities']) ? json_encode($validated['amenities']) : null;
-
     $cruise = Cruise::create($validated);
 
     // حفظ الصور
@@ -90,7 +134,7 @@ if ($request->has('image_urls')) {
 }
 
 
-    return response()->json($cruise, 201);
+    return $this->success($cruise, '', 201);
 }
 
 public function update(Request $request, $id)
@@ -119,8 +163,6 @@ public function update(Request $request, $id)
 
     ]);
 
-    $validated['amenities'] = isset($validated['amenities']) ? json_encode($validated['amenities']) : $cruise->amenities;
-
     $cruise->update($validated);
 
     // حفظ الصور الجديدة
@@ -138,7 +180,7 @@ if ($request->has('image_urls')) {
 }
 
 
-    return response()->json($cruise);
+    return $this->success($cruise);
 }
 
 
@@ -146,12 +188,30 @@ public function show(Request $request, $id)
 {
     $locale = $request->header('Accept-Language') ?? app()->getLocale();
 
-    $cruise = Cruise::with('images', 'reviews')->findOrFail($id);
+    $cruise = Cruise::with('reviews')->findOrFail($id);
+    
+    // Get images using direct query since morph relationship isn't working
+    $images = DB::table('images')
+        ->where('imageable_id', $cruise->id)
+        ->where('imageable_type', 'App\\Models\\Cruise')
+        ->pluck('url')
+        ->map(function ($url) {
+            if (str_starts_with($url, '/storage/') || str_starts_with($url, 'storage/')) {
+                $url = str_starts_with($url, '/') ? $url : '/' . $url;
+                return url($url);
+            }
+            return $url;
+        })
+        ->toArray();
 
-    return response()->json([
+    return $this->success([
         'id' => $cruise->id,
         'name' => $locale == 'ar' ? $cruise->name_ar : $cruise->name_en,
+        'name_en' => $cruise->name_en,
+        'name_ar' => $cruise->name_ar,
         'description' => $locale == 'ar' ? $cruise->description_ar : $cruise->description_en,
+        'description_en' => $cruise->description_en,
+        'description_ar' => $cruise->description_ar,
         'location' => $cruise->location,
         'price' => $cruise->price,
         'booking_link' => $cruise->booking_link,
@@ -162,9 +222,9 @@ public function show(Request $request, $id)
         'return_time' => $cruise->return_time,
         'property_type' => $cruise->property_type,
         'style' => $cruise->style,
-        'amenities' => json_decode($cruise->amenities, true),
+        'amenities' => $cruise->amenities,
         'reviews_count' => $cruise->reviews->count(),
-        'images' => $cruise->images->pluck('url'),
+        'images' => $images,
     ]);
 }
 
@@ -184,7 +244,7 @@ public function destroy($id)
 
 
     Cruise::findOrFail($id)->delete();
-    return response()->json(['message' => 'Deleted']);
+    return $this->success(null, 'Deleted successfully');
 }
 
 }

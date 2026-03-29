@@ -15,7 +15,7 @@ class CheckUserType
         $types = array_values(array_intersect($types, $validTypes));
 
          if (! $user || empty($types) || ! in_array($user->user_type, $types, true)) {
-            return response()->json(['message' => 'Unauthorized' , $user], 403);
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         return $next($request);

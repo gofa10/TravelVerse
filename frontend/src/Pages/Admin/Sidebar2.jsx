@@ -22,8 +22,8 @@ function Sidebar() {
     { to: "restaurants", label: "restaurants", icon: <Utensils /> },
     { to: "activities", label: "activitie", icon: <CableCar /> },
     { to: "reservations", label: "reservations", icon: <CalendarCheck /> },
-    // { to: "cars", label: "rental_cars", icon: <Car /> },
-    // { to: "cruises", label: "cruises", icon: <Ship /> },
+    { to: "cars", label: "cars", icon: <Car /> },
+    { to: "cruises", label: "cruises", icon: <Ship /> },
   ];
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import api from '../../Radux/axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import ErrorBoundary from '../../Components/ErrorBoundary/ErrorBoundary';
 import BookingModal from '../../Components/Booking/BookingModal';
 
@@ -15,18 +16,30 @@ const modelToTypeMap = {
   'App\\Models\\Flight': 'flight',
 };
 
-const API_ORIGIN = (import.meta.env.VITE_API_BASE_URL || '').replace('/api', '');
+import { getApiOrigin } from '../../Utility/envUtils.js';
 
-const getStatusMeta = (status) => {
+const API_ORIGIN = getApiOrigin();
+
+const typeLabelMap = {
+  trip: 'trip',
+  hotel: 'hotel',
+  restaurant: 'restaurant',
+  activity: 'activity',
+  car: 'cars',
+  cruise: 'cruises',
+  flight: 'flights',
+};
+
+const getStatusMeta = (status, t) => {
   const map = {
-    saved: { label: 'Saved', cls: 'bg-blue-100 text-blue-700' },
-    redirect_pending: { label: 'Link Opened', cls: 'bg-yellow-100 text-yellow-700' },
-    booking_claimed: { label: 'Booked ✓', cls: 'bg-green-100 text-green-700' },
-    booking_declined: { label: 'Not Booked', cls: 'bg-red-100 text-red-700' },
-    left_without_booking: { label: 'No Response', cls: 'bg-gray-100 text-gray-600' },
-    cancelled: { label: 'Cancelled', cls: 'bg-slate-200 text-slate-700' },
+    saved: { label: t('saved'), cls: 'bg-blue-100 text-blue-700' },
+    redirect_pending: { label: t('link_opened'), cls: 'bg-yellow-100 text-yellow-700' },
+    booking_claimed: { label: t('booked'), cls: 'bg-green-100 text-green-700' },
+    booking_declined: { label: t('not_booked'), cls: 'bg-red-100 text-red-700' },
+    left_without_booking: { label: t('no_response'), cls: 'bg-gray-100 text-gray-600' },
+    cancelled: { label: t('cancelled'), cls: 'bg-slate-200 text-slate-700' },
   };
-  return map[status] || { label: 'Legacy', cls: 'bg-gray-100 text-gray-600' };
+  return map[status] || { label: t('status'), cls: 'bg-gray-100 text-gray-600' };
 };
 
 const toAbsoluteImage = (url) => {
@@ -53,6 +66,14 @@ const fetchReservations = async () => {
       source.link ||
       null;
 
+    const rawPrice =
+      r.price ??
+      r.total_price ??
+      source.price ??
+      source.price_per_day ??
+      source.price_per_night ??
+      null;
+
     return {
       ...r,
       typeName: modelToTypeMap[r.reservable_type] || 'item',
@@ -65,11 +86,13 @@ const fetchReservations = async () => {
         'Item',
       image: toAbsoluteImage(imageCandidate),
       bookingLink,
+      price: rawPrice,
     };
   });
 };
 
 const MyReserv = () => {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState('All');
   const [selectedReservation, setSelectedReservation] = useState(null);
   const queryClient = useQueryClient();
@@ -84,10 +107,10 @@ const MyReserv = () => {
       await api.delete(`/reservations/${id}`);
     },
     onSuccess: () => {
-      toast.success('Reservation cancelled');
+      toast.success(t('cancel'));
       queryClient.invalidateQueries({ queryKey: ['reservations'] });
     },
-    onError: (error) => toast.error(error.response?.data?.message || 'Failed to cancel reservation'),
+    onError: (error) => toast.error(error.response?.data?.message || t('failed_load_reservations')),
   });
 
   const filtered = useMemo(() => (
@@ -102,65 +125,67 @@ const MyReserv = () => {
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 w-full">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">📋 My Reservations</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 w-full border border-gray-100 dark:border-gray-700">
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-0">{t('my_reservations')}</h2>
 
-      <div className="mb-4">
-        <label htmlFor="filter">Filter by Type:</label>
-        <select
-          id="filter"
-          onChange={(e) => setFilter(e.target.value)}
-          value={filter}
-          className="ml-2 p-1 border rounded"
-        >
-          {uniqueTypes.map((type) => (
-            <option key={type} value={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <label htmlFor="filter" className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('filter_by_type')}</label>
+          <div className="relative">
+            <select
+              id="filter"
+              onChange={(e) => setFilter(e.target.value)}
+              value={filter}
+              className="appearance-none border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 pr-8 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            >
+              {uniqueTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type === 'All' ? t('all') : t(typeLabelMap[type] || type)}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+          </div>
+        </div>
       </div>
 
       <ErrorBoundary>
         {isLoading ? (
-          <div className="text-center py-4">Loading reservations...</div>
+          <div className="text-center py-4 text-gray-500">{t('loading_reservations')}</div>
         ) : filtered.length === 0 ? (
-          <p className="text-center py-4">No reservations found.</p>
+          <p className="text-center py-4 text-gray-500">{t('no_results_found')}</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-gray-100 dark:border-gray-700">
+          <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
             <table className="w-full text-left border-collapse whitespace-nowrap">
               <thead>
-                <tr className="bg-gray-50 dark:bg-gray-750 text-gray-500 dark:text-gray-400 text-sm border-b border-gray-100 dark:border-gray-700">
-                  <th className="py-3 px-4 font-medium">Image</th>
-                  <th className="py-3 px-4 font-medium">Type</th>
-                  <th className="py-3 px-4 font-medium">Name</th>
-                  <th className="py-3 px-4 font-medium">Date</th>
-                  <th className="py-3 px-4 font-medium">People</th>
-                  <th className="py-3 px-4 font-medium">Status</th>
-                  <th className="py-3 px-4 font-medium">Actions</th>
+                <tr className="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm border-b border-gray-200 dark:border-gray-700 font-semibold">
+                  <th className="py-3 px-4 font-semibold">{t('name')}</th>
+                  <th className="py-3 px-4 font-semibold">{t('date')}</th>
+                  <th className="py-3 px-4 font-semibold">{t('people')}</th>
+                  <th className="py-3 px-4 font-semibold">{t('price')}</th>
+                  <th className="py-3 px-4 font-semibold">{t('status')}</th>
+                  <th className="py-3 px-4 font-semibold">{t('actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {(filtered || []).map((res) => {
-                  const statusMeta = getStatusMeta(res.status);
+                  const statusMeta = getStatusMeta(res.status, t);
                   return (
-                    <tr key={res.id} className="border-b last:border-0 border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                      <td className="py-3 px-4">
-                        {res.image
-                          ? <img src={res.image} alt={res.title} className="w-12 h-12 rounded object-cover shadow-sm" />
-                          : <div className="w-12 h-12 rounded bg-gray-200 flex items-center justify-center text-gray-400 text-xs">📷</div>
-                        }
+                    <tr key={res.id} className="border-b last:border-0 border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                      <td className="py-3 px-4 text-gray-800 dark:text-white text-sm whitespace-normal max-w-[300px]">{res.title}</td>
+                      <td className="py-3 px-4 text-gray-600 dark:text-gray-300 text-sm">
+                        {res.date ? new Date(res.date).toLocaleDateString() : t('not_available')}
                       </td>
-                      <td className="py-3 px-4 capitalize text-gray-600 dark:text-gray-300 font-medium">{res.typeName}</td>
-                      <td className="py-3 px-4 text-gray-800 dark:text-white">{res.title}</td>
-                      <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                        {res.date ? new Date(res.date).toLocaleDateString() : 'N/A'}
+                      <td className="py-3 px-4 text-gray-600 dark:text-gray-300 text-sm">
+                        {res.people ? `${res.people} ${t('guests')}` : t('not_available')}
                       </td>
-                      <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                        {res.people ? `${res.people} guests` : 'N/A'}
+                      <td className="py-3 px-4 text-gray-600 dark:text-gray-300 text-sm">
+                        {res.price ?? t('not_available')}
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${statusMeta.cls}`}>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium tracking-wide ${statusMeta.cls}`}>
                           {statusMeta.label}
                         </span>
                       </td>
@@ -168,17 +193,17 @@ const MyReserv = () => {
                         {res.bookingLink && ['saved', 'redirect_pending', 'booking_declined', 'left_without_booking'].includes(res.status) && (
                           <button
                             onClick={() => setSelectedReservation(res)}
-                            className="bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 transition text-sm font-medium"
+                            className="bg-emerald-500 text-white px-4 py-1.5 rounded disabled:opacity-50 hover:bg-emerald-600 transition text-sm font-medium"
                           >
-                            Book Now
+                            {t('book_now')}
                           </button>
                         )}
                         <button
                           onClick={() => cancelMutation.mutate(res.id)}
                           disabled={res.status === 'cancelled' || cancelMutation.isPending}
-                          className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-md transition text-sm font-medium border border-red-200 disabled:opacity-60"
+                          className="bg-white dark:bg-transparent text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-1.5 rounded transition text-sm font-medium border border-red-200 dark:border-red-800 disabled:opacity-50"
                         >
-                          Cancel
+                          {t('cancel')}
                         </button>
                       </td>
                     </tr>

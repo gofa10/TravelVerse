@@ -1,6 +1,7 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { getProfile } from './Radux/authSlice.js';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -52,6 +53,7 @@ const MyReserv = lazy(() => import('./Pages/User/MyReservations.jsx'));
 const MyFavorites = lazy(() => import('./Pages/User/MyFavorites.jsx'));
 const UserProfileSettings = lazy(() => import('./Pages/User/ProfileSettings.jsx'));
 const UserReviews = lazy(() => import('./Pages/User/MyReviews.jsx'));
+const TripBuilderPage = lazy(() => import('./Pages/TripBuilder/TripBuilderPage.jsx'));
 const DeleteAccount = lazy(() => import('./Pages/User/DeleteAccount.jsx'));
 const DetialItem = lazy(() => import('./Pages/DetialTrip/DetialTrip.jsx'));
 const Restaurants = lazy(() => import('./Pages/Res/Res.jsx'));
@@ -85,6 +87,7 @@ const DefaultLayout = () => (
 
 const App = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -112,7 +115,7 @@ const App = () => {
         <Suspense fallback={
           <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
+              <span className="visually-hidden">{t('loading')}</span>
             </div>
           </div>
         }>
@@ -148,10 +151,20 @@ const App = () => {
               }>
                 <Route index element={<Overview />} />
                 <Route path="reservations" element={<MyReserv />} />
+                <Route path="trip-builder" element={<TripBuilderPage />} />
                 <Route path="favorites" element={<MyFavorites />} />
                 <Route path="profile" element={<UserProfileSettings />} />
                 <Route path="reviews" element={<UserReviews />} />
               </Route>
+
+              <Route
+                path="/trip-builder"
+                element={
+                  <RoleProtectedRoute allowedRoles={['user']}>
+                    <Navigate to="/user/trip-builder" replace />
+                  </RoleProtectedRoute>
+                }
+              />
 
               <Route element={<RoleProtectedRoute allowedRoles={['tour_guide']} />}>
                 <Route path="/guide" element={<GuideDashboard />}>

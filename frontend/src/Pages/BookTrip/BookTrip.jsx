@@ -38,11 +38,11 @@ export const BookTrip = () => {
     return (
         <Stepper
             initialStep={1}
-            onStepChange={(step) => console.log(step)}
-            onFinalStepCompleted={() => console.log("All steps completed!")}
-            backButtonText="Previous"
-            nextButtonText="Next"
-            finalButtonText="Finish"
+            onStepChange={(step) => {}}
+            onFinalStepCompleted={() => {}}
+            backButtonText={t("previous")}
+            nextButtonText={t("next")}
+            finalButtonText={t("finish")}
             className="overflow-hidden! "
         >
             <Step>

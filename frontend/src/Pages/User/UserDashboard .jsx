@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './UserDashboard.module.css'; // تأكد من وجود ملف CSS module بنفس الاسم
 
 const dashboardSections = [
@@ -21,9 +22,10 @@ const dashboardSections = [
 ];
 
 const UserDashboard = () => {
+  const { t } = useTranslation();
   return (
     <div className={styles.dashboardContainer}>
-      <h2 className={styles.title}>Welcome to Your Dashboard</h2>
+      <h2 className={styles.title}>{t('welcome_dashboard')}</h2>
       <p className={styles.subtitle}>
         You can view your reservations, favorites, reviews, and manage your profile here.
       </p>

@@ -1,17 +1,16 @@
 /* Dashboard.module.css */
 
 
-* {
-    margin: 0;
-    padding: 0;
+/* Scoped resets for the dashboard only */
+.container * {
     box-sizing: border-box;
 }
 
-a {
+.container a {
     text-decoration: none;
 }
 
-li {
+.container li {
     list-style: none;
 }
 

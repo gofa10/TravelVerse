@@ -4,12 +4,17 @@ import { Container, Row, Col, Pagination } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import api from '../../Radux/axios';
-
-import HeroCar from '../../Component/Home/Hero/HeroCar';
+import { useDispatch, useSelector } from 'react-redux';
+import HeroSection from '../../Component/Shared/HeroSection';
 import CityContent from '../../Component/City/CityContent';
 import ContainerCatCard from '../../Component/Home/ContainerCatCard/ContainerCatCard';
 import Slider from '../../Utility/Slider/Slider';
 import LoadMore from '../../Utility/Buttons/LoadMore/LoadMore';
+import {
+  selectActivitySearchQuery,
+  setSearchQuery as setActivitySearchQuery,
+  selectFilteredActivities,
+} from '../../Radux/Slices/activitySlice';
 
 import citiesData from '../../Component/City/citiesData';
 import car from '../../Assets/images/pexels-sanmane-1365425.jpg';
@@ -36,6 +41,8 @@ export const ThingsToDo = () => {
   const { cityName } = useParams();
   const { t } = useTranslation();
   const cityInfo = citiesData.find((city) => city.name === cityName);
+  const dispatch = useDispatch();
+  const searchQuery = useSelector(selectActivitySearchQuery);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
@@ -44,23 +51,41 @@ export const ThingsToDo = () => {
     queryFn: fetchAllActivities
   });
 
+  useEffect(() => {
+    return () => {
+      dispatch(setActivitySearchQuery(''));
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   if (!cityInfo) return <p>{t('noCityFound')}</p>;
 
   const cityActivities = (allActivities || []).filter((a) =>
     a.location?.toLowerCase().includes(cityName.toLowerCase())
   );
+  const searchedActivities = selectFilteredActivities({ activity: { searchQuery } }, cityActivities);
 
-  const totalPages = Math.ceil(cityActivities.length / itemsPerPage);
-  const paginatedActivities = cityActivities.slice(
+  const totalPages = Math.ceil(searchedActivities.length / itemsPerPage);
+  const paginatedActivities = searchedActivities.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  const activityTypes = Array.from(new Set(cityActivities.map((a) => a.type)));
+  const activityTypes = Array.from(new Set(searchedActivities.map((a) => a.type)));
 
   return (
     <div>
-      <HeroCar image={car} />
+      <HeroSection
+        image={car}
+        title="Discover Things To Do"
+        subtitle="Experiences, tours & adventures worldwide"
+        placeholder="Search activities or destinations..."
+        onSearch={(query) => dispatch(setActivitySearchQuery(query))}
+        overlayIntensity="medium"
+      />
       <CityContent countryName={cityInfo.name} />
 
       <Container>
@@ -102,7 +127,7 @@ export const ThingsToDo = () => {
         {!isLoading && activityTypes.length === 0 && <p>{t('noActivityTypesAvailable')}</p>}
 
         {activityTypes.map((type, index) => {
-          const filtered = cityActivities.filter((a) => a.type === type);
+          const filtered = searchedActivities.filter((a) => a.type === type);
           return (
             <div key={index} className="mt-4">
               <h4 className="text-capitalize">{t(type, type.replace(/_/g, ' '))}</h4>

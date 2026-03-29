@@ -6,8 +6,11 @@ import { clearAuth, hasValidToken } from '../Utility/authToken';
 export const login = createAsyncThunk('auth/login', async (credentials, { rejectWithValue }) => {
   try {
     const res = await API.post('/login', credentials);
-    localStorage.setItem('token', res.data.token);
-    return res.data.user;
+    const token = res.data?.token ?? res.data?.access_token;
+    if (typeof token === 'string' && token.trim()) {
+      localStorage.setItem('token', token);
+    }
+    return res.data?.user ?? res.data?.data?.user ?? null;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Login failed');
   }
@@ -20,8 +23,11 @@ export const register = createAsyncThunk('auth/register', async (data, { rejectW
       ...data,
       password_confirmation: data.password, // ← مهم جدًا لـ Laravel validation
     });
-    localStorage.setItem('token', res.data.access_token);
-    return res.data.user;
+    const token = res.data?.token ?? res.data?.access_token;
+    if (typeof token === 'string' && token.trim()) {
+      localStorage.setItem('token', token);
+    }
+    return res.data?.user ?? res.data?.data?.user ?? null;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message || 'Register failed');
   }
@@ -31,7 +37,7 @@ export const register = createAsyncThunk('auth/register', async (data, { rejectW
 export const getProfile = createAsyncThunk('auth/profile', async (_, { rejectWithValue }) => {
   try {
     const res = await API.get('/profile');
-    return res.data;
+    return res.data?.user ?? res.data?.data ?? null;
   } catch (err) {
     const status = err.response?.status;
     if (status === 401 || status === 403) {

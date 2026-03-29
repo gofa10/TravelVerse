@@ -7,6 +7,7 @@ import LoginPromptModal from '../LoginPromptModal';
 import getBookingUrl from '../helpers/getBookingUrl';
 import { useToggleWatchlist } from '../../Hooks/useWatchlist';
 import BookingModal from '../../Components/Booking/BookingModal';
+import TripPlanMenuButton from '../../Components/TripBuilder/TripPlanMenuButton';
 
 const ActionButtons = ({ data, type = "trip" }) => {
   const navigate = useNavigate();
@@ -16,6 +17,12 @@ const ActionButtons = ({ data, type = "trip" }) => {
   const [selectedReservation, setSelectedReservation] = useState(null);
   const { isFavorited, toggle } = useToggleWatchlist(type, data?.id);
   const itemName = data?.title || data?.name || '';
+  const planTypeMap = {
+    trip: 'Trip',
+    hotel: 'Hotel',
+    restaurant: 'Restaurant',
+  };
+  const tripPlanType = planTypeMap[type];
 
   const normalizedType = (type === 'activitie' ? 'activity' : type);
   const modelClass = `App\\Models\\${normalizedType.charAt(0).toUpperCase()}${normalizedType.slice(1)}`;
@@ -70,7 +77,7 @@ const ActionButtons = ({ data, type = "trip" }) => {
           return;
         }
       }
-      toast.error(error.response?.data?.message || 'Failed to start booking flow');
+      toast.error(error.response?.data?.message || t('error_occurred'));
     });
   };
 
@@ -121,6 +128,14 @@ const ActionButtons = ({ data, type = "trip" }) => {
         >
           {isFavorited ? `✓ ${t('favorites')}` : t('addToWishList')}
         </button>
+
+        {tripPlanType ? (
+          <TripPlanMenuButton
+            serviceId={data?.id}
+            serviceType={tripPlanType}
+            className="w-full"
+          />
+        ) : null}
       </div>
     </>
   );

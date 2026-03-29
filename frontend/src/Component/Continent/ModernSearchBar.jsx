@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SearchIcon from '@mui/icons-material/Search';
 import styles from '../../Style/Continent/ModernSearchBar.module.css';
 
 const ModernSearchBar = ({ countries = [] }) => {
+     const { t } = useTranslation();
      const [searchTerm, setSearchTerm] = useState('');
      const [isDropdownOpen, setIsDropdownOpen] = useState(false);
      const dropdownRef = useRef(null);
@@ -56,8 +58,11 @@ const ModernSearchBar = ({ countries = [] }) => {
                     </div>
 
                     <input
+                         id="main-search-input"
                          type="text"
-                         placeholder="Search country..."
+                         name="query"
+                         aria-label={t('search')}
+                         placeholder={t('search')}
                          className={styles.searchInput}
                          value={searchTerm}
                          onChange={(e) => {
@@ -71,20 +76,22 @@ const ModernSearchBar = ({ countries = [] }) => {
                     <button
                          className={styles.searchButton}
                          onClick={handleSearch}
+                         aria-label={t('search')}
                     >
-                         Search
+                         {t('search')}
                     </button>
                </div>
 
                {/* Dropdown Menu */}
                {isDropdownOpen && (
-                    <div className={styles.dropdown}>
+                    <div className={styles.dropdown} role="listbox">
                          {filteredCountries.length > 0 ? (
                               filteredCountries.map((country, index) => (
                                    <div
                                         key={index}
                                         className={styles.dropdownItem}
                                         onClick={() => handleSelectCountry(country)}
+                                        role="option"
                                    >
                                         <span className={styles.markerIcon}>📍</span>
                                         <span>{country}</span>
@@ -92,7 +99,7 @@ const ModernSearchBar = ({ countries = [] }) => {
                               ))
                          ) : (
                               <div className={styles.dropdownEmpty}>
-                                   No results found
+                                   {t('no_results')}
                               </div>
                          )}
                     </div>

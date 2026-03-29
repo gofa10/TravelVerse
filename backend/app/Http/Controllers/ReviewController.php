@@ -12,7 +12,7 @@ class ReviewController extends Controller
 {
     public function index()
     {
-        return response()->json(Review::with('reviewable')->get());
+        return $this->success(Review::with('reviewable')->get());
     }
 
     public function myReviews()
@@ -22,7 +22,7 @@ class ReviewController extends Controller
             ->latest()
             ->get();
 
-        return response()->json($reviews);
+        return $this->success($reviews);
     }
 
     public function store(Request $request)
@@ -51,22 +51,22 @@ class ReviewController extends Controller
             'reviewable_id' => $request->reviewable_id,
         ]);
 
-        return response()->json($review, 201);
+        return $this->success($review, '', 201);
     }
 
     public function show(Review $review)
     {
-        return response()->json($review->load('reviewable'));
+        return $this->success($review->load('reviewable'));
     }
 
     public function destroy(Review $review)
     {
         if (Auth::id() !== $review->user_id && Auth::user()->user_type !== 'admin') {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $review->delete();
-        return response()->json(['message' => 'Review deleted successfully.']);
+        return $this->success(null, 'Deleted successfully');
     }
 
     public function guideReviews()
@@ -85,7 +85,7 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($reviews);
+        return $this->success($reviews);
     }
 
     public function reply(Request $request, Review $review)
@@ -98,12 +98,12 @@ class ReviewController extends Controller
         $trip = $review->reviewable;
 
         if (!($trip instanceof Trip) || (int) $trip->guide_id !== (int) Auth::id()) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return $this->error('Forbidden', 403);
         }
 
         $review->update(['reply' => $validated['reply']]);
 
-        return response()->json([
+        return $this->success([
             'message' => 'Reply saved successfully',
             'review' => $review->fresh(['user', 'reviewable']),
         ]);

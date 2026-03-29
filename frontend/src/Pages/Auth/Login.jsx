@@ -52,6 +52,7 @@ const Login = () => {
       toast.success("Registration successful! Welcome 🎉");
       const user = result.payload;
       if (user?.user_type === 'admin') navigate('/admin');
+      else if (user?.user_type === 'tour_guide') navigate('/guide');
       else navigate('/');
     } else {
       toast.error("Registration failed. Check your data.");
@@ -84,13 +85,13 @@ const Login = () => {
               <h2>Sign In</h2>
               <div className={styles["input-box"]}>
                 <span className={styles.icon}><i className='bx bxs-envelope'></i></span>
-                <input type="email" name="email" value={loginData.email} onChange={(e) => handleChange(e, 'login')} required />
-                <label>Email</label>
+                <input id="login-email" type="email" name="email" value={loginData.email} onChange={(e) => handleChange(e, 'login')} required />
+                <label htmlFor="login-email">Email</label>
               </div>
               <div className={styles["input-box"]}>
                 <span className={styles.icon}><i className='bx bxs-lock-alt'></i></span>
-                <input type="password" name="password" value={loginData.password} onChange={(e) => handleChange(e, 'login')} required />
-                <label>Password</label>
+                <input id="login-password" type="password" name="password" value={loginData.password} onChange={(e) => handleChange(e, 'login')} required />
+                <label htmlFor="login-password">Password</label>
               </div>
               <div className={styles["login-register"]}>
                 <p><Link to='/forgotPassword'>Don't Remember password ?</Link></p>
@@ -114,23 +115,23 @@ const Login = () => {
               <h2>Sign Up</h2>
               <div className={styles["input-box"]}>
                 <span className={styles.icon}><i className='bx bxs-user'></i></span>
-                <input type="text" name="name" value={registerData.name} onChange={(e) => handleChange(e, 'register')} required />
-                <label>Name</label>
+                <input id="register-name" type="text" name="name" value={registerData.name} onChange={(e) => handleChange(e, 'register')} required />
+                <label htmlFor="register-name">Name</label>
               </div>
               <div className={styles["input-box"]}>
                 <span className={styles.icon}><i className='bx bxs-envelope'></i></span>
-                <input type="email" name="email" value={registerData.email} onChange={(e) => handleChange(e, 'register')} required />
-                <label>Email</label>
+                <input id="register-email" type="email" name="email" value={registerData.email} onChange={(e) => handleChange(e, 'register')} required />
+                <label htmlFor="register-email">Email</label>
               </div>
               <div className={styles["input-box"]}>
                 <span className={styles.icon}><i className='bx bxs-lock-alt'></i></span>
-                <input type="password" name="password" value={registerData.password} onChange={(e) => handleChange(e, 'register')} required />
-                <label>Password</label>
+                <input id="register-password" type="password" name="password" value={registerData.password} onChange={(e) => handleChange(e, 'register')} required />
+                <label htmlFor="register-password">Password</label>
               </div>
               <div className={styles["input-box"]}>
                 <span className={styles.icon}><i className='bx bxs-lock-alt'></i></span>
-                <input type="password" name="password_confirmation" value={registerData.password_confirmation} onChange={(e) => handleChange(e, 'register')} required />
-                <label>Confirm Password</label>
+                <input id="register-confirm-password" type="password" name="password_confirmation" value={registerData.password_confirmation} onChange={(e) => handleChange(e, 'register')} required />
+                <label htmlFor="register-confirm-password">Confirm Password</label>
               </div>
 
               {/* User type */}

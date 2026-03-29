@@ -1,0 +1,53 @@
+.heroMode {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 30px 34px !important;
+  width: min(1280px, 98%) !important;
+  margin: 0 auto !important;
+  margin-top: 8px !important;
+}
+
+.heroModeLabel {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+}
+
+.heroModeInput {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 10px !important;
+  color: #1a1a1a !important;
+  min-height: 56px !important;
+  font-size: 1.03rem !important;
+  font-weight: 700 !important;
+  -webkit-text-fill-color: #1a1a1a !important;
+  min-width: 0 !important;
+  padding-right: 12px !important;
+}
+
+.heroModeInput option {
+  color: #1a1a1a !important;
+}
+
+.heroModeInput[type="date"] {
+  cursor: pointer;
+}
+
+.heroModeInput[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  cursor: pointer;
+}
+
+@media (max-width: 992px) {
+  .heroMode {
+    width: min(980px, 97%) !important;
+    padding: 22px 20px !important;
+  }
+
+  .heroModeInput {
+    min-height: 48px !important;
+  }
+}

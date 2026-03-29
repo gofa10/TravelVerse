@@ -1,24 +1,23 @@
 import React from 'react';
 import styles from '../UserMang/UserManagement.module.css';
+import { useTranslation } from 'react-i18next';
 
 function RestaurantTable({ restaurants, onEdit, onDelete }) {
+  const { t } = useTranslation();
   return (
     <div className={styles.tableContainer}>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th className='dark:text-white/70!'>ID</th>
-            {/* <th>Arabic Name</th> */}
-            <th className='dark:text-white/70!'>English Name</th>
-            {/* <th>Description (AR)</th> */}
-            {/* <th>Description (EN)</th> */}
-            <th className='dark:text-white/70!'>Rate</th>
-            <th className='dark:text-white/70!'>Location</th>
-            <th className='dark:text-white/70!'>cuisine</th>
-            <th className='dark:text-white/70!'>features</th>
-            <th className='dark:text-white/70!'>property_type</th>
-            <th className='dark:text-white/70!'>Images</th>
-            <th className='dark:text-white/70!'>Actions</th>
+            <th className='dark:text-white/70!'>{t('id')}</th>
+            <th className='dark:text-white/70!'>{t('english_name')}</th>
+            <th className='dark:text-white/70!'>{t('rate')}</th>
+            <th className='dark:text-white/70!'>{t('location')}</th>
+            <th className='dark:text-white/70!'>{t('cuisine')}</th>
+            <th className='dark:text-white/70!'>{t('features')}</th>
+            <th className='dark:text-white/70!'>{t('property_type')}</th>
+            <th className='dark:text-white/70!'>{t('images')}</th>
+            <th className='dark:text-white/70!'>{t('actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -40,18 +39,19 @@ function RestaurantTable({ restaurants, onEdit, onDelete }) {
                     <img
                       key={i}
                       src={typeof img === 'string' ? img : URL.createObjectURL(img)}
-                      alt={`restaurant-${i}`}
+                      alt={`Restaurant image ${i + 1}`}
                       style={{ width: '60px', height: '40px', objectFit: 'cover' }}
+                      loading="lazy"
                     />
                   ))}
                 </div>
               </td>
               <td className='flex flex-row py-5'>
                 <button className={`${styles.actionButton} mr-2 bg-blue-700!`} onClick={() => onEdit(restaurant)}>
-                  Edit
+                  {t('edit')}
                 </button>
                 <button className={`${styles.actionButton} bg-red-700!`} onClick={() => onDelete(restaurant.id)}>
-                  Delete
+                  {t('delete')}
                 </button>
               </td>
             </tr>

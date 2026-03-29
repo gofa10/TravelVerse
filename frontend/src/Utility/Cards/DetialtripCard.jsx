@@ -11,16 +11,126 @@ import LoginPromptModal from '../LoginPromptModal';
 import WatchlistButton from '../Buttons/WatchlistButton';
 import { getToken, isValidToken } from '../authToken';
 import BookingModal from '../../Components/Booking/BookingModal';
+import { getItemRating } from '../dataUtils.js';
 
+const translateListValue = (t, value) => {
+  if (!value || typeof value !== 'string') return value;
+
+  return value
+    .split(',')
+    .map((part) => {
+      const trimmed = part.trim();
+      if (!trimmed) return trimmed;
+
+      const key = trimmed.toLowerCase().replace(/\s+/g, '_');
+      const translated = t(key);
+      return translated && translated !== key ? translated : trimmed;
+    })
+    .join(', ');
+};
+
+const getLocalizedContent = (item, language, field) => {
+  if (!item) return '';
+
+  const normalizedLanguage = language?.toLowerCase() || 'en';
+  const arabicValue = item[`${field}_ar`] || item[`arabic_${field}`];
+  const englishValue = item[`${field}_en`] || item[`english_${field}`];
+  const directValue = item[field];
+
+  if (normalizedLanguage.startsWith('ar')) {
+    return arabicValue || directValue || englishValue || '';
+  }
+
+  return englishValue || directValue || arabicValue || '';
+};
+
+const hasValue = (value) => {
+  if (value == null) return false;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed !== '' &&
+      trimmed.toLowerCase() !== 'null' &&
+      trimmed.length > 1; // Filter out single characters like 'n'
+  }
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+};
 
 const DetialtripCard = ({ trip, loading, reservable_type }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const convertedPrice = useTransCurrency(trip?.price || 0);
   const [descExpanded, setDescExpanded] = React.useState(false);
   const [showPrompt, setShowPrompt] = React.useState(false);
   const [selectedReservation, setSelectedReservation] = React.useState(null);
 
+  const localizedName = (() => {
+    const translatedName = getLocalizedContent(trip, i18n.language, 'name');
+    if (hasValue(translatedName)) return translatedName;
+    if (reservable_type === 'car') {
+      const carName = [trip?.brand, trip?.model].filter(hasValue).join(' ');
+      if (hasValue(carName)) return carName;
+    }
+    if (reservable_type === 'flight') {
+      const flightName = [trip?.from_location, trip?.to_location].filter(hasValue).join(' → ');
+      if (hasValue(flightName)) return flightName;
+    }
+    return 'Details';
+  })();
+
+  const description = (() => {
+    const localizedDescription = getLocalizedContent(trip, i18n.language, 'description');
+    if (hasValue(localizedDescription)) return localizedDescription;
+
+    if (reservable_type === 'car' && trip) {
+      const specs = typeof trip?.car_specification === 'string'
+        ? trip.car_specification.toLowerCase()
+        : '';
+      return [
+        `${trip?.seats || 4} ${t('seats')}`,
+        `${trip?.large_bag || 1} ${t('large_bag')}`,
+        `${trip?.small_bag || 1} ${t('small_bag')}`,
+        `4 ${t('doors')}`,
+        `${t('air_conditioning')}: ${specs.includes("air") ? t('yes') : t('no')}`,
+        `${t('transmission')}: ${specs.includes("automatic") ? t('automatic') : t('manual')}`
+      ].join(' | ');
+    }
+
+    if (reservable_type === 'flight') {
+      const fromLocation = trip?.from_location;
+      const toLocation = trip?.to_location;
+      return hasValue(fromLocation) && hasValue(toLocation)
+        ? `${t('flightFrom') || 'Flight from'} ${fromLocation} ${t('to') || 'to'} ${toLocation}`
+        : '';
+    }
+    return '';
+  })();
+
+  const primaryPriceLabel =
+    reservable_type === 'car'
+      ? 'Rental Price'
+      : reservable_type === 'cruise'
+        ? t('price')
+        : reservable_type === 'restaurant'
+          ? t('price')
+          : t('admissionTickets');
+  const secondaryPriceLabel =
+    reservable_type === 'car'
+      ? 'Per Day'
+      : reservable_type === 'cruise'
+        ? 'Per Cruise'
+        : t('from');
+  const locationLabel =
+    hasValue(trip?.location)
+      ? translateListValue(t, trip?.location)
+      : reservable_type === 'flight'
+        ? [trip?.from_location, trip?.to_location].filter(hasValue).join(' – ')
+        : null;
+  const displayRating = getItemRating(trip);
+  const showGuide = !['flight', 'car', 'cruise'].includes(reservable_type) && hasValue(trip?.guide?.name);
+  const showDuration = reservable_type !== 'car' && reservable_type !== 'cruise' && hasValue(trip?.duration);
+  const showDifficulty = reservable_type !== 'flight' && reservable_type !== 'car' && reservable_type !== 'cruise' && hasValue(trip?.difficulty);
+  const showExperience = !['restaurant', 'car', 'cruise'].includes(reservable_type) && hasValue(trip?.difficulty || trip?.style) && (trip.difficulty || trip.style) !== 'N/A';
 
   const bookingLink = getBookingUrl(trip, reservable_type);
 
@@ -123,39 +233,36 @@ const DetialtripCard = ({ trip, loading, reservable_type }) => {
       />
       <article className="job-card" style={{ position: 'relative' }}>
         <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
-          <WatchlistButton type={reservable_type} id={trip.id} title={trip.name || (reservable_type === 'flight' ? `${trip.from_location} → ${trip.to_location}` : 'Details')} />
+          <WatchlistButton type={reservable_type} id={trip?.id} title={localizedName} />
         </div>
 
-        {/* Title + Guide */}
         <div>
-          <p className="text-title">{trip.name || (reservable_type === 'flight' ? `${trip.from_location} → ${trip.to_location}` : 'Details')}</p>
-          {reservable_type !== 'flight' && <p style={{ margin: '0.25em 0 0' }}>{t('guide')}: {trip.guide ? trip.guide.name : 'No'}</p>}
-          {reservable_type === 'flight' && trip.style && <p>{t('class') || 'Class'}: {trip.style}</p>}
+          <p className="text-title">{localizedName}</p>
+          {showGuide && <p style={{ margin: '0.25em 0 0' }}>{t('guide')}: {trip?.guide?.name}</p>}
+          {reservable_type === 'flight' && hasValue(trip?.style) && <p>{t('class') || 'Class'}: {trip?.style}</p>}
         </div>
 
         <hr />
 
-        {/* Icon badges row — duration | location | difficulty */}
         <div className="info-badges">
-          {(trip.duration || reservable_type === 'flight') && (
-            <span>⏱️ {trip.duration} {reservable_type !== 'flight' ? t('hours') : ''}</span>
+          {showDuration && (
+            <span>⏱️ {trip?.duration} {t('hours')}</span>
           )}
-          {(trip.location || reservable_type === 'flight') && (
+          {locationLabel && (
             <>
-              <span className="sep">|</span>
-              <span>📍 {trip.location || `${trip.from_location} – ${trip.to_location}`}</span>
+              <span>📍 {locationLabel}</span>
             </>
           )}
-          {reservable_type !== 'flight' && trip.difficulty && (
+          {showDifficulty && (
             <>
               <span className="sep">|</span>
-              <span>🏔️ {trip.difficulty}</span>
+              <span>🏔️ {trip?.difficulty}</span>
             </>
           )}
           {reservable_type === 'flight' && (
             <>
               <span className="sep">|</span>
-              <span>✈️ {t('stops') || 'Stops'}: {trip.stops_count || 0}</span>
+              <span>✈️ {t('stops') || 'Stops'}: {trip?.stops_count || 0}</span>
             </>
           )}
         </div>
@@ -165,56 +272,64 @@ const DetialtripCard = ({ trip, loading, reservable_type }) => {
         {/* Price */}
         <div className="budget-exp">
           <div>
-            <p className="value">{t('admissionTickets')}</p>
-            <p className="label large-price"><span>{t('from')} </span>{convertedPrice}</p>
+            <p className="value">{primaryPriceLabel}</p>
+            <p className="label large-price"><span>{secondaryPriceLabel} </span>{convertedPrice}</p>
           </div>
-          {reservable_type !== 'restaurant' && (trip.difficulty || trip.style) && (trip.difficulty || trip.style) !== 'N/A' && (
+          {showExperience && (
             <div>
               <p className="value">{reservable_type === 'flight' ? (t('flightStyle') || 'Style') : t('experience')}</p>
-              <p className="label">{trip.difficulty || trip.style}</p>
+              <p className="label">{trip?.difficulty || trip?.style}</p>
             </div>
           )}
         </div>
 
         <hr />
 
-        {/* About */}
-        <h4>{t('about')}</h4>
-        <p className="text-body">
-          {(() => {
-            const desc = trip.description || (reservable_type === 'flight' ? `${t('flightFrom') || 'Flight from'} ${trip.from_location} ${t('to') || 'to'} ${trip.to_location}` : '');
-            if (desc.length <= 200 || descExpanded) return desc;
-            return (
-              <>
-                {desc.slice(0, 200)}&hellip;{' '}
-                <span
-                  onClick={() => setDescExpanded(true)}
-                  style={{ cursor: 'pointer', color: 'inherit', textDecoration: 'underline' }}
-                >
-                  Show more
-                </span>
-              </>
-            );
-          })()}
-        </p>
-        {descExpanded && (
-          <span
-            onClick={() => setDescExpanded(false)}
-            style={{ cursor: 'pointer', color: 'inherit', textDecoration: 'underline', fontSize: '0.9em' }}
-          >
-            Show less
-          </span>
+        {hasValue(description) && (
+          <>
+            <h4>{t('description')}</h4>
+            <p className="text-body">
+              {(() => {
+                const desc = description;
+                if (desc.length <= 200 || descExpanded) return desc;
+                return (
+                  <>
+                    {desc.slice(0, 200)}&hellip;{' '}
+                    <span
+                      onClick={() => setDescExpanded(true)}
+                      style={{ cursor: 'pointer', color: 'inherit', textDecoration: 'underline' }}
+                    >
+                      Show more
+                    </span>
+                  </>
+                );
+              })()}
+            </p>
+            {descExpanded && (
+              <span
+                onClick={() => setDescExpanded(false)}
+                style={{ cursor: 'pointer', color: 'inherit', textDecoration: 'underline', fontSize: '0.9em' }}
+              >
+                Show less
+              </span>
+            )}
+          </>
         )}
 
-        {/* Stars + reviews count — kept as-is */}
-        <div className="tags">
-          <article>
-            <Rating name="half-rating-read" defaultValue={Number(trip.rate) || 3.5} precision={0.5} readOnly />
-            {trip.reviews_count > 0 && <h6>{trip.reviews_count} {t('nReviews')}</h6>}
-          </article>
-        </div>
+        {(displayRating != null || hasValue(trip?.reviews_count)) && (
+          <>
+            <div className="tags">
+              <article>
+                {displayRating != null ? (
+                  <Rating name="half-rating-read" value={displayRating} precision={0.5} readOnly />
+                ) : null}
+                {hasValue(trip?.reviews_count) && trip.reviews_count > 0 ? <h6>{trip.reviews_count} {t('nReviews')}</h6> : null}
+              </article>
+            </div>
 
-        <hr />
+            <hr />
+          </>
+        )}
 
         <div className="reservation-fields">
           <button type="button" className="btn-premium" onClick={handleReservation}>{t('addToFavorites')}</button>
@@ -241,7 +356,7 @@ const DetialtripCard = ({ trip, loading, reservable_type }) => {
         <BookingModal
           reservation={selectedReservation}
           onClose={() => setSelectedReservation(null)}
-          onStatusUpdate={() => {}}
+          onStatusUpdate={() => { }}
         />
       )}
     </StyledWrapper>

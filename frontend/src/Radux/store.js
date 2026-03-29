@@ -13,6 +13,7 @@ import reservationReducer from './Slices/reservationSlice';
 import flightReducer from './Slices/flightSlice';
 import currencyReducer from './Slices/currencySlice';
 import guideReducer from './Slices/guideSlice';
+import tripBuilderReducer from '../store/tripBuilderSlice';
 
 export const store = configureStore({
   reducer: {
@@ -30,5 +31,6 @@ export const store = configureStore({
     reservation: reservationReducer,
     currency: currencyReducer,
     guide: guideReducer,
+    tripBuilder: tripBuilderReducer,
   },
 });

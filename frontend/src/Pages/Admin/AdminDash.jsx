@@ -13,16 +13,18 @@ const AdminDash = () => {
   };
 
   return (
-    <div className={dashboardStyles.container}>
-      <Sidebar isHidden={isSidebarHidden} toggleSidebar={toggleSidebar} />
+    <>
       <Header />
+      <div className={dashboardStyles.container}>
+        <Sidebar isHidden={isSidebarHidden} toggleSidebar={toggleSidebar} />
 
-      <section id="content" className={`${dashboardStyles.content} ${isSidebarHidden ? dashboardStyles.hide : ''} left-64! dark:bg-gray-900/80! `}>
-        <div className="admin-sub-content top-15! relative!">
-          <Outlet />
-        </div>
-      </section>
-    </div>
+        <section id="content" className={`${dashboardStyles.content} ${isSidebarHidden ? dashboardStyles.hide : ''} left-64! dark:bg-gray-900/80! `}>
+          <div className="admin-sub-content top-15! relative!">
+            <Outlet />
+          </div>
+        </section>
+      </div>
+    </>
   );
 };
 

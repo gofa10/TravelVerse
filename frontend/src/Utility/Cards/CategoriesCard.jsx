@@ -4,15 +4,18 @@ import styled from 'styled-components';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
+import { getStorageBaseUrl } from '../envUtils.js';
+import useImageFallback from '../../Components/Common/useImageFallback.jsx';
+
 const CategoriesCard = ({ image, title, description, isLoading, onClick }) => {
   const getImageSrc = () => {
-    if (!image) return '/fallback.jpg';
+    if (!image) return '';
 
     let img = image;
 
     // Handle arrays
     if (Array.isArray(img)) {
-      if (img.length === 0) return '/fallback.jpg';
+      if (img.length === 0) return '';
       img = img[0];
     }
 
@@ -31,13 +34,15 @@ const CategoriesCard = ({ image, title, description, isLoading, onClick }) => {
       if (img.startsWith('http') || img.startsWith('data:')) {
         return img;
       } else {
-        const BASE_URL = process.env.REACT_APP_API_BASE_URL || import.meta.env.VITE_API_BASE_URL.replace('/api', '') + '';
-        return `${BASE_URL}${img}`;
+        const BASE_URL = getStorageBaseUrl();
+        const path = img.startsWith('/') ? img : `/${img}`;
+        return `${BASE_URL}${path}`;
       }
     }
 
-    return '/fallback.jpg';
+    return '';
   };
+  const { src: safeImageSrc, onError } = useImageFallback(getImageSrc());
 
   return (
     <StyledWrapper onClick={onClick}>
@@ -56,16 +61,13 @@ const CategoriesCard = ({ image, title, description, isLoading, onClick }) => {
         ) : (
           <>
             <LazyLoadImage
-              src={getImageSrc()}
+              src={safeImageSrc}
               alt={title}
               effect="blur"
               height="100%"
               width="100%"
               className="card-img h-full"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = '/fallback.jpg';
-              }}
+              onError={onError}
             />
             <div className="card__content p-3">
               <p className="card__title">{title}</p>

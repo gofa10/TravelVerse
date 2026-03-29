@@ -5,8 +5,11 @@
   <meta charset="utf-8" />
   <!-- <link rel="icon" href="%PUBLIC_URL%/favicon.ico" /> -->
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Web site created using create-react-app" />
+  <meta name="theme-color" content="#48677c" />
+  <meta
+    name="description"
+    content="TravelVerse is your ultimate travel companion. Discover, compare, and book the best trips, hotels, flights, cars, cruises, and local experiences worldwide."
+  />
   <!-- <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" /> -->
   <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -26,11 +29,9 @@
   <!-- Google Fonts — loaded here to avoid PostCSS @import ordering warnings -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <!-- Inter (main UI font) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- Lato + Poppins (admin/guide dashboards) -->
+  <!-- Plus Jakarta Sans + DM Sans -->
   <link
-    href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet" />
 </head>
 
@@ -38,25 +39,16 @@
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
   <style>
-    /* styles.css */
-    :root[data-theme='light'] {
-      --background-color: #fff;
-      --text-color: #000;
-    }
-
-    :root[data-theme='dark'] {
-      --background-color: #000;
-      --text-color: #fff;
-    }
-
     body {
-      background-color: var(--background-color);
-      color: var(--text-color);
+      background-color: #faf6ef;
+      color: #241f1b;
+      font-family: 'Plus Jakarta Sans', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    h3 {
-      color: var(--text-color);
+    html.dark body {
+      background-color: #1b1714;
+      color: #f4ede3;
     }
   </style>
   <!-- Main entry point for Vite -->

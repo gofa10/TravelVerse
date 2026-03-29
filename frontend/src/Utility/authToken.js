@@ -1,6 +1,16 @@
 export const getToken = () => {
     const token = localStorage.getItem('token');
-    return typeof token === 'string' ? token.trim() : '';
+    const legacyToken = localStorage.getItem('access_token');
+    const resolvedToken = typeof token === 'string' && token.trim()
+        ? token
+        : legacyToken;
+
+    if (!token && typeof legacyToken === 'string' && legacyToken.trim()) {
+        localStorage.setItem('token', legacyToken.trim());
+        localStorage.removeItem('access_token');
+    }
+
+    return typeof resolvedToken === 'string' ? resolvedToken.trim() : '';
 };
 
 export const isValidToken = (tokenValue) => {
@@ -14,4 +24,5 @@ export const hasValidToken = () => {
 
 export const clearAuth = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
 };

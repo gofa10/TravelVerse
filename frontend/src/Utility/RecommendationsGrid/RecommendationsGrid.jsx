@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import ItemCard from '../Cards/ItemCard';
 import { useTranslation } from 'react-i18next';
+import { getItemImage } from '../dataUtils.js';
 
 // Utility to build consistent meta items for the Card
 const buildMeta = (item, type) => {
@@ -46,7 +47,11 @@ const buildMeta = (item, type) => {
      }
 };
 
-const getItemTitle = (item) => {
+const getItemTitle = (item, type) => {
+     if (type === 'car') {
+          const carName = [item.brand, item.model].filter(Boolean).join(' ').trim();
+          if (carName) return carName;
+     }
      if (item.title) return item.title;
      if (item.name || item.name_en) return item.name || item.name_en;
      if (item.from_location && item.to_location) return `${item.from_location} → ${item.to_location}`;
@@ -63,7 +68,7 @@ const RecommendationsGrid = ({ homeData, isLoading }) => {
           const trips = (homeData.trips || []).map(i => ({ ...i, _type: 'trip' }));
           const hotels = (homeData.hotels || []).map(i => ({ ...i, _type: 'hotel' }));
           const restaurants = (homeData.restaurants || []).map(i => ({ ...i, _type: 'restaurant' }));
-          const activities = (homeData.activities || []).map(i => ({ ...i, _type: 'activitie' }));
+          const activities = (homeData.activities || []).map(i => ({ ...i, _type: 'activity' }));
 
           const combined = [...trips, ...hotels, ...restaurants, ...activities];
 
@@ -85,29 +90,40 @@ const RecommendationsGrid = ({ homeData, isLoading }) => {
      if (!recommendations.length) return null;
 
      return (
-          <section className="recommendations-container" style={{ padding: 'var(--space-16, 64px) 0' }}>
-               <style>{`
+          <section
+               className="recommendations-container"
+               style={{
+                    padding: 'var(--space-6, 24px) 0 var(--space-16, 64px)',
+                    background:
+                         'radial-gradient(circle at center, color-mix(in srgb, var(--color-primary-200) 26%, transparent) 0%, transparent 60%)',
+               }}
+          >
+              <style>{`
         .recommendations-title-wrapper {
           text-align: center;
-          margin-bottom: 40px;
+          margin-bottom: var(--space-8, 32px);
         }
         .recommendations-title {
-          font-size: var(--font-size-3xl, 1.875rem);
-          font-weight: 600;
+          font-size: clamp(var(--font-size-2xl, 1.5rem), 2.5vw, var(--font-size-4xl, 2.25rem));
+          font-weight: 700;
           color: var(--text-primary);
-          margin-bottom: 8px;
+          margin-bottom: var(--space-3, 12px);
+          letter-spacing: -0.01em;
         }
         .recommendations-subtitle {
           color: var(--text-secondary);
-          font-size: 1rem;
+          font-size: var(--font-size-base, 1rem);
+          max-width: 42rem;
+          margin: 0 auto;
+          line-height: 1.7;
         }
         .recommendations-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 24px;
+          gap: var(--space-6, 24px);
           max-width: 1400px;
           margin: 0 auto;
-          padding: 0 16px;
+          padding: 0 var(--space-4, 16px);
         }
         /* Ensure ItemCards fit the grid */
         .recommendations-grid .item-card-wrapper {
@@ -117,8 +133,8 @@ const RecommendationsGrid = ({ homeData, isLoading }) => {
       `}</style>
 
                <div className="recommendations-title-wrapper">
-                    <h2 className="recommendations-title">{t('recommendations_for_you', 'Recommendations for You')}</h2>
-                    <p className="recommendations-subtitle">{t('recommendations_subtitle', 'Hand-picked experiences tailored to your style')}</p>
+                    <h2 className="recommendations-title">{t('recommendations_for_you')}</h2>
+                    <p className="recommendations-subtitle">{t('handpicked_experiences')}</p>
                </div>
 
                <div className="recommendations-grid">
@@ -126,8 +142,8 @@ const RecommendationsGrid = ({ homeData, isLoading }) => {
                          <ItemCard
                               key={`${item._type}-${item.id || index}`}
                               id={item.id}
-                              image={item?.images?.[0] || item?.image}
-                              title={getItemTitle(item)}
+                              image={getItemImage(item)}
+                              title={getItemTitle(item, item._type)}
                               rating={parseFloat(item.rating ?? item.rate ?? item.average_rating ?? item.stars ?? 0)}
                               meta={buildMeta(item, item._type)}
                               type={item._type}

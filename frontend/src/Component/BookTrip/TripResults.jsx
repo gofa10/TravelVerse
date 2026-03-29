@@ -34,7 +34,11 @@ const TripResults = ({ filters }) => {
     enabled: !!filters, // فقط عند توفر الفلاتر
   });
 
-  const trips = data?.data || [];
+  const trips = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data?.data?.items)
+      ? data.data.items
+      : [];
   console.log(filters);
   console.log(trips);
 

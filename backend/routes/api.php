@@ -9,12 +9,15 @@ use App\Http\Controllers\FlightController;
 use App\Http\Controllers\FlightSearchController;
 use App\Http\Controllers\Api\AdminDashboardController;
 use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\ImageProxyController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
     AuthController,
     ImageController,
     TripController,
+    TripPlanController,
+    TripPlanItemController,
     ActivityController,
     CruiseController,
     FavoriteController,
@@ -32,12 +35,15 @@ use App\Notifications\WelcomeUser;
 
 // 1. المسارات المتاحة للضيوف فقط (Guest Only)
 Route::middleware(['guest.only'])->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
-    Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
+    Route::middleware('throttle:5,1')->group(function () {
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/login', [AuthController::class, 'login']);
+    });
 
-
+    Route::middleware('throttle:3,1')->group(function () {
+        Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+        Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
+    });
 });
 
 // 2. المسارات المتاحة للجميع (عرض بيانات فقط)
@@ -69,6 +75,7 @@ Route::get('/reviews', [ReviewController::class, 'index']);
 Route::get('/reviews/{review}', [ReviewController::class, 'show']);
 
 Route::get('/search', [SearchController::class, 'index']);
+Route::get('/image-proxy', [ImageProxyController::class, 'fetch']);
 
 // ── Home page aggregated data (public) ───────────────────────────────────────
 // Returns latest 8 items of every category in one request.
@@ -81,33 +88,32 @@ Route::get('/home/{category}', [HomeController::class, 'category']);
 
 
 
-// routes/api.php
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [UserController::class, 'profile']);
+// 3. المسارات التي تتطلب مصادقة
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Auth/profile aliases (keep both for backward compatibility)
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::get('/user', [AuthController::class, 'profile']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Account management
     Route::post('/update-profile', [UserController::class, 'updateProfile']);
     Route::delete('/profile/avatar', [UserController::class, 'removeAvatar']);
     Route::post('/change-password', [UserController::class, 'changePassword']);
     Route::delete('/delete-account', [UserController::class, 'deleteAccount']);
-});
 
-// 3. المسارات التي تتطلب مصادقة
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/profile', [AuthController::class, 'profile']);
+    // Cart
     Route::get('/cart', [CartController::class, 'index']);
     Route::post('/cart', [CartController::class, 'store']);
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
 
-    // رفع وحذف الصور (تم نقلها إلى middleware usertype:admin)
-
     // 4. المسارات الخاصة بالمستخدم العادي والمسؤول
     Route::middleware('usertype:user,admin')->group(function () {
-        // Favorites و Cart
+        // Favorites
         Route::get('/favorites', [FavoriteController::class, 'index']);
         Route::post('/favorites', [FavoriteController::class, 'store']);
         Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy']);
 
-        // Reviews - إضافة وعرض فقط للمستخدمين والمسؤولين
+        // Reviews (users/admin)
         Route::get('/my-reviews', [ReviewController::class, 'myReviews']);
         Route::post('/reviews', [ReviewController::class, 'store']);
     });
@@ -118,6 +124,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/reservations', [ReservationController::class, 'store']);
         Route::patch('/reservations/{id}/status', [ReservationController::class, 'updateStatus']);
         Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
+        Route::apiResource('trip-plans', TripPlanController::class);
+        Route::post('trip-plans/{plan}/items', [TripPlanItemController::class, 'store']);
+        Route::put('trip-plan-items/{item}', [TripPlanItemController::class, 'update']);
+        Route::delete('trip-plan-items/{item}', [TripPlanItemController::class, 'destroy']);
     });
 
     Route::middleware('usertype:tour_guide')->prefix('guide')->group(function () {
@@ -155,7 +165,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
-        // Trips
+        // Trips (admin-owned endpoints)
         Route::post('/trips', [TripController::class, 'store']);
         Route::put('/trips/{trip}', [TripController::class, 'update']);
         Route::delete('/trips/{trip}', [TripController::class, 'destroy']);
@@ -182,7 +192,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/cars', [CarController::class, 'store']);
         Route::put('/cars/{car}', [CarController::class, 'update']);
         Route::delete('/cars/{car}', [CarController::class, 'destroy']);
-        // داخل middleware usertype:admin
+
+        // Flights
         Route::post('/flights', [FlightController::class, 'store']);
         Route::put('/flights/{flight}', [FlightController::class, 'update']);
         Route::delete('/flights/{flight}', [FlightController::class, 'destroy']);

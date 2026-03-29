@@ -102,11 +102,11 @@
 
     0%,
     100% {
-        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+        box-shadow: 0 6px 18px color-mix(in srgb, var(--accent-primary-hover) 24%, transparent);
     }
 
     50% {
-        box-shadow: 0 8px 28px rgba(59, 130, 246, 0.60);
+        box-shadow: 0 10px 28px color-mix(in srgb, var(--accent-primary-hover) 34%, transparent);
     }
 }
 
@@ -146,11 +146,11 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: var(--font-family, 'Inter'), sans-serif;
+    font-family: var(--font-family, 'Plus Jakarta Sans'), sans-serif;
 }
 
 body {
-    background: var(--color-slate-900, #0f172a);
+    background: var(--bg-primary);
 }
 
 /* ── Floating particles (purely CSS, no extra HTML needed) ─ */
@@ -160,8 +160,8 @@ body {
     inset: 0;
     pointer-events: none;
     background-image:
-        radial-gradient(circle, rgba(255, 255, 255, 0.18) 1.5px, transparent 1.5px),
-        radial-gradient(circle, rgba(99, 179, 237, 0.22) 1px, transparent 1px);
+        radial-gradient(circle, color-mix(in srgb, var(--text-inverse) 14%, transparent) 1.5px, transparent 1.5px),
+        radial-gradient(circle, color-mix(in srgb, var(--accent-primary) 12%, transparent) 1px, transparent 1px);
     background-size: 14% 14%, 9% 9%;
     animation: particleDrift 20s linear infinite;
 }
@@ -173,9 +173,9 @@ body {
     inset: 0;
     pointer-events: none;
     background:
-        radial-gradient(ellipse 420px 420px at 15% 20%, rgba(56, 130, 246, 0.28) 0%, transparent 65%),
-        radial-gradient(ellipse 360px 360px at 88% 78%, rgba(139, 92, 246, 0.24) 0%, transparent 65%),
-        radial-gradient(ellipse 280px 280px at 60% 55%, rgba(16, 185, 129, 0.18) 0%, transparent 65%);
+        radial-gradient(ellipse 420px 420px at 18% 18%, color-mix(in srgb, var(--color-primary-500) 24%, transparent) 0%, transparent 66%),
+        radial-gradient(ellipse 340px 340px at 82% 74%, color-mix(in srgb, var(--accent-primary) 18%, transparent) 0%, transparent 64%),
+        radial-gradient(ellipse 280px 280px at 56% 52%, color-mix(in srgb, var(--color-warning) 12%, transparent) 0%, transparent 65%);
     animation: orbDrift1 14s ease-in-out infinite;
 }
 
@@ -195,7 +195,7 @@ body {
 .navbar a {
     position: relative;
     font-size: var(--font-size-base, 1rem);
-    color: var(--color-slate-200, #e2e8f0);
+    color: var(--color-slate-200);
     text-decoration: none;
     font-weight: 500;
     margin-right: 30px;
@@ -208,8 +208,8 @@ body {
     width: 100%;
     bottom: -6px;
     height: 2px;
-    background: var(--color-primary-400, #60a5fa);
-    border-radius: 5px;
+    background: var(--accent-primary);
+    border-radius: var(--radius-full);
     transform: translateY(10px);
     opacity: 0;
     transition: 0.3s ease;
@@ -224,7 +224,7 @@ body {
     width: 250px;
     height: 45px;
     background: transparent;
-    border: 2px solid var(--color-slate-400, #94a3b8);
+    border: 1px solid color-mix(in srgb, var(--text-inverse) 28%, transparent);
     border-radius: var(--radius-md, 8px);
     display: flex;
     align-items: center;
@@ -236,12 +236,12 @@ body {
     border: none;
     outline: none;
     font-size: var(--font-size-base, 1rem);
-    color: var(--color-slate-200, #e2e8f0);
+    color: var(--text-secondary);
     padding-left: 12px;
 }
 
 .search-bar input::placeholder {
-    color: var(--color-slate-400, #94a3b8);
+    color: var(--text-muted);
 }
 
 .search-bar button {
@@ -257,7 +257,7 @@ body {
 
 .search-bar button i {
     font-size: 22px;
-    color: var(--color-slate-200, #e2e8f0);
+    color: var(--text-secondary);
 }
 
 /* Background with subtle overlay */
@@ -266,8 +266,8 @@ body {
     width: 100%;
     height: 100vh;
     background: url('../../Assets/images/Marina-Bay-Sands-4K-Wallpaper-3840x2160.jpg') no-repeat center / cover;
-    filter: blur(5px) brightness(0.65);
-    animation: bgPan 35s ease-in-out infinite;
+    filter: blur(4px) brightness(0.58) saturate(0.9);
+    animation: bgPan 42s ease-in-out infinite;
     background-size: 110%;
 }
 
@@ -285,9 +285,9 @@ body {
     background-position: center;
     border-radius: var(--radius-xl, 16px);
     box-shadow:
-        0 32px 80px rgba(0, 0, 0, 0.6),
-        0 0 0 1px rgba(255, 255, 255, 0.07),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        var(--shadow-xl),
+        0 0 0 1px color-mix(in srgb, var(--text-inverse) 6%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--text-inverse) 5%, transparent);
     overflow: hidden;
     animation: cardEntrance 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -298,9 +298,9 @@ body {
     left: 0;
     width: 58%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.78));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--surface-inverse) 90%, transparent), color-mix(in srgb, var(--accent-primary-hover) 28%, var(--surface-inverse)));
     padding: 60px 50px;
-    color: var(--color-slate-100, #f1f5f9);
+    color: var(--text-inverse);
     display: flex;
     justify-content: space-between;
     flex-direction: column;
@@ -317,7 +317,7 @@ body {
     font-size: clamp(28px, 4vw, 40px);
     font-weight: 800;
     line-height: 1.2;
-    color: white;
+    color: var(--text-inverse);
     letter-spacing: -0.02em;
 }
 
@@ -326,7 +326,7 @@ body {
     font-size: clamp(18px, 2.5vw, 24px);
     font-weight: 400;
     display: block;
-    background: linear-gradient(120deg, #cbd5e1 0%, #93c5fd 40%, #c4b5fd 70%, #cbd5e1 100%);
+    background: linear-gradient(120deg, var(--color-slate-100) 0%, var(--navbar-accent) 42%, var(--color-slate-200) 75%, var(--color-slate-100) 100%);
     background-size: 250% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -337,14 +337,14 @@ body {
 .text-sci p {
     font-size: var(--font-size-base, 1rem);
     margin: 24px 0;
-    color: rgba(203, 213, 225, 0.88);
+    color: color-mix(in srgb, var(--text-inverse) 80%, transparent);
     line-height: 1.75;
 }
 
 /* Social icons with modern styling */
 .social-icons a i {
     font-size: 22px;
-    color: var(--color-slate-300, #cbd5e1);
+    color: color-mix(in srgb, var(--text-inverse) 76%, transparent);
     margin-right: 16px;
     transition: all 0.3s ease;
     animation: iconFloat 3s ease-in-out infinite;
@@ -363,9 +363,9 @@ body {
 }
 
 .social-icons a:hover i {
-    color: var(--color-primary-400, #60a5fa);
+    color: var(--navbar-accent);
     transform: scale(1.25) translateY(-3px);
-    filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.6));
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--accent-primary) 25%, transparent));
 }
 
 /* Login/Register box container */
@@ -387,13 +387,13 @@ body {
     align-items: center;
     width: 100%;
     height: 100%;
-    background: rgba(10, 18, 40, 0.72);
+    background: color-mix(in srgb, var(--surface-inverse) 74%, transparent);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
     border-top-right-radius: var(--radius-xl, 16px);
     border-bottom-right-radius: var(--radius-xl, 16px);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-    color: #f1f5f9;
+    border-left: 1px solid color-mix(in srgb, var(--text-inverse) 8%, transparent);
+    color: var(--text-inverse);
     padding: 0 40px;
 }
 
@@ -433,7 +433,7 @@ body {
     text-align: center;
     margin-bottom: 6px;
     letter-spacing: -0.01em;
-    color: #ffffff;
+    color: var(--text-inverse);
     animation: fadeSlideUp 0.55s 0.55s both;
 }
 
@@ -442,7 +442,7 @@ body {
 .form-box>form>p.subtitle {
     text-align: center;
     font-size: 0.85rem;
-    color: rgba(148, 163, 184, 0.85);
+    color: color-mix(in srgb, var(--color-slate-200) 80%, transparent);
     margin-bottom: 8px;
 }
 
@@ -477,17 +477,17 @@ body {
     width: 100%;
     height: 62px;
     /* solid dark bg so text is always visible */
-    background: rgba(15, 23, 50, 0.75);
-    border: 1.5px solid rgba(148, 163, 184, 0.25);
-    border-radius: 12px;
+    background: color-mix(in srgb, var(--text-inverse) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--text-inverse) 16%, transparent);
+    border-radius: var(--radius-md);
     outline: none;
     font-size: 1rem;
-    color: #ffffff;
+    color: var(--text-inverse);
     font-weight: 400;
     /* left padding for text, right padding just enough so text doesn't go under icon */
     padding: 22px 41px 8px 16px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-    caret-color: #60a5fa;
+    caret-color: var(--accent-primary);
     /* let browser scroll text horizontally — never clip it */
     text-overflow: clip;
     overflow: visible;
@@ -496,14 +496,14 @@ body {
 
 /* Visible placeholder as fallback when label is hidden */
 .input-box input::placeholder {
-    color: rgba(148, 163, 184, 0.55);
+    color: color-mix(in srgb, var(--color-slate-200) 45%, transparent);
     font-size: 0.88rem;
 }
 
 .input-box input:focus {
-    border-color: #60a5fa;
-    background: rgba(15, 23, 60, 0.88);
-    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2), 0 4px 20px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-primary);
+    background: color-mix(in srgb, var(--text-inverse) 12%, transparent);
+    box-shadow: 0 0 0 3px var(--focus-ring), var(--shadow-md);
 }
 
 /* Animated bottom accent line */
@@ -514,8 +514,8 @@ body {
     left: 12px;
     right: 12px;
     height: 2px;
-    border-radius: 0 0 12px 12px;
-    background: linear-gradient(90deg, #60a5fa, #a78bfa);
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    background: linear-gradient(90deg, var(--accent-primary), var(--color-warning));
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -533,7 +533,7 @@ body {
     left: 16px;
     font-size: 0.7rem;
     font-weight: 600;
-    color: #60a5fa;
+    color: var(--accent-primary);
     pointer-events: none;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -559,14 +559,14 @@ body {
     right: 14px;
     transform: translateY(-50%);
     font-size: 18px;
-    color: rgba(148, 163, 184, 0.5);
+    color: color-mix(in srgb, var(--color-slate-200) 52%, transparent);
     transition: color 0.3s ease, transform 0.3s ease;
     pointer-events: none;
     z-index: 1;
 }
 
 .input-box:focus-within .icon {
-    color: #60a5fa;
+    color: var(--accent-primary);
     transform: translateY(-50%) scale(1.12);
 }
 
@@ -580,24 +580,24 @@ body {
 }
 
 .remember-forgot label input {
-    accent-color: #3b82f6;
+    accent-color: var(--accent-primary);
     margin-right: 6px;
 }
 
 .remember-forgot a {
-    color: #93c5fd;
+    color: var(--color-slate-200);
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
 .remember-forgot a:hover {
-    color: #60a5fa;
+    color: var(--accent-primary);
 }
 
 /* Forgot password link inside login-register */
 .login-register p a[href="/forgotPassword"],
 .login-register p>a:not([onClick]) {
-    color: #93c5fd;
+    color: var(--color-slate-200);
     font-size: 0.85rem;
     font-weight: 500;
 }
@@ -607,14 +607,14 @@ body {
     position: relative;
     width: 100%;
     height: 52px;
-    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 60%, #8b5cf6 100%);
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--color-warning) 100%);
     background-size: 200% auto;
     border: none;
     outline: none;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     cursor: pointer;
     font-size: 1rem;
-    color: #ffffff;
+    color: var(--text-inverse);
     font-weight: 700;
     letter-spacing: 0.03em;
     overflow: hidden;
@@ -631,7 +631,7 @@ body {
     left: -100%;
     width: 60%;
     height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    background: linear-gradient(120deg, transparent, color-mix(in srgb, var(--text-inverse) 22%, transparent), transparent);
     transition: left 0.55s ease;
     pointer-events: none;
 }
@@ -642,13 +642,13 @@ body {
 
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 32px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 14px 30px color-mix(in srgb, var(--accent-primary-hover) 28%, transparent);
     animation: none;
 }
 
 .btn:active {
     transform: translateY(0);
-    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    box-shadow: 0 6px 14px color-mix(in srgb, var(--accent-primary-hover) 22%, transparent);
 }
 
 .btn:disabled {
@@ -664,12 +664,12 @@ body {
     font-weight: 400;
     text-align: center;
     margin-top: 18px;
-    color: rgba(203, 213, 225, 0.85);
+    color: color-mix(in srgb, var(--text-inverse) 80%, transparent);
 }
 
 .login-register p a {
     font-size: 0.92rem;
-    color: #60a5fa;
+    color: var(--accent-primary);
     font-weight: 600;
     text-decoration: none;
     transition: color 0.2s ease;
@@ -683,7 +683,7 @@ body {
     left: 0;
     width: 0;
     height: 1.5px;
-    background: #93c5fd;
+    background: var(--color-slate-200);
     border-radius: 2px;
     transition: width 0.3s ease;
 }
@@ -693,7 +693,34 @@ body {
 }
 
 .login-register p a:hover {
-    color: #93c5fd;
+    color: var(--color-slate-200);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .background,
+    .background::before,
+    .background::after,
+    .container,
+    .container .content,
+    .form-box h2,
+    .form-box .input-box,
+    .btn,
+    .social-icons a i,
+    .text-sci h2 span {
+        animation: none !important;
+    }
+
+    .btn::before {
+        transition: none !important;
+    }
+
+    .logreg-box .form-box.login,
+    .logreg-box .form-box.register,
+    .input-box input,
+    .input-box .icon,
+    .input-box::after {
+        transition: none !important;
+    }
 }
 
 /* Responsive Design */

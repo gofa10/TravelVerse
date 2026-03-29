@@ -24,64 +24,60 @@ const FeaturedCard = ({ title, Icon }) => {
 
 const StyledWrapper = styled.div`
   .big-icon {
-    font-size: 60px;
-    color: #fff;
-    margin-bottom: 10px;
+    font-size: var(--font-size-5xl);
+    color: var(--color-accent-gold) !important;
+    margin-bottom: var(--space-2);
   }
-  .e-card {
-    margin: 10px 0;
-    background: transparent;
-    box-shadow: 0px 8px 28px -9px rgba(0, 0, 0, 0.45);
+
+  .e-card,
+  .e-card.playing {
+    margin: var(--space-2) 0;
+    background: var(--color-surface-light) !important;
+    box-shadow: var(--shadow-card-floating);
     position: relative;
     width: 400px;
     height: 200px;
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     overflow: hidden;
+    border: var(--border-card-floating);
   }
+
   .e-card:hover {
     transform: scale(1.05);
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-base);
   }
 
   .wave {
-    position: absolute;
-    width: 540px;
-    height: 700px;
-    opacity: 0.6;
-    left: 0;
-    top: 0;
-    margin-left: -50%;
-    margin-top: -70%;
-    background: linear-gradient(744deg, #b0b4bf, #065ad7 60%, #000000);
+    display: none;
   }
 
   .infotop {
     text-align: center;
-    font-size: 20px;
+    font-size: var(--font-size-xl);
     position: absolute;
     left: 0;
     right: 0;
     top: 50%;
     transform: translateY(-50%);
-    color: #fff;
-    font-weight: 600;
+    color: var(--color-text-primary) !important;
+    font-weight: 700;
   }
 
   .name {
-    font-size: 14px;
-    font-weight: 100;
-    margin-top: 10px;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    margin-top: var(--space-2);
+    color: var(--color-text-secondary);
     text-transform: lowercase;
   }
 
   .wave:nth-child(2),
   .wave:nth-child(3) {
-    top: 210px;
+    top: 0;
   }
 
   .playing .wave {
-    border-radius: 40%;
-    animation: wave 3000ms infinite linear;
+    animation: none;
   }
 
   @keyframes wave {

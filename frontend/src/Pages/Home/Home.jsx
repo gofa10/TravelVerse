@@ -1,7 +1,11 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import api from '../../Radux/axios';
+import CarsCard from '../../Utility/Cards/CarsCard';
+import HotelCard from '../../Utility/Cards/HotelCard';
+import CruiseCard from '../../Utility/Cards/CruiseCard';
 
 const HeroPlane = lazy(() => import('../../Component/Home/Hero/HeroPlane'));
 const FeaturedContainer = lazy(() => import('../../Component/Home/FeaturedContainer/FeaturedContainer'));
@@ -9,6 +13,9 @@ const ModernSlider = lazy(() => import('../../Utility/ModernSlider/ModernSlider'
 const ContainerCatCard = lazy(() => import('../../Component/Home/ContainerCatCard/ContainerCatCard'));
 const Poster = lazy(() => import('../../Utility/Poster/Poster'));
 const RecommendationsGrid = lazy(() => import('../../Utility/RecommendationsGrid/RecommendationsGrid'));
+
+import ErrorMessage from '../../Component/Shared/ErrorMessage';
+import EmptyState from '../../Component/Shared/EmptyState';
 
 // ─── Loading fallback ────────────────────────────────────────────────────────
 
@@ -42,16 +49,35 @@ const SectionHeader = ({ title, subtitle }) => (
   <div
     style={{
       textAlign: 'center',
-      marginBottom: 'var(--space-8, 32px)',
+      marginBottom: 'var(--space-10, 40px)',
       padding: '0 var(--space-4, 16px)',
     }}
   >
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 'var(--space-2, 8px)',
+        padding: 'var(--space-1, 4px) var(--space-3, 12px)',
+        borderRadius: 'var(--radius-full)',
+        background: 'color-mix(in srgb, var(--accent-primary) 14%, var(--bg-secondary))',
+        color: 'var(--color-primary-700)',
+        fontSize: 'var(--font-size-xs, 0.75rem)',
+        letterSpacing: '0.08em',
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        marginBottom: 'var(--space-4, 16px)',
+      }}
+    >
+      TravelVerse
+    </span>
     <h2
       style={{
-        fontSize: 'var(--font-size-3xl, 1.875rem)',
-        fontWeight: 600,
+        fontSize: 'clamp(var(--font-size-2xl, 1.5rem), 3vw, var(--font-size-4xl, 2.25rem))',
+        fontWeight: 700,
+        letterSpacing: '-0.01em',
         color: 'var(--text-primary)',
-        marginBottom: 'var(--space-2, 8px)',
+        marginBottom: 'var(--space-3, 12px)',
       }}
     >
       {title}
@@ -61,7 +87,8 @@ const SectionHeader = ({ title, subtitle }) => (
         style={{
           fontSize: 'var(--font-size-base, 1rem)',
           color: 'var(--text-secondary)',
-          maxWidth: '600px',
+          maxWidth: '700px',
+          lineHeight: 1.75,
           margin: '0 auto',
         }}
       >
@@ -74,10 +101,21 @@ const SectionHeader = ({ title, subtitle }) => (
 // ─── Home page ───────────────────────────────────────────────────────────────
 
 const API_BASE = '';
+const normalizeList = (value) => {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.items)) return value.items;
+  if (Array.isArray(value?.data)) return value.data;
+  return [];
+};
 
 const Home = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const currency = useSelector((state) => state.currency.currency);
+
+  useEffect(() => {
+    document.title = "TravelVerse | Explore the World";
+  }, []);
 
   // ── Aggregated home data state ─────────────────────────────────────────────
   const [homeData, setHomeData] = useState({
@@ -88,6 +126,10 @@ const Home = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [cars, setCars] = useState([]);
+  const [cruises, setCruises] = useState([]);
+  const [carsLoading, setCarsLoading] = useState(true);
+  const [cruisesLoading, setCruisesLoading] = useState(true);
 
   // ── Single fetch for all four categories ──────────────────────────────────
   useEffect(() => {
@@ -99,13 +141,14 @@ const Home = () => {
 
       try {
         const { data } = await api.get(`${API_BASE}/home`);
+        const homePayload = data?.data ?? data;
 
         if (!cancelled) {
           setHomeData({
-            activities: Array.isArray(data.activities) ? data.activities : [],
-            trips: Array.isArray(data.trips) ? data.trips : [],
-            hotels: Array.isArray(data.hotels) ? data.hotels : [],
-            restaurants: Array.isArray(data.restaurants) ? data.restaurants : [],
+            activities: normalizeList(homePayload?.activities),
+            trips: normalizeList(homePayload?.trips),
+            hotels: normalizeList(homePayload?.hotels),
+            restaurants: normalizeList(homePayload?.restaurants),
           });
         }
       } catch (err) {
@@ -125,6 +168,57 @@ const Home = () => {
     };
   }, []); // run once on mount
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCars = async () => {
+      setCarsLoading(true);
+      try {
+        const { data } = await api.get('/cars');
+        const carsPayload = data?.data ?? data;
+        if (!cancelled) {
+          setCars(normalizeList(carsPayload));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error('[Home] Failed to load /api/cars:', err);
+          setCars([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setCarsLoading(false);
+        }
+      }
+    };
+
+    const fetchCruises = async () => {
+      setCruisesLoading(true);
+      try {
+        const { data } = await api.get('/cruises');
+        const cruisesPayload = data?.data ?? data;
+        if (!cancelled) {
+          setCruises(normalizeList(cruisesPayload));
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error('[Home] Failed to load /api/cruises:', err);
+          setCruises([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setCruisesLoading(false);
+        }
+      }
+    };
+
+    fetchCars();
+    fetchCruises();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <Suspense fallback={<LoadingFallback />}>
       {/* ── Hero ── */}
@@ -140,7 +234,8 @@ const Home = () => {
       <section
         style={{
           padding: 'var(--space-16, 64px) 0',
-          backgroundColor: 'var(--bg-tertiary)',
+          background:
+            'radial-gradient(circle at center, color-mix(in srgb, var(--accent-primary) 10%, transparent) 0%, transparent 60%), var(--bg-tertiary)',
         }}
       >
         <SectionHeader
@@ -159,19 +254,10 @@ const Home = () => {
       >
         {/* Optional error banner */}
         {error && !isLoading && (
-          <div
-            role="alert"
-            style={{
-              background: 'var(--color-error)',
-              color: '#fff',
-              padding: '10px 16px',
-              borderRadius: 'var(--radius-md)',
-              marginBottom: '24px',
-              fontSize: '0.875rem',
-            }}
-          >
-            ⚠️ Could not load some sections. Please refresh the page.
-          </div>
+          <ErrorMessage 
+            message={error?.message ?? error.toString()} 
+            onRetry={() => window.location.reload()} 
+          />
         )}
 
         {/* Activities carousel */}
@@ -201,6 +287,70 @@ const Home = () => {
           data={homeData.restaurants}
           isLoading={isLoading}
         />
+
+        <div style={{ padding: '20px 0 40px' }}>
+          <div
+            style={{
+              alignItems: 'center',
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '16px',
+              marginBottom: '24px',
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '28px',
+                fontWeight: 700,
+                margin: 0,
+                color: '#1a1a1a',
+                paddingLeft: '10px',
+                borderLeft: '5px solid #1a73e8',
+                textTransform: 'capitalize',
+              }}
+            >
+              {t('cars')}
+            </h2>
+          </div>
+
+          {!carsLoading && cars.length === 0 ? (
+            <EmptyState title="No cars available" subtitle="Check back later" icon="🚗" inline />
+          ) : (
+            <CarsCard products={cars.slice(0, 4)} loading={carsLoading} />
+          )}
+        </div>
+
+        <div style={{ padding: '20px 0 40px' }}>
+          <div
+            style={{
+              alignItems: 'center',
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '16px',
+              marginBottom: '24px',
+            }}
+          >
+            <h2
+              style={{
+                fontSize: '28px',
+                fontWeight: 700,
+                margin: 0,
+                color: '#1a1a1a',
+                paddingLeft: '10px',
+                borderLeft: '5px solid #1a73e8',
+                textTransform: 'capitalize',
+              }}
+            >
+              {t('cruises')}
+            </h2>
+          </div>
+
+          {!cruisesLoading && cruises.length === 0 ? (
+            <EmptyState title="No cruises available" subtitle="Check back later" icon="🚢" inline />
+          ) : (
+            <CruiseCard cruises={cruises.slice(0, 4)} loading={cruisesLoading} />
+          )}
+        </div>
       </section>
 
       <Poster />

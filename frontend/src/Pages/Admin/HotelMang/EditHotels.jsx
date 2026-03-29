@@ -5,9 +5,11 @@ import HotelTable from './HotelTable';
 import HotelModal from './HotelModal';
 import styles from '../UserMang/UserManagement.module.css';
 import api from '../../../Radux/axios';
+import { useTranslation } from 'react-i18next';
 // import axios from 'axios';
 
 function HotelManagement() {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentHotel, setCurrentHotel] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,10 +56,10 @@ function HotelManagement() {
       );
     }
 
-    toast.success('Hotel added successfully');
+    toast.success(t('hotel_added_success'));
     closeModal();
   } catch (error) {
-    toast.error('Failed to add hotel');
+    toast.error(t('hotel_add_failed'));
   }
 };
 
@@ -81,21 +83,21 @@ function HotelManagement() {
       );
     }
 
-    toast.success('Hotel updated successfully');
+    toast.success(t('hotel_updated_success'));
     closeModal();
   } catch (error) {
-    toast.error('Failed to update hotel');
+    toast.error(t('hotel_update_failed'));
   }
 };
 
 
   const handleDeleteHotel = async (id) => {
-    if (window.confirm("Are you sure to delete this hotel?")) {
+    if (window.confirm(t('confirm_delete_hotel'))) {
       try {
         await deleteHotelMutation.mutateAsync(id);
-        toast.success('Hotel deleted successfully');
+        toast.success(t('hotel_deleted_success'));
       } catch (error) {
-        toast.error('Failed to delete hotel');
+        toast.error(t('hotel_delete_failed'));
       }
     }
   };
@@ -109,19 +111,26 @@ function HotelManagement() {
   return (
     <div className={styles.content}>
       <div className={styles.card}>
-        {/* <h2>Hotels</h2> */}
-        <div className={styles.filters}>
-          <input
-            type="text"
-            placeholder="Search by name"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={`${styles.searchInput} dark:bg-gray-800! bg-gray-300! dark:text-white! rounded`}
-          />
-
-          <button className={`${styles.btn} bg-blue-600! hover:bg-blue-800!`} onClick={openAddModal}>
-            Add Hotel
-          </button>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 px-8">
+          <div>
+            <h1 className="text-2xl font-bold dark:text-white">{t('hotels_management')}</h1>
+            <p className="text-sm text-gray-500">{t('manage_hotels_catalog')}</p>
+          </div>
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative w-full md:w-80">
+              <input
+                type="text"
+                placeholder={t('search_by_name')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-white dark:bg-gray-800! border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white!"
+              />
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <button className={`${styles.btn} bg-blue-600! hover:bg-blue-800! whitespace-nowrap !rounded-lg`} onClick={openAddModal}>
+              {t('add_hotel')}
+            </button>
+          </div>
         </div>
 
         <HotelTable
@@ -133,11 +142,11 @@ function HotelManagement() {
 
         <div className={styles.pagination}>
           <button onClick={() => setPage((prev) => Math.max(1, prev - 1))}>
-            Prev
+            {t('previous')}
           </button>
-          <span>Page {page}</span>
+          <span>{t('page')} {page}</span>
           <button onClick={() => setPage((prev) => prev + 1)}>
-            Next
+            {t('next')}
           </button>
         </div>
       </div>

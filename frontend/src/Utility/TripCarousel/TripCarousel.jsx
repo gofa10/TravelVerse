@@ -1,5 +1,6 @@
 // TripCarousel.jsx
-import React, { memo, useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { getStorageBaseUrl } from '../envUtils.js';
 import { useSpring, animated } from "react-spring";
 import styled from "styled-components";
 import { LazyLoadImage } from "react-lazy-load-image-component";
@@ -26,7 +27,11 @@ const TripCarousel = () => {
         staleTime: 1000 * 60 * 5, // cache for 5 minutes
     });
 
-    const hotelList = hotelsData?.data || [];
+    const hotelList = Array.isArray(hotelsData?.data)
+        ? hotelsData.data
+        : Array.isArray(hotelsData?.data?.items)
+            ? hotelsData.data.items
+            : [];
     const [currentIndex, setCurrentIndex] = useState(0);
     const navigate = useNavigate(); // ✅
 
@@ -46,7 +51,9 @@ const TripCarousel = () => {
 
         if (img.startsWith("http") || img.startsWith("data:")) return img;
 
-        return `${import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:8000'}${img.startsWith("/") ? "" : "/"}${img}`;
+        const BASE_URL = getStorageBaseUrl();
+        const path = img.startsWith("/") ? img : `/${img}`;
+        return `${BASE_URL}${path}`;
     };
 
     const currentImage = getFullImageUrl(hotelList[currentIndex]?.images);
@@ -72,12 +79,12 @@ const TripCarousel = () => {
         hotelList.length > 0
             ? hotelList.slice(currentIndex, currentIndex + 4).length < 4
                 ? [
-                      ...hotelList.slice(currentIndex),
-                      ...hotelList.slice(
-                          0,
-                          4 - (hotelList.length - currentIndex),
-                      ),
-                  ]
+                    ...hotelList.slice(currentIndex),
+                    ...hotelList.slice(
+                        0,
+                        4 - (hotelList.length - currentIndex),
+                    ),
+                ]
                 : hotelList.slice(currentIndex, currentIndex + 8)
             : [];
 

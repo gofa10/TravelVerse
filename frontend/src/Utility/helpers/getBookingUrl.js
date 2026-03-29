@@ -32,6 +32,8 @@ const getBookingUrl = (item, type) => {
                return `https://www.rentalcars.com/search?location=${query}`;
           case 'cruise':
                return `https://www.cruises.com/search#q=${query}`;
+          case 'flight':
+               return `https://www.google.com/travel/flights?q=${query}`;
           default:
                return `https://www.viator.com/searchResults/all?text=${query}`;
      }

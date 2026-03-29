@@ -69,7 +69,7 @@ const DropdownFilter = ({ title, options = [], selected = [], onChange }) => {
           </MDBDropdownToggle>
           <MDBDropdownMenu>
             {options.length === 0 ? (
-              <MDBDropdownItem link>No results found.</MDBDropdownItem>
+              <MDBDropdownItem link>{t('no_results')}</MDBDropdownItem>
             ) : (
               options.map((option, index) => (
                 <MDBDropdownItem key={index} onClick={() => toggleSelection(option)}>

@@ -43,20 +43,20 @@ class ReservationController extends Controller
     public function index()
     {
         if (!$this->isUser()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $reservations = $this->loadReservableWithImages(
             Reservation::where('user_id', Auth::id())
         )->latest()->get();
 
-        return response()->json($reservations);
+        return $this->success($reservations);
     }
 
     public function store(Request $request)
     {
         if (!$this->isUser()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
         $request->validate([
             'reservable_type' => 'required|string|in:App\Models\Trip,App\Models\Restaurant,App\Models\Hotel,App\Models\Activity,App\Models\Flight,App\Models\Car,App\Models\Cruise',
@@ -75,7 +75,7 @@ class ReservationController extends Controller
             if ($existing->reservable && method_exists($existing->reservable, 'images')) {
                 $existing->reservable->loadMissing('images');
             }
-            return response()->json($existing);
+            return $this->success($existing);
         }
 
         $reservation = Reservation::create([
@@ -92,19 +92,19 @@ class ReservationController extends Controller
             $reservation->reservable->loadMissing('images');
         }
 
-        return response()->json($reservation, 201);
+        return $this->success($reservation, '', 201);
     }
 
     public function updateStatus(Request $request, $id)
     {
         if (!$this->isUser()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $reservation = Reservation::findOrFail($id);
 
         if ((int) $reservation->user_id !== (int) Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $validated = $request->validate([
@@ -116,7 +116,7 @@ class ReservationController extends Controller
 
         // Idempotent status updates should not fail.
         if ($from === $to) {
-            return response()->json([
+            return $this->success([
                 'message' => 'Status already set',
                 'reservation' => $reservation->load('reservable'),
             ]);
@@ -132,7 +132,7 @@ class ReservationController extends Controller
         ];
 
         if (!isset($allowed[$from]) || !in_array($to, $allowed[$from], true)) {
-            return response()->json(['message' => 'Invalid status transition.'], 422);
+            return $this->error('Invalid status transition.', 422);
         }
 
         $reservation->status = $to;
@@ -145,7 +145,7 @@ class ReservationController extends Controller
             $reservation->user->notify(new ReservationConfirmed($reservation));
         }
 
-        return response()->json([
+        return $this->success([
             'message' => 'Status updated successfully',
             'reservation' => $reservation->load('reservable'),
         ]);
@@ -154,13 +154,13 @@ class ReservationController extends Controller
     public function destroy($id)
     {
         if (!$this->isUser()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $reservation = Reservation::findOrFail($id);
 
         if ((int) $reservation->user_id !== (int) Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $reservation->status = 'cancelled';
@@ -169,7 +169,7 @@ class ReservationController extends Controller
 
         $reservation->user->notify(new ReservationCanceled($reservation));
 
-        return response()->json([
+        return $this->success([
             'message' => 'Reservation cancelled.',
             'reservation' => $reservation->load('reservable'),
         ]);
@@ -178,7 +178,7 @@ class ReservationController extends Controller
     public function adminIndex()
     {
         if (Auth::user()->user_type !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $query = $this->loadReservableWithImages(
@@ -205,8 +205,8 @@ class ReservationController extends Controller
 
         $reservations = $query->paginate(20);
 
-        return response()->json([
-            'data' => $reservations->items(),
+        return $this->success([
+            'items' => $reservations->items(),
             'current_page' => $reservations->currentPage(),
             'last_page' => $reservations->lastPage(),
             'per_page' => $reservations->perPage(),
@@ -238,7 +238,7 @@ class ReservationController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($reservations);
+        return $this->success($reservations);
     }
 
     /**
@@ -262,14 +262,12 @@ class ReservationController extends Controller
             ->first();
 
         if (!$reservation) {
-            return response()->json(['message' => 'Reservation not found or not authorized.'], 404);
+            return $this->error('Reservation not found or not authorized.', 404);
         }
 
         // Attendance can only be marked for booking_claimed status
         if ($reservation->status !== 'booking_claimed') {
-            return response()->json([
-                'message' => 'Attendance can only be recorded for confirmed bookings.',
-            ], 422);
+            return $this->error('Attendance can only be recorded for confirmed bookings.', 422);
         }
 
         // Atomic update - only succeeds if attendance_status is still null (prevents race condition)
@@ -282,15 +280,13 @@ class ReservationController extends Controller
             ]);
 
         if ($updated === 0) {
-            return response()->json([
-                'message' => 'Attendance has already been recorded and cannot be changed.',
-            ], 422);
+            return $this->error('Attendance has already been recorded and cannot be changed.', 422);
         }
 
         $reservation->refresh();
         $reservation->load(['user:id,name,email', 'reservable:id,name_en,name_ar,guide_id']);
 
-        return response()->json([
+        return $this->success([
             'message' => 'Attendance recorded successfully',
             'data' => $reservation,
         ]);

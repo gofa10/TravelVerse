@@ -2,14 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Activity;
-use App\Models\Car;
-use App\Models\Cruise;
 use App\Models\Favorite;
-use App\Models\Flight;
-use App\Models\Hotel;
-use App\Models\Restaurant;
-use App\Models\Trip;
+use App\Support\MorphTypeResolver;
 use Illuminate\Http\Request;
 
 class FavoriteController extends Controller
@@ -19,32 +13,52 @@ class FavoriteController extends Controller
     {
         $favorites = Favorite::where('user_id', auth()->id())->get();
 
-        foreach ($favorites as $fav) {
-            $type = $fav->favoritable_type;
-            if (!is_string($type))
-                continue;
-
-            $normalized = trim($type);
-
-            if ($normalized === 'activitie' || $normalized === 'activity') {
-                $fav->favoritable_type = Activity::class;
-            } elseif ($normalized === 'trip') {
-                $fav->favoritable_type = Trip::class;
-            } elseif ($normalized === 'hotel') {
-                $fav->favoritable_type = Hotel::class;
-            } elseif ($normalized === 'restaurant') {
-                $fav->favoritable_type = Restaurant::class;
-            } elseif ($normalized === 'cruise') {
-                $fav->favoritable_type = Cruise::class;
-            } elseif ($normalized === 'car') {
-                $fav->favoritable_type = Car::class;
-            } elseif ($normalized === 'flight') {
-                $fav->favoritable_type = Flight::class;
-            }
-        }
-
+        // Load the favoritable relationships with images
         $favorites->load(['favoritable.images']);
-        return $favorites;
+
+        // Transform the collection to ensure proper JSON structure
+        $result = $favorites->map(function ($favorite) {
+            $favoritable = $favorite->favoritable;
+            
+            // Ensure images are properly formatted
+            $images = [];
+            if ($favoritable && $favoritable->images) {
+                $images = $favoritable->images->map(function ($image) {
+                    return [
+                        'url' => $image->url,
+                        'id' => $image->id
+                    ];
+                })->toArray();
+            }
+
+            return [
+                'id' => $favorite->id,
+                'favoritable_id' => $favorite->favoritable_id,
+                'favoritable_type' => $favorite->favoritable_type,
+                'created_at' => $favorite->created_at,
+                'updated_at' => $favorite->updated_at,
+                'favoritable' => [
+                    'id' => $favoritable->id ?? null,
+                    'name' => $favoritable->name ?? $favoritable->name_en ?? null,
+                    'name_en' => $favoritable->name_en ?? null,
+                    'name_ar' => $favoritable->name_ar ?? null,
+                    'description' => $favoritable->description ?? $favoritable->description_en ?? null,
+                    'description_en' => $favoritable->description_en ?? null,
+                    'description_ar' => $favoritable->description_ar ?? null,
+                    'price' => $favoritable->price ?? null,
+                    'location' => $favoritable->location ?? null,
+                    'rate' => $favoritable->rate ?? null,
+                    'duration' => $favoritable->duration ?? null,
+                    'difficulty' => $favoritable->difficulty ?? null,
+                    'images' => $images,
+                    'image' => !empty($images) ? $images[0]['url'] : null,
+                    'thumbnail' => !empty($images) ? $images[0]['url'] : null,
+                    'cover' => !empty($images) ? $images[0]['url'] : null,
+                ]
+            ];
+        });
+
+        return $this->success($result);
     }
 
     public function store(Request $request)
@@ -54,21 +68,13 @@ class FavoriteController extends Controller
             'favoritable_type' => 'required|string',
         ]);
 
-        $type = trim($request->favoritable_type);
-        if ($type === 'activitie' || $type === 'activity') {
-            $type = Activity::class;
-        } elseif ($type === 'trip') {
-            $type = Trip::class;
-        } elseif ($type === 'hotel') {
-            $type = Hotel::class;
-        } elseif ($type === 'restaurant') {
-            $type = Restaurant::class;
-        } elseif ($type === 'cruise') {
-            $type = Cruise::class;
-        } elseif ($type === 'car') {
-            $type = Car::class;
-        } elseif ($type === 'flight') {
-            $type = Flight::class;
+        $type = MorphTypeResolver::toClass($request->favoritable_type);
+        if (!$type) {
+            return $this->error('Invalid favoritable type', 422);
+        }
+
+        if (!$type::whereKey($request->favoritable_id)->exists()) {
+            return $this->error('Invalid favoritable id', 422);
         }
 
         $exists = Favorite::where('user_id', auth()->id())
@@ -77,7 +83,7 @@ class FavoriteController extends Controller
             ->exists();
 
         if ($exists) {
-            return response()->json(['message' => 'Already in favorites'], 409);
+            return $this->error('Already in favorites', 409);
         }
 
         $favorite = Favorite::create([
@@ -86,7 +92,7 @@ class FavoriteController extends Controller
             'favoritable_type' => $type,
         ]);
 
-        return response()->json($favorite->load('favoritable'), 201);
+        return $this->success($favorite->load('favoritable'), '', 201);
     }
 
 
@@ -94,6 +100,6 @@ class FavoriteController extends Controller
     {
         $favorite = Favorite::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
         $favorite->delete();
-        return response()->json(['message' => 'Deleted']);
+        return $this->success(null, 'Deleted successfully');
     }
 }

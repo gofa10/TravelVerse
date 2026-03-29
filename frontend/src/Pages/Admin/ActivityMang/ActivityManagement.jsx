@@ -5,10 +5,12 @@ import styles from '../UserMang/UserManagement.module.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../../Radux/axios';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 
 const API_BASE = '/activities';
 
 function ActivityManagement() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(null);
@@ -41,10 +43,10 @@ function ActivityManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['activities']);
-      toast.success('Activity added successfully');
+      toast.success(t('activity_added_success'));
       closeModal();
     },
-    onError: () => toast.error('Failed to add activity')
+    onError: () => toast.error(t('activity_add_failed'))
   });
 
   const updateMutation = useMutation({
@@ -64,10 +66,10 @@ function ActivityManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['activities']);
-      toast.success('Activity updated successfully');
+      toast.success(t('activity_updated_success'));
       closeModal();
     },
-    onError: () => toast.error('Failed to update activity')
+    onError: () => toast.error(t('activity_update_failed'))
   });
 
   const deleteMutation = useMutation({
@@ -76,9 +78,9 @@ function ActivityManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['activities']);
-      toast.success('Activity deleted');
+      toast.success(t('activity_deleted_success'));
     },
-    onError: () => toast.error('Failed to delete activity')
+    onError: () => toast.error(t('activity_delete_failed'))
   });
 
   const handleAddActivity = (activityData) => {
@@ -90,7 +92,7 @@ function ActivityManagement() {
   };
 
   const handleDeleteActivity = (id) => {
-    if (window.confirm("Are you sure to delete this activity?")) {
+    if (window.confirm(t('confirm_delete_activity'))) {
       deleteMutation.mutate(id);
     }
   };
@@ -110,30 +112,42 @@ function ActivityManagement() {
     setCurrentActivity(null);
   };
 
-  const filteredActivities = (data?.data || []).filter(act => {
+  const activityList = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data?.data?.items)
+      ? data.data.items
+      : [];
+
+  const filteredActivities = activityList.filter(act => {
     return (
       act.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       act.location.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
-console.log(filteredActivities);
-
   return (
     <div className={styles.content}>
       <div className={styles.card}>
-        {/* <h2>Activities</h2> */}
-        <div className={styles.filters}>
-          <input
-            type="text"
-            placeholder="Search by name or location"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={`${styles.searchInput} dark:bg-gray-800! bg-gray-300! dark:text-white! rounded`}
-          />
-          <button className={`${styles.btn} bg-blue-600! hover:bg-blue-800!`} onClick={openAddModal}>Add Activity</button>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 px-8">
+          <div>
+            <h1 className="text-2xl font-bold dark:text-white">{t('activities_management')}</h1>
+            <p className="text-sm text-gray-500">{t('manage_your')} {t('activities')}</p>
+          </div>
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative w-full md:w-80">
+              <input
+                type="text"
+                placeholder={t('search_activity_placeholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-white dark:bg-gray-800! border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white!"
+              />
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <button className={`${styles.btn} bg-blue-600! hover:bg-blue-800! whitespace-nowrap !rounded-lg`} onClick={openAddModal}>{t('add_activity')}</button>
+          </div>
         </div>
 
-        {isLoading ? <p>Loading...</p> : (
+        {isLoading ? <p>{t('loading')}</p> : (
           <>
             <ActivityTable
               activities={filteredActivities}
@@ -142,11 +156,11 @@ console.log(filteredActivities);
             />
             <div className={styles.pagination}>
               <button onClick={() => setCurrentPage(old => Math.max(old - 1, 1))} disabled={currentPage === 1}>
-                Previous
+                {t('previous')}
               </button>
-              <span style={{ margin: '0 10px' }}>Page {currentPage} of {data?.last_page}</span>
-              <button onClick={() => setCurrentPage(old => old + 1)} disabled={currentPage === data?.last_page}>
-                Next
+              <span style={{ margin: '0 10px' }}>{t('page')} {currentPage} {t('of')} {data?.data?.last_page || data?.last_page}</span>
+              <button onClick={() => setCurrentPage(old => old + 1)} disabled={currentPage === (data?.data?.last_page || data?.last_page)}>
+                {t('next')}
               </button>
             </div>
           </>

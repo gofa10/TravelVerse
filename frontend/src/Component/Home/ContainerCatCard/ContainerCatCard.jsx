@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 const getApiEndpoint = (type) => {
   const pluralMap = {
     activitie: 'activities',
+    activity: 'activities',
     trip: 'trips',
     hotel: 'hotels',
     restaurant: 'restaurants',
@@ -25,6 +26,13 @@ const fetchData = async (type) => {
   const endpoint = getApiEndpoint(type);
   const res = await api.get(`/${endpoint}`);
   return res.data;
+};
+
+const normalizeList = (value) => {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.items)) return value.items;
+  if (Array.isArray(value?.data)) return value.data;
+  return [];
 };
 
 // ─── Meta builder ─────────────────────────────────────────────────────────────
@@ -80,6 +88,12 @@ const buildMeta = (item, type) => {
   }
 };
 
+const getItemImage = (item) => {
+  if (Array.isArray(item?.images) && item.images.length > 0) return item.images;
+  if (item?.image) return item.image;
+  return null;
+};
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const ContainerCatCard = ({
@@ -100,14 +114,18 @@ const ContainerCatCard = ({
 
   const loading = externalLoading ?? isLoading;
   const rawData = externalData || queryData || [];
-  const data = Array.isArray(rawData) ? rawData : rawData.data || [];
+  const payload = rawData?.data ?? rawData;
+  const data = normalizeList(payload);
 
   // Title → prefer translation, fall back to raw type
   const sectionTitle = t(type, { defaultValue: type });
 
   // Helper: canonical item title
   const getItemTitle = (item) => {
-    // Check for 'title' first (from API Resources), then fallback to 'name' variants
+    if (type === 'car') {
+      const carName = [item.brand, item.model].filter(Boolean).join(' ').trim();
+      if (carName) return carName;
+    }
     if (item.title) return item.title;
     if (item.name || item.name_en) return item.name || item.name_en;
     if (item.from_location && item.to_location) return `${item.from_location} → ${item.to_location}`;
@@ -118,24 +136,25 @@ const ContainerCatCard = ({
     <>
       <style>{`
         .global-recommendations-section {
-          max-width: 1400px;
+          max-width: 1360px;
           margin: 0 auto;
-          padding: 20px 0;
+          padding: var(--space-6, 24px) 0 var(--space-10, 40px);
         }
         .global-recommendations-title {
-          font-size: 28px;
+          font-size: clamp(var(--font-size-2xl, 1.5rem), 2.2vw, var(--font-size-3xl, 1.875rem));
           font-weight: 700;
-          margin: 0 0 24px;
-          color: #1a1a1a;
-          padding-left: 10px;
-          border-left: 5px solid #1a73e8;
+          margin: 0 0 var(--space-6, 24px);
+          color: var(--text-primary);
+          letter-spacing: -0.01em;
+          padding-left: var(--space-3, 12px);
+          border-left: 5px solid var(--accent-primary);
           text-transform: capitalize;
         }
         .global-recommendations-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 24px;
-          padding-bottom: 40px;
+          gap: var(--space-6, 24px);
+          padding-bottom: var(--space-10, 40px);
         }
         /* Override ItemCard wrapper width constraints for grid flow */
         .global-recommendations-grid .item-card-wrapper {
@@ -144,9 +163,12 @@ const ContainerCatCard = ({
         }
         .loading-text {
           text-align: center;
-          padding: 40px;
-          font-size: 16px;
-          color: #888;
+          padding: var(--space-10, 40px);
+          font-size: var(--font-size-base, 1rem);
+          color: var(--text-secondary);
+          background: color-mix(in srgb, var(--bg-tertiary) 72%, var(--bg-secondary));
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-lg);
         }
       `}</style>
 
@@ -161,7 +183,7 @@ const ContainerCatCard = ({
               <ItemCard
                 key={item.id ?? index}
                 id={item.id}
-                image={item?.images?.[0]}
+                image={getItemImage(item)}
                 title={getItemTitle(item)}
                 rating={parseFloat(item.rating ?? item.rate ?? item.average_rating ?? item.stars ?? 0)}
                 meta={buildMeta(item, type)}

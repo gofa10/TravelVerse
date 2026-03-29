@@ -1,19 +1,34 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from '../axios';
+const normalizeItems = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.items)) return payload.items;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+};
 
-export const fetchReservations = createAsyncThunk('reservations/fetchAll', async () => {
+export const fetchReservations = createAsyncThunk('reservations/fetchAll', async (_, { rejectWithValue }) => {
+  try {
   const res = await API.get('/reservations');
-  return res.data;
+  return res.data.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
+  }
 });
 
-export const createReservation = createAsyncThunk('reservations/create', async (data) => {
+export const createReservation = createAsyncThunk('reservations/create', async (data, { rejectWithValue }) => {
+  try {
   const res = await API.post('/reservations', data);
-  return res.data;
+  return res.data.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
+  }
 });
 
 const reservationSlice = createSlice({
   name: 'reservation',
   initialState: {
+    items: [],
     reservations: [],
     loading: false,
     error: null,
@@ -26,16 +41,21 @@ const reservationSlice = createSlice({
       })
       .addCase(fetchReservations.fulfilled, (state, action) => {
         state.loading = false;
-        state.reservations = action.payload;
+        const items = normalizeItems(action.payload);
+        state.items = items;
+        state.reservations = items;
       })
-      .addCase(fetchReservations.rejected, (state) => {
+      .addCase(fetchReservations.rejected, (state, action) => {
         state.loading = false;
-        state.error = 'Failed to fetch reservations';
+        state.error = action.payload ?? action.error?.message ?? 'Something went wrong';
       })
       .addCase(createReservation.fulfilled, (state, action) => {
-        state.reservations.push(action.payload);
+        state.items.push(action.payload);
+        state.reservations = state.items;
       });
   },
 });
 
+export const selectReservationItems = (state) =>
+  Array.isArray(state.reservation?.items) ? state.reservation.items : [];
 export default reservationSlice.reducer;

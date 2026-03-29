@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import HeroHotel from '../../Component/Hotel/HeroHotel';
+import HeroSection from '../../Component/Shared/HeroSection';
 import CityContent from '../../Component/City/CityContent';
 import citiesData from '../../Component/City/citiesData';
 import DateFilter from '../../Component/Hotel/DateFilter';
@@ -11,10 +11,20 @@ import Head from '../../Component/Trips/Head';
 import style from '../../Style/Hotel/Hotel.module.css';
 import HotelCard from '../../Utility/Cards/HotelCard';
 import { CheckboxFilter } from '../../Utility/Buttons/CheckboxFilter/CheckboxFilter';
+import LoadingSpinner from '../../Component/Shared/LoadingSpinner';
+import ErrorMessage from '../../Component/Shared/ErrorMessage';
+import EmptyState from '../../Component/Shared/EmptyState';
 import Skeleton from '@mui/material/Skeleton';
 import { MDBCard, MDBCardBody, MDBCol, MDBRow } from 'mdb-react-ui-kit';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../Radux/axios';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  setSearchQuery,
+  selectHotelSearchQuery,
+  selectFilteredHotels,
+} from '../../Radux/Slices/hotelSlice';
+import hotelHero from '../../assets/images/hotel_hero.jpg';
 
 // Fetch all hotels with pagination
 const fetchAllHotels = async () => {
@@ -24,9 +34,14 @@ const fetchAllHotels = async () => {
 
   do {
     const res = await api.get(`/hotels?page=${page}`);
-    const responseData = res.data;
-    allData = [...allData, ...responseData.data];
-    lastPage = responseData.last_page;
+    const responseData = res.data?.data;
+    const pageItems = Array.isArray(responseData?.items)
+      ? responseData.items
+      : Array.isArray(responseData)
+        ? responseData
+        : [];
+    allData = [...allData, ...pageItems];
+    lastPage = responseData?.last_page || 1;
     page++;
   } while (page <= lastPage);
 
@@ -36,22 +51,32 @@ const fetchAllHotels = async () => {
 const Hotel = () => {
   const { cityName } = useParams();
   const { t } = useTranslation();
-  const { data, isLoading } = useQuery({
+
+  useEffect(() => {
+    document.title = "Hotels | TravelVerse";
+  }, []);
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['allHotels'],
     queryFn: fetchAllHotels,
   });
 
   const cityInfo = citiesData.find(city => city.name === cityName);
+  const dispatch = useDispatch();
+  const searchQuery = useSelector(selectHotelSearchQuery);
 
   const [filters, setFilters] = useState({});
   const [sortBy, setSortBy] = useState(null);
   const [filteredHotels, setFilteredHotels] = useState([]);
 
-  // Keys only, not labels
+  useEffect(() => {
+    return () => dispatch(setSearchQuery(''));
+  }, [dispatch]);
+
+  // Keys only, not labels - updated to match actual data
   const allFilters = {
-    amenities: ['pool', 'free_parking', 'free_wifi', 'breakfast_included', 'beach', 'diving'],
-    hotelClass: ['5_star', '4_star', '3_star', '2_star', '1_star'],
-    style: ['budget', 'mid_range', 'luxury', 'romantic', 'family_friendly', 'modern', 'business', 'ocean_view']
+    amenities: ['Free parking', 'Pool', 'Free breakfast', 'Beach', 'Diving', 'Air conditioning', 'Bar / lounge', 'Fitness Center with Gym / Workout Room'],
+    hotelClass: ['5 star', '4 star', '5', '4', '4.5'],
+    style: ['Luxury', 'Romantic', 'Modern', 'Family', 'Classic', 'Ocean View', 'City View', 'Mountain View', 'Park View', 'Trendy', 'Quiet', 'Value']
   };
 
   const handleFilterChange = (title, option) => {
@@ -81,14 +106,22 @@ const Hotel = () => {
             return values.every(v => hotel.amenities?.includes(v));
           }
           if (key === 'style') {
-            // style is a string, check if it matches any selected style
-            return values.some(v => hotel.style?.toLowerCase() === v.toLowerCase());
+            // style is a string with multiple styles separated by commas
+            const hotelStyles = hotel.style?.split(',').map(s => s.trim().toLowerCase()) || [];
+            return values.some(v => hotelStyles.includes(v.toLowerCase()));
           }
           if (key === 'hotelClass') {
-            // class is a string with the star rating (e.g., "5", "4")
+            // class can be "5 star", "4 star", "5", "4", "4.5"
             return values.some(v => {
-              const classNum = v.split('_')[0]; // "5_star" -> "5"
-              return hotel.class === classNum;
+              // Handle both string and numeric comparisons
+              if (v.includes('.')) {
+                return hotel.class === v; // Exact match for "4.5"
+              }
+              if (v.includes('star')) {
+                return hotel.class === v; // Exact match for "5 star"
+              }
+              // For numeric values, check if hotel class contains the number
+              return hotel.class?.includes(v);
             });
           }
           return true;
@@ -103,8 +136,9 @@ const Hotel = () => {
       result.sort((a, b) => a.price - b.price);
     }
 
-    setFilteredHotels(result);
-  }, [filters, data, cityName, sortBy]);
+    const searched = selectFilteredHotels({ hotel: { searchQuery } }, result);
+    setFilteredHotels(searched);
+  }, [filters, data, cityName, sortBy, searchQuery]);
 
   if (!cityInfo) return <p>No city found.</p>;
 
@@ -135,9 +169,19 @@ const Hotel = () => {
       </MDBRow>
     ));
 
+  if (isLoading) return <LoadingSpinner size="lg" fullPage />;
+  if (error) return <ErrorMessage message={error?.message ?? error.toString()} onRetry={refetch} />;
+
   return (
     <div>
-      <HeroHotel />
+      <HeroSection
+        image={hotelHero}
+        title="Find Your Perfect Stay"
+        subtitle="Explore thousands of hotels worldwide"
+        placeholder="Search hotels or destinations..."
+        onSearch={(query) => dispatch(setSearchQuery(query))}
+        overlayIntensity="medium"
+      />
       <CityContent countryName={cityInfo.name} />
       {/* <DateFilter countryName={cityInfo.name} /> */}
       <Container>
@@ -169,13 +213,11 @@ const Hotel = () => {
           </Col>
 
           <Col xs={10}>
-            {isLoading
-              ? renderSkeleton()
-              : filteredHotels.length > 0
-              ? filteredHotels.map((hotel, index) => (
+            {filteredHotels.length > 0
+                ? filteredHotels.map((hotel, index) => (
                   <HotelCard key={index} data={hotel} type="hotel" />
                 ))
-              : <p>{t('noHotelsFound')}</p>}
+                : <EmptyState title="No hotels found" subtitle="Try different filters" icon="🏨" />}
           </Col>
         </Row>
       </Container>

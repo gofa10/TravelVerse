@@ -129,7 +129,7 @@ const ReviewForm = ({ type, id, onReviewSubmitted, selectedItem }) => {
                     {/* Star Rating Selection */}
                     <div className="space-y-3">
                          <div className="flex justify-between items-center px-1">
-                              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Overall Rating</label>
+                              <label id="rating-label" className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Overall Rating</label>
                               {rating > 0 && <span className="text-[10px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest">{rating}.0 Rating</span>}
                          </div>
                          <div className="flex gap-2.5 bg-white/50 dark:bg-slate-800/30 p-3 rounded-xl border border-white/60 dark:border-slate-700/50 shadow-inner justify-center">
@@ -138,6 +138,8 @@ const ReviewForm = ({ type, id, onReviewSubmitted, selectedItem }) => {
                                         key={star}
                                         type="button"
                                         className="focus:outline-none relative group/star"
+                                        aria-label={`Rate ${star} stars`}
+                                        aria-labelledby="rating-label"
                                         onClick={() => setRating(star)}
                                         onMouseEnter={() => setHover(star)}
                                         onMouseLeave={() => setHover(0)}
@@ -161,13 +163,15 @@ const ReviewForm = ({ type, id, onReviewSubmitted, selectedItem }) => {
                     {/* Comment Textarea */}
                     <div className="space-y-3">
                          <div className="flex justify-between items-center px-1">
-                              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Your Experience</label>
+                              <label htmlFor="review-comment" className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Your Experience</label>
                               <div className={`flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${comment.length < 5 ? 'bg-slate-100 dark:bg-slate-800 text-slate-400' : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'}`}>
                                    {comment.length} / 5+
                               </div>
                          </div>
                          <div className="relative group-focus-within:translate-y-[-2px] transition-transform duration-300">
                               <textarea
+                                   id="review-comment"
+                                   name="comment"
                                    ref={textareaRef}
                                    value={comment}
                                    onChange={(e) => setComment(e.target.value)}

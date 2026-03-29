@@ -1,11 +1,19 @@
-.container{
+.container {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-around;
-    margin-top: 15px;
+    margin-top: 0;
+    margin-bottom: var(--space-4, 16px);
+    padding: 0 var(--space-4, 16px);
+    position: relative;
+    z-index: 2;
+    background: transparent;
 }
-.col{
+
+.col {
     width: fit-content;
     margin: auto;
+    padding-top: var(--space-2, 8px);
+    padding-bottom: var(--space-2, 8px);
 }

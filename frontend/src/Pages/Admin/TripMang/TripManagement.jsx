@@ -1,13 +1,19 @@
 // TripManagement.jsx
 import React, { useState } from 'react';
-import TripModal from './TripModal ';
+import TripModal from './TripModal';
 import styles from '../UserMang/UserManagement.module.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../../Radux/axios'; // ✅ استخدم النسخة التي فيها التوكن
+import { useTranslation } from 'react-i18next';
 
 const fetchTrips = async () => {
   const res = await api.get('/trips');
-  const trips = res.data.data || [];
+  const payload = res.data?.data;
+  const trips = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.items)
+      ? payload.items
+      : [];
 
   return trips.map(trip => ({
     ...trip,
@@ -21,6 +27,7 @@ const fetchTrips = async () => {
 
 
 function TripManagement() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTrip, setCurrentTrip] = useState(null);
@@ -104,7 +111,7 @@ function TripManagement() {
   };
 
   const handleDeleteTrip = (id) => {
-    if (window.confirm("Are you sure you want to delete this trip?")) {
+    if (window.confirm(t('confirm_delete_trip'))) {
       deleteTripMutation.mutate(id);
     }
   };
@@ -164,38 +171,46 @@ function TripManagement() {
     }
     return '';
   };
-  console.log(filteredTrips);
+  // console.log(filteredTrips);
   return (
     <div className={styles.content}>
       <div className={styles.card}>
-        {/* <h2>Trips</h2> */}
-        <div className={styles.filters}>
-          <input
-            type="text"
-            placeholder="Search by name"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={`${styles.searchInput} dark:bg-gray-800! bg-gray-300! dark:text-white! rounded`}
-          />
-          <button className={styles.btn} onClick={openAddModal}>Add Trip</button>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 px-8">
+          <div>
+            <h1 className="text-2xl font-bold dark:text-white">{t('trips_management')}</h1>
+            <p className="text-sm text-gray-500">{t('manage_trips_catalog')}</p>
+          </div>
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative w-full md:w-80">
+              <input
+                type="text"
+                placeholder={t('search_by_name')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-white dark:bg-gray-800! border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white!"
+              />
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <button className={`${styles.btn} whitespace-nowrap !rounded-lg`} onClick={openAddModal}>{t('add_trip')}</button>
+          </div>
         </div>
 
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className='dark:text-white!' onClick={() => handleSort("id")}>ID{renderSortIcon("id")}</th>
+              <th className='dark:text-white!' onClick={() => handleSort("id")}>{t('id')}{renderSortIcon("id")}</th>
               {/* <th>Name (AR)</th> */}
-              <th className='dark:text-white!'>Name</th>
-              <th className='dark:text-white!' onClick={() => handleSort("rate")}>Rate{renderSortIcon("rate")}</th>
-              <th className='dark:text-white!' onClick={() => handleSort("price")}>Price{renderSortIcon("price")}</th>
+              <th className='dark:text-white!'>{t('name')}</th>
+              <th className='dark:text-white!' onClick={() => handleSort("rate")}>{t('rate')}{renderSortIcon("rate")}</th>
+              <th className='dark:text-white!' onClick={() => handleSort("price")}>{t('price')}{renderSortIcon("price")}</th>
               {/* <th>Start</th> */}
               {/* <th>End</th> */}
-              <th className='dark:text-white!' onClick={() => handleSort("duration")}>Duration{renderSortIcon("duration")}</th>
-              <th className='dark:text-white!'>Continent</th>
-              <th className='dark:text-white!'>Location</th>
-              <th className='dark:text-white!'>Difficulty</th>
-              <th className='dark:text-white!'>Guide</th>
-              <th className='dark:text-white!'>Actions</th>
+              <th className='dark:text-white!' onClick={() => handleSort("duration")}>{t('duration')}{renderSortIcon("duration")}</th>
+              <th className='dark:text-white!'>{t('continent')}</th>
+              <th className='dark:text-white!'>{t('location')}</th>
+              <th className='dark:text-white!'>{t('difficulty')}</th>
+              <th className='dark:text-white!'>{t('guide')}</th>
+              <th className='dark:text-white!'>{t('actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -212,10 +227,10 @@ function TripManagement() {
                 <td className='dark:text-white!'>{trip.continent}</td>
                 <td className='dark:text-white!'>{trip.location}</td>
                 <td className='dark:text-white!'>{trip.difficulty}</td>
-                <td className='dark:text-white!'>{trip.has_guide ? trip.guide_name : 'No'}</td>
+                <td className='dark:text-white!'>{trip.has_guide ? trip.guide_name : t('no')}</td>
                 <td className='flex flex-row'>
-                  <button className={`${styles.actionButton} bg-blue-600!`} onClick={() => openEditModal(trip)}>Edit</button>
-                  <button className={`${styles.actionButton} bg-red-600!`} onClick={() => handleDeleteTrip(trip.id)}>Delete</button>
+                  <button className={`${styles.actionButton} bg-blue-600!`} onClick={() => openEditModal(trip)}>{t('edit')}</button>
+                  <button className={`${styles.actionButton} bg-red-600!`} onClick={() => handleDeleteTrip(trip.id)}>{t('delete')}</button>
                 </td>
               </tr>
             ))}

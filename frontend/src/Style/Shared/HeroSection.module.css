@@ -1,0 +1,151 @@
+.hero {
+  position: relative;
+  height: var(--hero-height, 70vh);
+  min-height: var(--hero-min-height, 760px);
+  max-height: 800px;
+  width: 100%;
+  overflow: visible;
+  padding-bottom: 80px;
+  margin-bottom: -80px;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      var(--hero-media-overlay-start) 0%,
+      var(--hero-media-overlay-end) 100%
+    ),
+    linear-gradient(
+      rgba(0, 0, 0, var(--hero-overlay-darkness, 0.2)),
+      rgba(0, 0, 0, var(--hero-overlay-darkness, 0.2))
+    );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.overlayLight {
+  --hero-overlay-darkness: 0.1;
+}
+
+.overlayMedium {
+  --hero-overlay-darkness: 0.2;
+}
+
+.overlayStrong {
+  --hero-overlay-darkness: 0.32;
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.heroCenter {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: var(--hero-content-justify, center);
+  padding: var(--hero-content-top, 24px) 16px 24px;
+}
+
+.heroContent {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.heroSubtitle {
+  margin: 12px 0 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.searchBarWrapper {
+  position: relative;
+  width: min(600px, 90%);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7a7a7a;
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 52px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 0 20px 0 48px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: #888;
+}
+
+.heroContentSlot {
+  width: min(1000px, 96%);
+}
+
+.heroContentSlotTop {
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    height: 50vh;
+    min-height: 400px;
+  }
+
+  .heroTitle,
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .heroSubtitle,
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .searchInput,
+  .searchBar {
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    height: 45vh;
+    min-height: 320px;
+  }
+
+  .heroTitle,
+  .title {
+    font-size: 1.4rem;
+  }
+}

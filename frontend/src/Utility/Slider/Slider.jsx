@@ -13,16 +13,19 @@ const Slider = ({ data = [] }) => {
   const visibleItemsCount = 4;
 
   const nextSlide = () => {
+    if (!data.length) return;
     setCurrentIndex((prevIndex) => (prevIndex + visibleItemsCount) % data.length);
   };
 
   const prevSlide = () => {
+    if (!data.length) return;
     setCurrentIndex((prevIndex) => (prevIndex - visibleItemsCount + data.length) % data.length);
   };
-  console.log(data);
+
+  if (!data.length) return null;
 
   return (
-    <SliderWrapper visibleItems={visibleItemsCount}>
+    <SliderWrapper $visibleItems={visibleItemsCount}>
       <div className="slider">
         <button className="prev" onClick={prevSlide}>
           <ArrowBackIcon />
@@ -55,7 +58,7 @@ const Slider = ({ data = [] }) => {
                           e.stopPropagation();
                         }}
                       >
-                        <WatchlistButton type="activitie" id={item.id} title={item.title || item.name_en || item.name} />
+                        <WatchlistButton type="activity" id={item.id} title={item.title || item.name_en || item.name} />
                       </div>
                     </div>
                     <h5>{item.title || item.name_en || item.name}</h5>
@@ -83,7 +86,7 @@ const Slider = ({ data = [] }) => {
 };
 
 const SliderWrapper = styled.div`
-  --visible-items: ${(props) => props.visibleItems};
+  --visible-items: ${(props) => props.$visibleItems};
 
   .slider {
     display: flex;

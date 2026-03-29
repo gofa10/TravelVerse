@@ -1,8 +1,10 @@
 // Navbar.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import navbarStyles from './Main.module.css'; // تم ربطه بملف الـ CSS الموحد
 
 const Navbar = ({ toggleSidebar, isSidebarHidden }) => { // تم إضافة props للتحكم في الـ sidebar
+  const { t } = useTranslation();
   const [showNotificationMenu, setShowNotificationMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isSearchFormActive, setIsSearchFormActive] = useState(false);
@@ -67,10 +69,10 @@ const Navbar = ({ toggleSidebar, isSidebarHidden }) => { // تم إضافة prop
     <nav className={navbarStyles.navbar}> {/* إضافة كلاس لتحديد الـ scope */}
       {/* تم تغيير icon الـ menu عشان يتم التحكم فيه من الأب Dashboard component */}
       {/* <i className={`bx bx-menu bx-sm ${navbarStyles.bxMenu}`} onClick={toggleSidebar}></i> */}
-      <a href="#" className={navbarStyles['nav-link']}>Categories</a>
+      <a href="#" className={navbarStyles['nav-link']}>{t('categories')}</a>
       <form action="#" className={isSearchFormActive ? navbarStyles.show : ''} ref={searchFormRef}>
         <div className={navbarStyles['form-input']}>
-          <input type="search" placeholder="Search..." ref={searchInputRef} />
+          <input type="search" placeholder={t('search_dots')} ref={searchInputRef} />
           <button type="submit" className={navbarStyles['search-btn']} onClick={handleSearchButtonClick} ref={searchButtonRef}>
             <i className={`bx ${isSearchFormActive ? 'bx-x' : 'bx-search'}`} ref={searchButtonIconRef}></i>
           </button>
@@ -90,11 +92,11 @@ const Navbar = ({ toggleSidebar, isSidebarHidden }) => { // تم إضافة prop
       </a>
       <div className={`${navbarStyles['notification-menu']} ${showNotificationMenu ? navbarStyles.show : ''}`}>
         <ul>
-          <li>New message from John</li>
-          <li>Your order has been shipped</li>
-          <li>New comment on your post</li>
-          <li>Update available for your app</li>
-          <li>Reminder: Meeting at 3PM</li>
+          <li>{t('new_msg_john')}</li>
+          <li>{t('order_shipped')}</li>
+          <li>{t('new_comment_post')}</li>
+          <li>{t('update_app_available')}</li>
+          <li>{t('reminder_meeting_3pm')}</li>
         </ul>
       </div>
 
@@ -103,11 +105,11 @@ const Navbar = ({ toggleSidebar, isSidebarHidden }) => { // تم إضافة prop
       </a>
       <div className={`${navbarStyles['profile-menu']} ${showProfileMenu ? navbarStyles.show : ''}`}>
         <ul>
-          <li><a href="#">My Profile</a></li>
+          <li><a href="#">{t('my_profile_label')}</a></li>
         </ul>
         <ul> {/* تم الفصل بين الـ li لوجود border-bottom */}
-          <li><a href="#">Settings</a></li>
-          <li><a href="#">Log Out</a></li>
+          <li><a href="#">{t('settings_label')}</a></li>
+          <li><a href="#">{t('logout_label')}</a></li>
         </ul>
       </div>
     </nav>

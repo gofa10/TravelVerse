@@ -9,6 +9,12 @@ const api = axios.create({
 // Auto-attach token to every request
 api.interceptors.request.use((config) => {
   const token = getToken();
+  const language = typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : null;
+
+  if (!config.headers['Accept-Language']) {
+    config.headers['Accept-Language'] = language || 'en';
+  }
+
   if (isValidToken(token)) {
     // Prevent duplicate Bearer if already set
     if (!config.headers.Authorization) {

@@ -31,15 +31,34 @@ class ErrorBoundary extends React.Component {
                               An unexpected error occurred.
                               Please try refreshing the page.
                          </p>
-                         <button
-                              onClick={() => window.location.reload()}
-                              style={{
-                                   padding: '0.5rem 1.5rem',
-                                   cursor: 'pointer'
-                              }}
-                         >
-                              Refresh Page
-                         </button>
+                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                              <button
+                                   onClick={() => window.location.reload()}
+                                   style={{
+                                        padding: '0.5rem 1.5rem',
+                                        cursor: 'pointer',
+                                        backgroundColor: 'var(--primary-color, #2563eb)',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '6px'
+                                   }}
+                              >
+                                   Refresh Page
+                              </button>
+                              <button
+                                   onClick={() => window.location.href = '/'}
+                                   style={{
+                                        padding: '0.5rem 1.5rem',
+                                        cursor: 'pointer',
+                                        backgroundColor: 'transparent',
+                                        color: 'var(--primary-color, #2563eb)',
+                                        border: '1px solid var(--primary-color, #2563eb)',
+                                        borderRadius: '6px'
+                                   }}
+                              >
+                                   Go Home
+                              </button>
+                         </div>
                     </div>
                );
           }

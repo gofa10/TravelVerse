@@ -1,16 +1,17 @@
 // src/Utility/Cards/ItemCard.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import TypeBadge from './TypeBadge';
 import WatchlistButton from '../Buttons/WatchlistButton';
+import TripPlanMenuButton from '../../Components/TripBuilder/TripPlanMenuButton';
+import { getStorageBaseUrl, getStorageUrl } from '../envUtils.js';
+import useImageFallback from '../../Components/Common/useImageFallback';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const FALLBACK_IMAGE = '/fallback.svg';
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -22,44 +23,44 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
  */
 const getImageSrc = (image) => {
      // Handle null, undefined, or empty values
-     if (!image) return FALLBACK_IMAGE;
+     if (!image) return '';
 
      let img = image;
 
      // Handle arrays - get first valid element
      if (Array.isArray(img)) {
-          if (img.length === 0) return FALLBACK_IMAGE;
+          if (img.length === 0) return '';
           img = img[0];
           // Recursively process the first element
-          if (!img) return FALLBACK_IMAGE;
+          if (!img) return '';
      }
 
      // Handle File objects (from uploads)
-     if (typeof img === 'object' && img instanceof File) {
+     if (img instanceof File) {
           return URL.createObjectURL(img);
      }
 
      // Handle objects with url property
-     if (typeof img === 'object' && img?.url) {
+     if (typeof img === 'object' && img.url) {
           img = img.url;
      }
 
      // Handle string URLs
      if (typeof img === 'string') {
           // Empty string
-          if (!img.trim()) return FALLBACK_IMAGE;
+          if (!img.trim()) return '';
 
           // Already absolute URL or data URI
           if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:')) {
                return img;
           }
 
-          // Relative path - prepend base URL
+          // Relative path - prepend storage URL
           const path = img.startsWith('/') ? img : `/${img}`;
-          return `${BASE_URL}${path}`;
+          return getStorageUrl(path);
      }
 
-     return FALLBACK_IMAGE;
+     return '';
 };
 
 // ─── Star Rating ─────────────────────────────────────────────────────────────
@@ -115,27 +116,24 @@ const SkeletonCard = () => (
  *  to      – optional Link destination (if provided, card wraps in Link)
  */
 const ItemCard = ({ id, image, title, rating = 0, meta = [], price, onClick, isLoading, to, type }) => {
-     const [imgError, setImgError] = useState(false);
+     const { t } = useTranslation();
 
      if (isLoading) return <SkeletonCard />;
 
      // Derive the display title with fallback
-     const displayTitle = title || 'Untitled';
+     const displayTitle = title || t('not_available');
 
      // Derive image source - use fallback if error occurred or no valid image
-     const imageSrc = imgError ? FALLBACK_IMAGE : getImageSrc(image);
-
-     // Handle image load error
-     const handleImageError = (e) => {
-          // Prevent infinite loop
-          if (!imgError) {
-               setImgError(true);
-               e.target.src = FALLBACK_IMAGE;
-          }
-     };
+     const { src: imageSrc, fallbackSrc, onError: handleImageError } = useImageFallback(getImageSrc(image));
 
      // Determine ID - prioritize explicit id prop
      const itemId = id || meta.find(m => m.label === 'ID')?.value || 0;
+     const planTypeMap = {
+          trip: 'Trip',
+          hotel: 'Hotel',
+          restaurant: 'Restaurant',
+     };
+     const planType = planTypeMap[type];
 
      const cardContent = (
           <div className="item-card">
@@ -149,7 +147,7 @@ const ItemCard = ({ id, image, title, rating = 0, meta = [], price, onClick, isL
                          height="100%"
                          className="card-img"
                          onError={handleImageError}
-                         placeholderSrc={FALLBACK_IMAGE}
+                         placeholderSrc={fallbackSrc}
                     />
                     {type && <TypeBadge type={type} />}
                     <div style={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}>
@@ -166,12 +164,22 @@ const ItemCard = ({ id, image, title, rating = 0, meta = [], price, onClick, isL
                     {/* Meta rows - displayed horizontally like the large card design */}
                     {meta.length > 0 && (
                          <div className="meta-rows">
-                              {meta.map(({ label, value }, i) => (
-                                   <div key={i} className="meta-row">
-                                        <span className="meta-label">{label}:</span>
-                                        <span className="meta-value">{value ?? '—'}</span>
-                                   </div>
-                              ))}
+                              {meta.map(({ label, value }, i) => {
+                                   const translatedLabelMap = {
+                                        Duration: t('duration'),
+                                        Location: t('location'),
+                                        Price: t('price'),
+                                        Stars: t('stars'),
+                                        Rating: t('rating'),
+                                   };
+
+                                   return (
+                                        <div key={i} className="meta-row">
+                                             <span className="meta-label">{translatedLabelMap[label] || label}:</span>
+                                             <span className="meta-value">{value ?? t('not_available')}</span>
+                                        </div>
+                                   );
+                              })}
                          </div>
                     )}
 
@@ -179,6 +187,14 @@ const ItemCard = ({ id, image, title, rating = 0, meta = [], price, onClick, isL
                     {price && !meta.some(m => m.label === 'Price') && (
                          <div className="price-badge">{price}</div>
                     )}
+
+                    {planType ? (
+                         <div
+                              className="mt-2 flex justify-center"
+                         >
+                              <TripPlanMenuButton serviceId={itemId} serviceType={planType} />
+                         </div>
+                    ) : null}
                </div>
           </div>
      );

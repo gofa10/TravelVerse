@@ -51,7 +51,7 @@ class FlightSearchController extends Controller
                $response = Http::timeout(15)->get('https://serpapi.com/search.json', $params);
 
                if ($response->failed()) {
-                    return response()->json(['error' => 'Failed to fetch from SerpAPI', 'details' => $response->body()], 502);
+                    return $this->error('Failed to fetch from SerpAPI', 502, ['details' => $response->body()]);
                }
 
                $serpData = $response->json();
@@ -66,7 +66,7 @@ class FlightSearchController extends Controller
                     return self::normalizeSerpFlight($item);
                }, $rawFlights);
 
-               return response()->json([
+               return $this->success([
                     'source' => 'google_flights',
                     'from' => $from,
                     'to' => $to,
@@ -80,7 +80,7 @@ class FlightSearchController extends Controller
           // ──────────────────────────────────────────────
           // FALLBACK: Realistic Mock Data
           // ──────────────────────────────────────────────
-          return response()->json([
+          return $this->success([
                'source' => 'mock',
                'from' => $from,
                'to' => $to,

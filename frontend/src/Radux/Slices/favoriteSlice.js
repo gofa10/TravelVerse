@@ -1,19 +1,34 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from '../axios';
+const normalizeItems = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.items)) return payload.items;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+};
 
-export const fetchFavorites = createAsyncThunk('favorites/fetchAll', async () => {
+export const fetchFavorites = createAsyncThunk('favorites/fetchAll', async (_, { rejectWithValue }) => {
+  try {
   const res = await API.get('/favorites');
-  return res.data;
+  return res.data.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
+  }
 });
 
-export const toggleFavorite = createAsyncThunk('favorites/toggle', async (data) => {
+export const toggleFavorite = createAsyncThunk('favorites/toggle', async (data, { rejectWithValue }) => {
+  try {
   const res = await API.post('/favorites', data);
-  return res.data;
+  return res.data.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
+  }
 });
 
 const favoriteSlice = createSlice({
   name: 'favorite',
   initialState: {
+    items: [],
     favorites: [],
     loading: false,
     error: null,
@@ -26,21 +41,26 @@ const favoriteSlice = createSlice({
       })
       .addCase(fetchFavorites.fulfilled, (state, action) => {
         state.loading = false;
-        state.favorites = action.payload;
+        const items = normalizeItems(action.payload);
+        state.items = items;
+        state.favorites = items;
       })
-      .addCase(fetchFavorites.rejected, (state) => {
+      .addCase(fetchFavorites.rejected, (state, action) => {
         state.loading = false;
-        state.error = 'Failed to fetch favorites';
+        state.error = action.payload ?? action.error?.message ?? 'Something went wrong';
       })
       .addCase(toggleFavorite.fulfilled, (state, action) => {
-        const exists = state.favorites.find(f => f.id === action.payload.id);
+        const exists = state.items.find(f => f.id === action.payload.id);
         if (exists) {
-          state.favorites = state.favorites.filter(f => f.id !== action.payload.id);
+          state.items = state.items.filter(f => f.id !== action.payload.id);
         } else {
-          state.favorites.push(action.payload);
+          state.items.push(action.payload);
         }
+        state.favorites = state.items;
       });
   },
 });
 
+export const selectFavoriteItems = (state) =>
+  Array.isArray(state.favorite?.items) ? state.favorite.items : [];
 export default favoriteSlice.reducer;

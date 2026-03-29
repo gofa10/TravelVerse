@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import api from '../../Radux/axios';
 
 const initialForm = {
@@ -18,6 +19,7 @@ const initialForm = {
 };
 
 export default function GuideMyTrips() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -30,16 +32,20 @@ export default function GuideMyTrips() {
     queryFn: async () => (await api.get('/guide/trips')).data,
   });
 
-  const trips = useMemo(() => data?.data || [], [data]);
+  const trips = useMemo(() => {
+    if (Array.isArray(data?.data)) return data.data;
+    if (Array.isArray(data?.data?.items)) return data.data.items;
+    return [];
+  }, [data]);
 
   const createMutation = useMutation({
     mutationFn: async (payload) => (await api.post('/guide/trips', payload)).data,
     onSuccess: () => {
-      toast.success('Trip created successfully');
+      toast.success(t('success'));
       queryClient.invalidateQueries({ queryKey: ['guide-trips'] });
       closeModal();
     },
-    onError: (error) => toast.error(error.response?.data?.message || 'Failed to create trip'),
+    onError: (error) => toast.error(error.response?.data?.message || t('error_occurred')),
   });
 
   const updateMutation = useMutation({
@@ -48,20 +54,20 @@ export default function GuideMyTrips() {
       return (await api.post(`/guide/trips/${id}`, payload)).data;
     },
     onSuccess: () => {
-      toast.success('Trip updated successfully');
+      toast.success(t('success'));
       queryClient.invalidateQueries({ queryKey: ['guide-trips'] });
       closeModal();
     },
-    onError: (error) => toast.error(error.response?.data?.message || 'Failed to update trip'),
+    onError: (error) => toast.error(error.response?.data?.message || t('error_occurred')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id) => (await api.delete(`/guide/trips/${id}`)).data,
     onSuccess: () => {
-      toast.success('Trip deleted successfully');
+      toast.success(t('success'));
       queryClient.invalidateQueries({ queryKey: ['guide-trips'] });
     },
-    onError: (error) => toast.error(error.response?.data?.message || 'Failed to delete trip'),
+    onError: (error) => toast.error(error.response?.data?.message || t('error_occurred')),
   });
 
   const closeModal = () => {
@@ -126,18 +132,18 @@ export default function GuideMyTrips() {
   return (
     <div style={{ marginTop: '16px' }} className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">My Trips</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t('my_trips')}</h1>
         <button
           onClick={openCreate}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all"
         >
-          + Add Trip
+          {t('add_trip_btn')}
         </button>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="px-6 py-8 text-gray-600 dark:text-gray-300">Loading trips...</div>
+          <div className="px-6 py-8 text-gray-600 dark:text-gray-300">{t('loading_trips')}</div>
         ) : isError ? (
           <div className="px-6 py-8 text-red-600 dark:text-red-400">Failed to load trips.</div>
         ) : trips.length === 0 ? (
@@ -170,13 +176,13 @@ export default function GuideMyTrips() {
                           onClick={() => openEdit(trip)}
                           className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 transition-all"
                         >
-                          Edit
+                          {t('edit')}
                         </button>
                         <button
                           onClick={() => deleteMutation.mutate(trip.id)}
                           className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-600 text-white hover:bg-red-700 transition-all"
                         >
-                          Delete
+                          {t('delete_trip')}
                         </button>
                       </div>
                     </td>

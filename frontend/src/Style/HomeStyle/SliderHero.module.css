@@ -1,6 +1,25 @@
 .slider{
   position: relative;
 }
+
+.slideItem {
+  position: relative;
+  height: 100vh;
+}
+
+.slideItem::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    var(--overlay-medium, rgba(0, 0, 0, 0.5)) 0%,
+    var(--overlay-light, rgba(0, 0, 0, 0.1)) 60%,
+    transparent 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
 /* Full width and height for the video */
 .vid {
     object-fit: cover;
@@ -38,7 +57,18 @@
     left: 5%;
     transform: translateY(-50%);
     text-align: left;
-    
+    z-index: 2;
+  }
+
+  .caption_main h3 {
+    color: #fff;
+    font-weight: 800;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
+  }
+
+  .caption_main p {
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
   }
   
   /* Add spacing between buttons */
@@ -56,7 +86,7 @@
   
   /* Adjust arrows to avoid overlapping */
   .carousel-control-prev-icon, .carousel-control-next-icon {
-    background-color: #000; /* Set the arrows' background color */
+    background-color: var(--accent-primary); /* Set the arrows' background color */
     border-radius: 50%; /* Make the arrows circular */
     padding: 10px;
   }

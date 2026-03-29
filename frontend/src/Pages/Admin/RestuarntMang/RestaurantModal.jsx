@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../UserMang/UserManagement.module.css';
+import { useTranslation } from 'react-i18next';
 
 function RestaurantModal({ isOpen, onClose, onSubmit, initialData }) {
+  const { t } = useTranslation();
   const [previewImages, setPreviewImages] = useState([]);
   const [imageUrls, setImageUrls] = useState('');
 
@@ -110,45 +112,45 @@ function RestaurantModal({ isOpen, onClose, onSubmit, initialData }) {
     <div className={styles.modal}>
       <div className={styles.modalContent}>
         <span className={styles.close} onClick={onClose}>×</span>
-        <h2>{initialData ? 'Edit Restaurant' : 'Add Restaurant'}</h2>
+        <h2>{initialData ? t('edit_restaurant') : t('add_restaurant')}</h2>
         <form onSubmit={handleSubmit}>
-          <label>Arabic Name</label>
+          <label>{t('arabic_name')}</label>
           <input name="name_ar" value={form.name_ar} onChange={handleChange} required />
 
-          <label>English Name</label>
+          <label>{t('english_name')}</label>
           <input name="name_en" value={form.name_en} onChange={handleChange} required />
 
-          <label>Arabic Description</label>
+          <label>{t('arabic_description')}</label>
           <textarea name="description_ar" value={form.description_ar} onChange={handleChange} />
 
-          <label>English Description</label>
+          <label>{t('english_description')}</label>
           <textarea name="description_en" value={form.description_en} onChange={handleChange} />
 
-          <label>Location</label>
+          <label>{t('location')}</label>
           <input name="location" value={form.location} onChange={handleChange} required />
 
-          <label>Rate</label>
+          <label>{t('rate')}</label>
           <input type="number" step="0.1" min="0" max="5" name="rate" value={form.rate} onChange={handleChange} />
 
-          <label>Booking Link</label>
+          <label>{t('booking_link')}</label>
           <input type="url" name="booking_link" value={form.booking_link} onChange={handleChange} />
 
-          <label>Property Type</label>
+          <label>{t('property_type')}</label>
           <input name="property_type" value={form.property_type} onChange={handleChange} />
 
-          <label>Cuisine</label>
+          <label>{t('cuisine')}</label>
           <input name="cuisine" value={form.cuisine} onChange={handleChange} />
 
-          <label>Features (comma separated)</label>
+          <label>{t('features_comma')}</label>
           <input name="featuresInput" value={form.featuresInput} onChange={handleFeaturesChange} />
 
-          <label>Price</label>
+          <label>{t('price')}</label>
           <input type="number" name="price" value={form.price} onChange={handleChange} />
 
-          <label>Upload Images</label>
+          <label>{t('upload_images')}</label>
           <input type="file" accept="image/*" multiple onChange={handleImagesChange} />
 
-          <label>Or Image URLs (one per line)</label>
+          <label>{t('image_urls_per_line')}</label>
           <textarea value={imageUrls} onChange={handleUrlsChange} rows={3} placeholder="https://..." />
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
@@ -157,7 +159,7 @@ function RestaurantModal({ isOpen, onClose, onSubmit, initialData }) {
             ))}
           </div>
 
-          <button type="submit" className={styles.modalButton}>Save</button>
+          <button type="submit" className={styles.modalButton}>{t('save')}</button>
         </form>
       </div>
     </div>

@@ -10,6 +10,8 @@ import HotelIcon from '@mui/icons-material/Hotel';
 import RowingIcon from '@mui/icons-material/Rowing';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import ConnectingAirportsIcon from '@mui/icons-material/ConnectingAirports';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 
 const NavWrapper = styled.div`
   display: flex;
@@ -92,8 +94,10 @@ const ModernCategoryBar = ({ countryName }) => {
      const categories = [
           { id: 'city', path: `/city/${countryName}`, label: countryName || 'TravelVerse', icon: <MapIcon /> },
           { id: 'hotels', path: `/hotel/${countryName}`, label: t('hotels'), icon: <HotelIcon /> },
-          { id: 'activities', path: `/thingstodo/${countryName}`, label: t('activitie'), icon: <RowingIcon /> },
+          { id: 'activities', path: `/thingstodo/${countryName}`, label: t('activity'), icon: <RowingIcon /> },
           { id: 'restaurants', path: `/restaurants/${countryName}`, label: t('restaurant'), icon: <RestaurantIcon /> },
+          { id: 'cars', path: `/car/${countryName}`, label: t('cars'), icon: <DirectionsCarIcon /> },
+          { id: 'cruises', path: `/cruises/${countryName}`, label: t('cruises'), icon: <DirectionsBoatIcon /> },
           { id: 'flights', path: `/flight/${countryName}`, label: t('flights'), icon: <ConnectingAirportsIcon /> },
      ];
 

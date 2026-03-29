@@ -1,0 +1,13 @@
+.cityContentDock {
+  position: relative;
+  z-index: 30;
+  margin-top: var(--space-hero-card-overlap);
+  margin-bottom: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .cityContentDock {
+    margin-top: calc(var(--space-hero-card-overlap) + var(--space-4));
+    margin-bottom: var(--space-4);
+  }
+}

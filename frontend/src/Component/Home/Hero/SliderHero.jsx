@@ -9,8 +9,8 @@ function SliderHero() {
   const { t } = useTranslation();
   return (
     <Carousel fade interval={5000} className={styles.slider} nextIcon={<span className="carousel-control-next-icon" />} prevIcon={<span className="carousel-control-prev-icon" />}>
-      <Carousel.Item>
-        <video autoPlay loop muted className={styles.vid}>
+      <Carousel.Item className={styles.slideItem}>
+        <video autoPlay loop muted playsInline preload="auto" className={styles.vid}>
           <source src={cloud} type="video/mp4" />
         </video>
         <div className={styles.image}>
@@ -30,7 +30,7 @@ function SliderHero() {
              
       </Carousel.Item>
 
-      <Carousel.Item>
+      <Carousel.Item className={styles.slideItem}>
         <img src={travel} alt="Travel" className="w-100" />
         <Carousel.Caption className={styles.caption_main}>
           <h3>Second slide label</h3>
@@ -46,7 +46,7 @@ function SliderHero() {
              
       </Carousel.Item>
 
-      <Carousel.Item>
+      <Carousel.Item className={styles.slideItem}>
         <img src={travel} alt="Travel" className="w-100" />
         <Carousel.Caption className={styles.caption_main}>
           <h3>Third slide label</h3>

@@ -1,388 +1,347 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, MapPin } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Search, MapPin, Tag, DollarSign } from 'lucide-react';
 import api from '../Radux/axios';
 
-/* ─── useDarkMode — watches html.dark class via MutationObserver ─ */
-const useDarkMode = () => {
-     const [dark, setDark] = useState(
-          () => document.documentElement.classList.contains('dark')
-     );
-     useEffect(() => {
-          const observer = new MutationObserver(() =>
-               setDark(document.documentElement.classList.contains('dark'))
-          );
-          observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-          return () => observer.disconnect();
-     }, []);
-     return dark;
+const TYPE_META = {
+  hotel: { icon: '🏨', labelKey: 'hotels', badge: 'bg-violet-100 text-violet-700' },
+  trip: { icon: '✈️', labelKey: 'trips', badge: 'bg-sky-100 text-sky-700' },
+  restaurant: { icon: '🍽️', labelKey: 'restaurants', badge: 'bg-amber-100 text-amber-700' },
+  activity: { icon: '🎭', labelKey: 'activities', badge: 'bg-emerald-100 text-emerald-700' },
+  car: { icon: '🚗', labelKey: 'cars', badge: 'bg-indigo-100 text-indigo-700' },
+  cruise: { icon: '🛳️', labelKey: 'cruises', badge: 'bg-cyan-100 text-cyan-700' },
 };
 
-/* ─── Type config ───────────────────────────────────────────────── */
-const TYPE_CFG = {
-     trip: { badge: '#3b82f6', label: 'Trip', icon: '🗺️', gradient: 'linear-gradient(135deg,#dbeafe,#bfdbfe)', darkGradient: 'linear-gradient(135deg,#1e3a5f,#1e40af)' },
-     hotel: { badge: '#a855f7', label: 'Hotel', icon: '🏨', gradient: 'linear-gradient(135deg,#f3e8ff,#e9d5ff)', darkGradient: 'linear-gradient(135deg,#3b0764,#6b21a8)' },
-     restaurant: { badge: '#f97316', label: 'Restaurant', icon: '🍽️', gradient: 'linear-gradient(135deg,#ffedd5,#fed7aa)', darkGradient: 'linear-gradient(135deg,#431407,#9a3412)' },
-     activity: { badge: '#22c55e', label: 'Activity', icon: '🎯', gradient: 'linear-gradient(135deg,#dcfce7,#bbf7d0)', darkGradient: 'linear-gradient(135deg,#052e16,#166534)' },
-     flight: { badge: '#0ea5e9', label: 'Flight', icon: '✈️', gradient: 'linear-gradient(135deg,#e0f2fe,#bae6fd)', darkGradient: 'linear-gradient(135deg,#082f49,#0369a1)' },
-};
-const DEFAULT_CFG = { badge: '#6b7280', label: 'Other', icon: '📌', gradient: 'linear-gradient(135deg,#f3f4f6,#e5e7eb)', darkGradient: 'linear-gradient(135deg,#1f2937,#374151)' };
-
-const FILTERS = ['All', 'trip', 'hotel', 'restaurant', 'activity', 'flight'];
-const FILTER_LABELS = { All: 'All', trip: 'Trips', hotel: 'Hotels', restaurant: 'Restaurants', activity: 'Activities', flight: 'Flights' };
-
-/* ─── Injected keyframes ────────────────────────────────────────── */
-const STYLE = `
-@keyframes cardFadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position:  400px 0; }
-}
-.sr-shimmer-light {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 800px 100%;
-  animation: shimmer 1.4s infinite linear;
-}
-.sr-shimmer-dark {
-  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-  background-size: 800px 100%;
-  animation: shimmer 1.4s infinite linear;
-}
-`;
-
-/* ─── Skeleton Card ─────────────────────────────────────────────── */
-const SkeletonCard = ({ dark }) => {
-     const cls = dark ? 'sr-shimmer-dark' : 'sr-shimmer-light';
-     return (
-          <div style={{ background: dark ? '#1f2937' : '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-               <div className={cls} style={{ height: 220 }} />
-               <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <div className={cls} style={{ height: 18, borderRadius: 6, width: '75%' }} />
-                    <div className={cls} style={{ height: 13, borderRadius: 6, width: '50%' }} />
-                    <div className={cls} style={{ height: 13, borderRadius: 6, width: '35%' }} />
-                    <div style={{ marginTop: 8 }}>
-                         <div className={cls} style={{ height: 36, borderRadius: 8 }} />
-                    </div>
-               </div>
-          </div>
-     );
+const buildParams = (filters) => {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    const normalized = String(value ?? '').trim();
+    if (normalized !== '') {
+      params.set(key, normalized);
+    }
+  });
+  return params;
 };
 
-/* ─── Result Card ───────────────────────────────────────────────── */
-const ResultCard = ({ item, index, onSelect, dark }) => {
-     const cfg = TYPE_CFG[item.type] || DEFAULT_CFG;
-     const [hovered, setHovered] = useState(false);
+const normalizeCategoryResults = (items, category) => {
+  if (!Array.isArray(items)) {
+    return [];
+  }
 
-     return (
-          <div
-               onClick={() => onSelect(item)}
-               onMouseEnter={() => setHovered(true)}
-               onMouseLeave={() => setHovered(false)}
-               style={{
-                    background: dark ? '#1f2937' : '#fff',
-                    borderRadius: 16,
-                    overflow: 'hidden',
-                    boxShadow: hovered
-                         ? (dark ? '0 12px 32px rgba(0,0,0,0.4)' : '0 12px 32px rgba(0,0,0,0.12)')
-                         : (dark ? '0 1px 4px rgba(0,0,0,0.3)' : '0 1px 3px rgba(0,0,0,0.08)'),
-                    transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    animation: 'cardFadeIn 0.4s ease forwards',
-                    animationDelay: `${Math.min(index * 60, 600)}ms`,
-                    opacity: 0,
-               }}
-          >
-               {/* IMAGE */}
-               <div style={{ position: 'relative', height: 220, overflow: 'hidden', flexShrink: 0 }}>
-                    {item.image ? (
-                         <img
-                              src={item.image}
-                              alt={item.title}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease', transform: hovered ? 'scale(1.05)' : 'scale(1)' }}
-                         />
-                    ) : (
-                         <div style={{
-                              width: '100%', height: '100%',
-                              background: dark ? cfg.darkGradient : cfg.gradient,
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 52,
-                         }}>
-                              {cfg.icon}
-                         </div>
-                    )}
-                    {/* Badge */}
-                    <span style={{
-                         position: 'absolute', top: 12, left: 12,
-                         background: cfg.badge, color: '#fff',
-                         fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 9999,
-                         textTransform: 'capitalize', letterSpacing: '0.03em', boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                    }}>
-                         {cfg.label}
-                    </span>
-               </div>
-
-               {/* BODY */}
-               <div style={{ padding: 20, display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <div style={{
-                         fontWeight: 700, fontSize: 17, lineHeight: 1.35,
-                         color: dark ? '#f9fafb' : '#111827',
-                         overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                         marginBottom: 8,
-                    }}>
-                         {item.title}
-                    </div>
-
-                    {item.location && (
-                         <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                              <MapPin size={13} color={dark ? '#60a5fa' : '#3b82f6'} style={{ flexShrink: 0 }} />
-                              <span style={{ fontSize: 13, color: dark ? '#9ca3af' : '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                   {item.location}
-                              </span>
-                         </div>
-                    )}
-
-                    <div style={{ flex: 1 }} />
-                    <div style={{ borderTop: `1px solid ${dark ? '#374151' : '#f3f4f6'}`, margin: '16px 0' }} />
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                         <span style={{ fontSize: 12, color: dark ? '#6b7280' : '#9ca3af', textTransform: 'capitalize', fontWeight: 500 }}>
-                              {cfg.label}
-                         </span>
-                         <button
-                              onClick={e => { e.stopPropagation(); onSelect(item); }}
-                              style={{
-                                   background: hovered ? '#1d4ed8' : '#2563eb',
-                                   color: '#fff', border: 'none', borderRadius: 8,
-                                   padding: '8px 16px', fontSize: 12, fontWeight: 600,
-                                   cursor: 'pointer', transition: 'background 0.18s ease',
-                                   whiteSpace: 'nowrap',
-                              }}
-                         >
-                              View Details →
-                         </button>
-                    </div>
-               </div>
-          </div>
-     );
+  return items.map((item) => ({
+    ...item,
+    type: item.type || category,
+    title: item.title || item.name || [item.brand, item.model].filter(Boolean).join(' ').trim(),
+  }));
 };
 
-/* ─── Main Page ─────────────────────────────────────────────────── */
+
+const SearchSkeletonCard = () => (
+  <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    <div className="h-48 animate-pulse bg-slate-200" />
+    <div className="space-y-3 p-5">
+      <div className="h-5 w-3/4 animate-pulse rounded bg-slate-200" />
+      <div className="h-4 w-1/2 animate-pulse rounded bg-slate-200" />
+      <div className="h-4 w-1/3 animate-pulse rounded bg-slate-200" />
+    </div>
+  </div>
+);
+
 const SearchResults = () => {
-     const [searchParams] = useSearchParams();
-     const q = searchParams.get('q') || '';
-     const navigate = useNavigate();
-     const dark = useDarkMode();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filters, setFilters] = useState({
+    q: searchParams.get('q') || '',
+    category: searchParams.get('category') || '',
+    location: searchParams.get('location') || '',
+    min_price: searchParams.get('min_price') || '',
+    max_price: searchParams.get('max_price') || '',
+  });
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-     const [results, setResults] = useState([]);
-     const [loading, setLoading] = useState(false);
-     const [error, setError] = useState(false);
-     const [activeFilter, setFilter] = useState('All');
-     const [heroQuery, setHeroQuery] = useState(q);
+  useEffect(() => {
+    setFilters({
+      q: searchParams.get('q') || '',
+      category: searchParams.get('category') || '',
+      location: searchParams.get('location') || '',
+      min_price: searchParams.get('min_price') || '',
+      max_price: searchParams.get('max_price') || '',
+    });
+  }, [searchParams]);
 
-     /* ── fetch ── */
-     useEffect(() => {
-          setHeroQuery(q);
-          setFilter('All');
-          if (!q.trim()) { setResults([]); return; }
-          let cancelled = false;
-          const doFetch = async () => {
-               setLoading(true); setError(false);
-               try {
-                    const { data } = await api.get(`/search?q=${encodeURIComponent(q.trim())}`);
-                    if (!cancelled) setResults(Array.isArray(data) ? data : []);
-               } catch {
-                    if (!cancelled) setError(true);
-               } finally {
-                    if (!cancelled) setLoading(false);
-               }
-          };
-          doFetch();
-          return () => { cancelled = true; };
-     }, [q]);
+  useEffect(() => {
+    const currentParams = buildParams(filters).toString();
+    const existingParams = searchParams.toString();
 
-     /* ── filter ── */
-     const displayed = activeFilter === 'All' ? results : results.filter(r => r.type === activeFilter);
+    const timeoutId = setTimeout(() => {
+      if (currentParams !== existingParams) {
+        setSearchParams(currentParams ? buildParams(filters) : new URLSearchParams(), { replace: true });
+      }
+    }, 250);
 
-     /* ── hero search submit ── */
-     const handleHeroSearch = () => {
-          if (heroQuery.trim()) navigate(`/search?q=${encodeURIComponent(heroQuery.trim())}`);
-     };
+    return () => clearTimeout(timeoutId);
+  }, [filters, searchParams, setSearchParams]);
 
-     /* ── navigate to detail ── */
-     const handleSelect = item => navigate(`/itemdetail/${item.id}?type=${item.type}`);
+  useEffect(() => {
+    const activeFilters = {
+      q: searchParams.get('q') || '',
+      category: searchParams.get('category') || '',
+      location: searchParams.get('location') || '',
+      min_price: searchParams.get('min_price') || '',
+      max_price: searchParams.get('max_price') || '',
+    };
 
-     /* ── computed theme values ── */
-     const t = {
-          pageBg: dark ? '#030712' : '#f8fafc',
-          heroBg: dark ? 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
-          heroLabel: dark ? 'rgba(147,197,253,0.8)' : 'rgba(255,255,255,0.7)',
-          heroSub: dark ? 'rgba(191,219,254,0.7)' : 'rgba(255,255,255,0.6)',
-          searchBarBg: dark ? '#1e293b' : '#fff',
-          searchBorder: dark ? '1px solid #334155' : '1px solid transparent',
-          searchIcon: dark ? '#60a5fa' : '#2563eb',
-          inputColor: dark ? '#f1f5f9' : '#1a1a1a',
-          filterBarBg: dark ? '#111827' : '#fff',
-          filterBarBorder: dark ? '1px solid rgba(55,65,81,0.5)' : '1px solid #e5e7eb',
-          pillActiveBg: dark ? '#3b82f6' : '#2563eb',
-          pillInactiveBg: dark ? '#1f2937' : '#fff',
-          pillInactiveColor: dark ? '#d1d5db' : '#4b5563',
-          pillInactiveBorder: dark ? '1px solid #374151' : '1px solid #e5e7eb',
-          pillHoverBg: dark ? '#374151' : '#f9fafb',
-          countColor: dark ? '#6b7280' : '#9ca3af',
-          errorTitle: dark ? '#e5e7eb' : '#374151',
-          errorSub: dark ? '#6b7280' : '#9ca3af',
-          emptyTitle: dark ? '#f9fafb' : '#1f2937',
-          emptySub: dark ? '#9ca3af' : '#6b7280',
-     };
+    if (!Object.values(activeFilters).some((value) => String(value).trim() !== '')) {
+      setResults([]);
+      setLoading(false);
+      setError(false);
+      return;
+    }
 
-     return (
-          <>
-               <style>{STYLE}</style>
-               <div style={{ minHeight: '100vh', background: t.pageBg, transition: 'background 0.2s ease' }}>
+    const requestParams = buildParams({
+      ...activeFilters,
+      full: 'true',
+    });
 
-                    {/* ══════════════════════════════════════════════════════════ */}
-                    {/* HERO BANNER                                               */}
-                    {/* ══════════════════════════════════════════════════════════ */}
-                    <div style={{ background: t.heroBg, padding: '48px 24px 64px', textAlign: 'center', transition: 'background 0.2s ease' }}>
-                         <p style={{ color: t.heroLabel, fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
-                              Search Results
-                         </p>
-                         <h1 style={{ color: '#fff', fontSize: 36, fontWeight: 800, margin: 0, marginBottom: 8 }}>
-                              Results for "{q}"
-                         </h1>
-                         <p style={{ color: t.heroSub, fontSize: 16, margin: '0 0 32px' }}>
-                              {loading ? 'Searching…' : `${results.length} destination${results.length !== 1 ? 's' : ''} found`}
-                         </p>
+    let cancelled = false;
 
-                         {/* Search bar */}
-                         <div style={{
-                              display: 'flex', maxWidth: 540, margin: '0 auto',
-                              background: t.searchBarBg, border: t.searchBorder,
-                              borderRadius: 9999, padding: '6px 6px 6px 20px',
-                              boxShadow: '0 8px 32px rgba(0,0,0,0.22)', alignItems: 'center', gap: 8,
-                              transition: 'background 0.2s ease',
-                         }}>
-                              <Search size={18} color={t.searchIcon} style={{ flexShrink: 0 }} />
-                              <input
-                                   value={heroQuery}
-                                   onChange={e => setHeroQuery(e.target.value)}
-                                   onKeyDown={e => e.key === 'Enter' && handleHeroSearch()}
-                                   placeholder="Search destinations..."
-                                   style={{
-                                        flex: 1, border: 'none', outline: 'none',
-                                        fontSize: 15, color: t.inputColor,
-                                        background: 'transparent', fontFamily: 'inherit',
-                                   }}
-                              />
-                              <button
-                                   onClick={handleHeroSearch}
-                                   style={{ background: '#2563eb', color: '#fff', border: 'none', borderRadius: 9999, padding: '10px 22px', fontSize: 14, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
-                                   onMouseEnter={e => e.currentTarget.style.background = '#1d4ed8'}
-                                   onMouseLeave={e => e.currentTarget.style.background = '#2563eb'}
-                              >
-                                   Search
-                              </button>
-                         </div>
-                    </div>
+    const fetchResults = async () => {
+      setLoading(true);
+      setError(false);
+      try {
+        const { data } = await api.get(`/search?${requestParams.toString()}`);
+        if (!cancelled) {
+          setResults(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        if (!cancelled) {
+          setError(true);
+          setResults([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
 
-                    {/* ══════════════════════════════════════════════════════════ */}
-                    {/* STICKY FILTER BAR                                         */}
-                    {/* ══════════════════════════════════════════════════════════ */}
-                    <div style={{
-                         position: 'sticky', top: 64, zIndex: 40,
-                         background: t.filterBarBg, borderBottom: t.filterBarBorder,
-                         padding: '12px 24px', transition: 'background 0.2s ease',
-                    }}>
-                         <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-                              {/* Pills */}
-                              <div style={{ display: 'flex', gap: 8, flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: 2 }}>
-                                   {FILTERS.map(f => {
-                                        const active = activeFilter === f;
-                                        return (
-                                             <button
-                                                  key={f}
-                                                  onClick={() => setFilter(f)}
-                                                  style={{
-                                                       background: active ? t.pillActiveBg : t.pillInactiveBg,
-                                                       color: active ? '#fff' : t.pillInactiveColor,
-                                                       border: active ? `1px solid ${t.pillActiveBg}` : t.pillInactiveBorder,
-                                                       borderRadius: 9999, padding: '8px 20px', fontSize: 13, fontWeight: 600,
-                                                       cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s ease', outline: 'none',
-                                                  }}
-                                                  onMouseEnter={e => { if (!active) e.currentTarget.style.background = t.pillHoverBg; }}
-                                                  onMouseLeave={e => { if (!active) e.currentTarget.style.background = t.pillInactiveBg; }}
-                                             >
-                                                  {FILTER_LABELS[f]}
-                                             </button>
-                                        );
-                                   })}
-                              </div>
-                              {/* Count */}
-                              <span style={{ fontSize: 13, color: t.countColor, fontWeight: 500, whiteSpace: 'nowrap' }}>
-                                   {loading ? '…' : `${displayed.length} result${displayed.length !== 1 ? 's' : ''}`}
-                              </span>
-                         </div>
-                    </div>
+    fetchResults();
 
-                    {/* ══════════════════════════════════════════════════════════ */}
-                    {/* MAIN CONTENT                                              */}
-                    {/* ══════════════════════════════════════════════════════════ */}
-                    <div style={{ minHeight: '60vh', padding: '32px 24px 64px' }}>
-                         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams]);
 
-                              {/* Loading */}
-                              {loading && (
-                                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {[1, 2, 3, 4, 5, 6].map(i => <SkeletonCard key={i} dark={dark} />)}
-                                   </div>
-                              )}
+  const groupedResults = useMemo(() => {
+    return results.reduce((accumulator, item) => {
+      if (!accumulator[item.type]) {
+        accumulator[item.type] = [];
+      }
+      accumulator[item.type].push(item);
+      return accumulator;
+    }, {});
+  }, [results]);
 
-                              {/* Error */}
-                              {error && !loading && (
-                                   <div style={{ textAlign: 'center', padding: '80px 0' }}>
-                                        <div style={{ fontSize: 64, marginBottom: 16 }}>⚠️</div>
-                                        <div style={{ fontSize: 22, fontWeight: 700, color: t.errorTitle, marginBottom: 8 }}>Something went wrong</div>
-                                        <div style={{ fontSize: 14, color: t.errorSub }}>Please try again later.</div>
-                                   </div>
-                              )}
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
-                              {/* Empty */}
-                              {!loading && !error && displayed.length === 0 && (
-                                   <div style={{ textAlign: 'center', padding: '80px 0' }}>
-                                        <div style={{ fontSize: 64, marginBottom: 16 }}>🔍</div>
-                                        <div style={{ fontSize: 24, fontWeight: 700, color: t.emptyTitle, marginBottom: 8 }}>
-                                             {results.length === 0 ? `No results found for "${q}"` : `No ${FILTER_LABELS[activeFilter]} found`}
-                                        </div>
-                                        <div style={{ fontSize: 15, color: t.emptySub, marginBottom: 32 }}>
-                                             {results.length === 0 ? 'Try a different keyword — e.g. "Cairo", "Hotel", "Beach"' : 'Try selecting a different filter'}
-                                        </div>
-                                        <button
-                                             onClick={() => navigate('/')}
-                                             style={{ background: '#2563eb', color: '#fff', border: 'none', borderRadius: 9999, padding: '12px 32px', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
-                                        >
-                                             Go back home
-                                        </button>
-                                   </div>
-                              )}
+  const handleClear = () => {
+    setFilters({
+      q: '',
+      category: '',
+      location: '',
+      min_price: '',
+      max_price: '',
+    });
+    setSearchParams(new URLSearchParams(), { replace: true });
+  };
 
-                              {/* Results grid */}
-                              {!loading && !error && displayed.length > 0 && (
-                                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {displayed.map((item, idx) => (
-                                             <ResultCard key={`${item.type}-${item.id}`} item={item} index={idx} onSelect={handleSelect} dark={dark} />
-                                        ))}
-                                   </div>
-                              )}
-                         </div>
-                    </div>
-               </div>
-          </>
-     );
+  const handleSelect = (item) => {
+    navigate(`/itemdetail/${item.id}?type=${item.type}`);
+  };
+
+  const resultHeadline = filters.q
+    ? `${results.length} ${t('results_found')} "${filters.q}"`
+    : `${results.length} ${t('results_found')}`;
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <div className="bg-[linear-gradient(135deg,#082f49_0%,#0369a1_55%,#38bdf8_100%)] px-4 py-14 text-white sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-100">{t('search')}</p>
+          <h1 className="mt-3 text-3xl font-black sm:text-5xl">{resultHeadline}</h1>
+          <p className="mt-4 max-w-2xl text-sm text-sky-50/90">{t('filter_results')}</p>
+        </div>
+      </div>
+
+      <div className="mx-auto -mt-8 max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 className="text-lg font-bold text-slate-900">{t('filter_results')}</h2>
+            <button
+              type="button"
+              onClick={handleClear}
+              className="text-sm font-semibold text-sky-700 transition hover:text-sky-900"
+            >
+              {t('clear_filters')}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[2fr_1.2fr_1.5fr_1fr_1fr]">
+            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <Search className="h-5 w-5 text-sky-600" />
+              <input
+                type="text"
+                value={filters.q}
+                onChange={(event) => handleFilterChange('q', event.target.value)}
+                placeholder={t('search_placeholder')}
+                className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </label>
+
+            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <Tag className="h-5 w-5 text-sky-600" />
+              <select
+                value={filters.category}
+                onChange={(event) => handleFilterChange('category', event.target.value)}
+                className="w-full bg-transparent text-sm text-slate-900 outline-none"
+              >
+                <option value="">{t('all_categories')}</option>
+                <option value="trip">{t('trips')}</option>
+                <option value="hotel">{t('hotels')}</option>
+                <option value="restaurant">{t('restaurants')}</option>
+                <option value="activity">{t('activities')}</option>
+                <option value="car">{t('cars')}</option>
+                <option value="cruise">{t('cruises')}</option>
+              </select>
+            </label>
+
+            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <MapPin className="h-5 w-5 text-sky-600" />
+              <input
+                type="text"
+                value={filters.location}
+                onChange={(event) => handleFilterChange('location', event.target.value)}
+                placeholder={t('location')}
+                className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </label>
+
+            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <DollarSign className="h-5 w-5 text-sky-600" />
+              <input
+                type="number"
+                min="0"
+                value={filters.min_price}
+                onChange={(event) => handleFilterChange('min_price', event.target.value)}
+                placeholder={t('min_price')}
+                className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </label>
+
+            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <DollarSign className="h-5 w-5 text-sky-600" />
+              <input
+                type="number"
+                min="0"
+                value={filters.max_price}
+                onChange={(event) => handleFilterChange('max_price', event.target.value)}
+                placeholder={t('max_price')}
+                className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </label>
+          </div>
+        </div>
+
+        <div className="mt-8 flex items-center justify-between gap-4">
+          <p className="text-sm text-slate-600">{resultHeadline}</p>
+        </div>
+
+        {loading && (
+          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SearchSkeletonCard key={index} />
+            ))}
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="mt-12 rounded-[28px] border border-rose-200 bg-white p-12 text-center shadow-sm">
+            <div className="text-lg font-bold text-slate-900">{t('error_occurred')}</div>
+          </div>
+        )}
+
+        {!loading && !error && results.length === 0 && (
+          <div className="mt-12 rounded-[28px] border border-slate-200 bg-white p-12 text-center shadow-sm">
+            <Search className="mx-auto h-12 w-12 text-slate-300" />
+            <div className="mt-4 text-xl font-bold text-slate-900">{t('no_results')}</div>
+          </div>
+        )}
+
+        {!loading && !error && results.length > 0 && (
+          <div className="mt-8 space-y-10">
+            {Object.entries(groupedResults).map(([type, items]) => {
+              const meta = TYPE_META[type] || { icon: '📌', labelKey: type, badge: 'bg-slate-100 text-slate-700' };
+
+              return (
+                <section key={type} className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${meta.badge}`}>
+                      <span>{meta.icon}</span>
+                      {t(meta.labelKey)}
+                    </span>
+                    <span className="text-sm text-slate-500">{items.length}</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {items.map((item) => (
+                      <button
+                        type="button"
+                        key={`${type}-${item.id}`}
+                        onClick={() => handleSelect(item)}
+                        className="overflow-hidden rounded-[28px] border border-slate-200 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+                      >
+                        <div className="relative h-52 bg-slate-100">
+                          {item.image ? (
+                            <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-5xl">{meta.icon}</div>
+                          )}
+                          <span className={`absolute left-4 top-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${meta.badge}`}>
+                            <span>{meta.icon}</span>
+                            {t(meta.labelKey)}
+                          </span>
+                        </div>
+
+                        <div className="space-y-3 p-5">
+                          <h3 className="line-clamp-2 text-lg font-bold text-slate-900">{item.title}</h3>
+
+                          <div className="flex items-center gap-2 text-sm text-slate-500">
+                            <MapPin className="h-4 w-4 text-sky-600" />
+                            <span className="truncate">{item.location || t('not_available')}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-sm text-slate-700">
+                            <DollarSign className="h-4 w-4 text-sky-600" />
+                            <span>{item.price ?? t('not_available')}</span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default SearchResults;

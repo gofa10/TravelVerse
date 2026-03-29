@@ -1,8 +1,10 @@
 // ProjectsSection.js
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './admin.module.css'; // استيراد الـ CSS Modules
 
 function UserDash() {
+        const { t } = useTranslation();
         const [isListView, setIsListView] = useState(false);
 
     const projects = [
@@ -129,7 +131,7 @@ const toggleView = (viewType) => {
                                 <p className={styles['box-content-subheader']}>{project.subtitle}</p>
                             </div>
                             {/* <div className={styles['box-progress-wrapper']}>
-                                <p className={styles['box-progress-header']}>Progress</p>
+                                <p className={styles['box-progress-header']}>{t('progress')}</p>
                                 <div className={styles['box-progress-bar']}>
                                     <span className={styles['box-progress']} style={{ width: `${project.progress}%`, backgroundColor: project.progressColor }}></span>
                                 </div>

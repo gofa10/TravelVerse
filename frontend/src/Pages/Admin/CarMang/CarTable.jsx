@@ -1,14 +1,16 @@
 import React from 'react';
 import styles from '../UserMang/UserManagement.module.css';
+import { useTranslation } from 'react-i18next';
 
 function CarTable({ cars, onEdit, onDelete }) {
+  const { t } = useTranslation();
   return (
     <table className={styles.table}>
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Brand</th>
-          <th>Model</th>
+          <th>{t('id')}</th>
+          <th>{t('brand')}</th>
+          <th>{t('model')}</th>
           <th>Type</th>
           <th>Year</th>
           <th>Rate</th>
@@ -18,7 +20,7 @@ function CarTable({ cars, onEdit, onDelete }) {
           <th>Description (EN)</th>
           <th>Booking</th>
           <th>Images</th>
-          <th>Actions</th>
+          <th>{t('actions')}</th>
         </tr>
       </thead>
       <tbody>

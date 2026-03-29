@@ -19,12 +19,12 @@ class FlightController extends Controller
 
         $flights = $query->paginate(8);
 
-        return response()->json([
+        return $this->success([
             'current_page' => $flights->currentPage(),
             'last_page' => $flights->lastPage(),
             'total' => $flights->total(),
             'per_page' => $flights->perPage(),
-            'data' => $flights->items(),
+            'items' => $flights->items(),
         ]);
     }
 
@@ -54,12 +54,12 @@ class FlightController extends Controller
         }
 
         $flight = Flight::create($data);
-        return response()->json($flight, 201);
+        return $this->success($flight, '', 201);
     }
 
     public function show($id)
     {
-        return Flight::with('images')->findOrFail($id);
+        return $this->success(Flight::with('images')->findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -90,12 +90,12 @@ class FlightController extends Controller
 
         $flight->update($data);
 
-        return response()->json($flight);
+        return $this->success($flight);
     }
 
     public function destroy($id)
     {
         Flight::findOrFail($id)->delete();
-        return response()->json(['message' => 'Flight deleted']);
+        return $this->success(null, 'Deleted successfully');
     }
 }

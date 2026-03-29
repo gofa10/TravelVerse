@@ -14,106 +14,39 @@ const LoginPromptModal = ({ open, onClose, onGoLogin, type }) => {
                 .login-modal-card {
                     animation: popIn 200ms ease-out forwards;
                 }
-                .login-btn-primary:hover { 
-                    background: #0f3460 !important; 
-                }
-                .login-btn-secondary:hover { 
-                    background: #f5f5f5 !important; 
-                }
             `}</style>
 
                <div
                     onClick={onClose}
-                    style={{
-                         position: 'fixed', inset: 0,
-                         background: 'rgba(0,0,0,0.35)',
-                         zIndex: 9999999,
-                         display: 'flex',
-                         alignItems: 'center',
-                         justifyContent: 'center',
-                         padding: '20px',
-                    }}
+                    className="fixed inset-0 bg-black/40 dark:bg-black/60 z-[9999999] flex items-center justify-center p-5 backdrop-blur-[1px]"
                >
                     <div
-                         className="login-modal-card"
+                         className="login-modal-card bg-white dark:bg-gray-900 rounded-[22px] p-9 max-w-[380px] w-full text-center shadow-2xl border border-gray-100 dark:border-gray-800"
                          onClick={e => e.stopPropagation()}
-                         style={{
-                              background: '#ffffff',
-                              borderRadius: '20px',
-                              padding: '36px 28px',
-                              maxWidth: '380px',
-                              width: '100%',
-                              textAlign: 'center',
-                              boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
-                         }}
                     >
-                         <div style={{
-                              width: '64px', height: '64px',
-                              borderRadius: '50%',
-                              background: '#f0f4ff',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              margin: '0 auto 20px',
-                              fontSize: '28px',
-                         }}>
+                         <div className="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-5 text-2xl shadow-sm">
                               🔐
                          </div>
 
-                         <h3 style={{
-                              fontSize: '20px', fontWeight: 700,
-                              color: '#1a1a2e', margin: '0 0 10px',
-                         }}>
+                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                               Login Required
                          </h3>
 
-                         <p style={{
-                              fontSize: '14px', color: '#888',
-                              margin: '0 auto 28px',
-                              maxWidth: '260px', lineHeight: '1.6',
-                         }}>
+                         <p className="text-[14px] text-gray-500 dark:text-gray-400 mx-auto mb-7 max-w-[260px] leading-relaxed">
                               Please login to continue and enjoy all features
                          </p>
 
-                         <div style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '10px'
-                         }}>
+                         <div className="flex flex-col gap-3">
                               <button
-                                   className="login-btn-primary"
                                    onClick={onGoLogin}
-                                   style={{
-                                        background: '#1a1a2e',
-                                        color: '#fff',
-                                        border: 'none',
-                                        borderRadius: '12px',
-                                        height: '48px',
-                                        fontSize: '15px',
-                                        fontWeight: 600,
-                                        cursor: 'pointer',
-                                        transition: 'background 0.2s',
-                                        width: '100%',
-                                   }}
+                                   className="w-full h-12 bg-[#1a1a2e] dark:bg-blue-600 text-white rounded-xl text-[15px] font-semibold transition-all hover:bg-[#0f3460] dark:hover:bg-blue-700 active:scale-[0.98]"
                               >
                                    Login
                               </button>
 
                               <button
-                                   className="login-btn-secondary"
                                    onClick={onClose}
-                                   style={{
-                                        background: 'transparent',
-                                        color: '#888',
-                                        border: '1px solid #e0e0e0',
-                                        borderRadius: '12px',
-                                        height: '44px',
-                                        fontSize: '14px',
-                                        fontWeight: 500,
-                                        cursor: 'pointer',
-                                        transition: 'background 0.2s',
-                                        width: '100%',
-                                   }}
+                                   className="w-full h-11 bg-transparent text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-xl text-[14px] font-medium transition-all hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-[0.98]"
                               >
                                    Maybe Later
                               </button>

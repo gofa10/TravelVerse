@@ -12,19 +12,20 @@ use App\Models\Image;
 use App\Models\Favorite;
 use App\Models\Reservation;
 use App\Models\Review;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class UserController extends Controller
 {
     public function index()
     {
-        return response()->json(
+        return $this->success(
             User::select('id', 'name', 'email', 'user_type')->paginate(10)
         );
 
     }
     public function all()
     {
-        return response()->json(User::select('id', 'name', 'email', 'user_type')->get());
+        return $this->success(User::select('id', 'name', 'email', 'user_type')->get());
     }
 
     public function guides()
@@ -42,7 +43,7 @@ class UserController extends Controller
                 ];
             });
 
-        return response()->json($guides);
+        return $this->success($guides);
     }
 
 
@@ -75,7 +76,7 @@ class UserController extends Controller
             ]);
         }
 
-        return response()->json($user, 201);
+        return $this->success($user, '', 201);
     }
 
     public function update(Request $request, $id)
@@ -94,7 +95,7 @@ class UserController extends Controller
             'user_type' => $request->has('user_type') ? $request->user_type : $user->user_type,
         ]);
 
-        return response()->json($user);
+        return $this->success($user);
     }
 
     public function destroy($id)
@@ -102,7 +103,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
 
-        return response()->json(['message' => 'User deleted']);
+        return $this->success(null, 'Deleted successfully');
     }
 
     public function details($id)
@@ -110,17 +111,53 @@ class UserController extends Controller
         $user = User::with('image')->select('id', 'name', 'email', 'user_type', 'created_at')->findOrFail($id);
 
         $favorites = Favorite::where('user_id', $user->id)
-            ->with('favoritable')
+            ->with([
+                'favoritable' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        \App\Models\Trip::class => ['images'],
+                        \App\Models\Hotel::class => ['images'],
+                        \App\Models\Restaurant::class => ['images'],
+                        \App\Models\Activity::class => ['images'],
+                        \App\Models\Car::class => ['images'],
+                        \App\Models\Cruise::class => ['images'],
+                        \App\Models\Flight::class => ['images'],
+                    ]);
+                },
+            ])
             ->latest()
             ->get();
 
         $reviews = Review::where('user_id', $user->id)
-            ->with('reviewable')
+            ->with([
+                'reviewable' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        \App\Models\Trip::class => ['images'],
+                        \App\Models\Hotel::class => ['images'],
+                        \App\Models\Restaurant::class => ['images'],
+                        \App\Models\Activity::class => ['images'],
+                        \App\Models\Car::class => ['images'],
+                        \App\Models\Cruise::class => ['images'],
+                        \App\Models\Flight::class => ['images'],
+                    ]);
+                },
+            ])
             ->latest()
             ->get();
 
         $reservations = Reservation::where('user_id', $user->id)
-            ->with('reservable')
+            ->with([
+                'reservable' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        \App\Models\Trip::class => ['images'],
+                        \App\Models\Hotel::class => ['images'],
+                        \App\Models\Restaurant::class => ['images'],
+                        \App\Models\Activity::class => ['images'],
+                        \App\Models\Car::class => ['images'],
+                        \App\Models\Cruise::class => ['images'],
+                        \App\Models\Flight::class => ['images'],
+                    ]);
+                },
+            ])
             ->latest()
             ->get();
 
@@ -128,7 +165,7 @@ class UserController extends Controller
             ->groupBy('status')
             ->map(fn($group) => $group->count());
 
-        return response()->json([
+        return $this->success([
             'user' => $user,
             'summary' => [
                 'favorites_count' => $favorites->count(),
@@ -144,7 +181,7 @@ class UserController extends Controller
     public function profile(Request $request)
     {
         $user = $request->user();
-        return response()->json([
+        return $this->success([
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
@@ -191,7 +228,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json([
+        return $this->success([
             'message' => 'Profile updated successfully',
             'user' => $user->load('image')
         ]);
@@ -209,7 +246,7 @@ class UserController extends Controller
             $user->image->delete();
         }
 
-        return response()->json([
+        return $this->success([
             'message' => 'Avatar removed successfully',
             'user' => $user->load('image')
         ]);
@@ -225,13 +262,13 @@ class UserController extends Controller
         $user = $request->user();
 
         if (!Hash::check($request->current, $user->password)) {
-            return response()->json(['message' => 'Current password is incorrect'], 422);
+            return $this->error('Current password is incorrect', 422);
         }
 
         $user->password = bcrypt($request->new);
         $user->save();
 
-        return response()->json(['message' => 'Password changed successfully']);
+        return $this->success(null, 'Password changed successfully');
     }
 
     public function deleteAccount(Request $request)
@@ -247,8 +284,13 @@ class UserController extends Controller
             $user->image->delete();
         }
 
+        // Clean related user-owned records to avoid orphaned polymorphic data.
+        Favorite::where('user_id', $user->id)->delete();
+        Review::where('user_id', $user->id)->delete();
+        Reservation::where('user_id', $user->id)->delete();
+
         $user->delete();
 
-        return response()->json(['message' => 'Account deleted successfully']);
+        return $this->success(null, 'Deleted successfully');
     }
 }

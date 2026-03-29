@@ -1,22 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../Radux/axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import CityContent from '../../Component/City/CityContent';
 import citiesData from '../../Component/City/citiesData';
-import HeroCar from '../../Component/Home/Hero/HeroCar';
+import HeroSection from '../../Component/Shared/HeroSection';
 import car from '../../Assets/images/tony-lee-i_XLLP08BOc-unsplash.jpg';
 import style from '../../Style/Hotel/Hotel.module.css';
 import { CheckboxFilter } from '../../Utility/Buttons/CheckboxFilter/CheckboxFilter';
 import RangeSlider from '../../Utility/Buttons/RangeSlider/RangeSlider';
 import WestIcon from '@mui/icons-material/West';
 import HotelCard from '../../Utility/Cards/HotelCard'; // استبدله بـ ActivityCard لو متوفر
+import {
+  selectActivitySearchQuery,
+  setSearchQuery as setActivitySearchQuery,
+  selectFilteredActivities,
+} from '../../Radux/Slices/activitySlice';
 
 export const AllThings = () => {
   const { cityName } = useParams();
+  const { t } = useTranslation();
+  
+  useEffect(() => {
+    document.title = "Activities | TravelVerse";
+  }, []);
+  
   const cityInfo = citiesData.find(city => city.name === cityName);
+  const dispatch = useDispatch();
+  const searchQuery = useSelector(selectActivitySearchQuery);
 
   const { data, isLoading } = useQuery({
     queryKey: ['activities'],
@@ -24,26 +39,80 @@ export const AllThings = () => {
   });
 
   const [priceRange, setPriceRange] = useState([0, 2000]);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({
+    Category_types: [],
+    Product_Categories: [],
+    Traveler_rating: [],
+    Duration: [],
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
+  useEffect(() => {
+    return () => {
+      dispatch(setActivitySearchQuery(''));
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   if (!cityInfo) return <p>No city found.</p>;
 
-  const activities = data?.data || [];
+  const activities = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data?.data?.items)
+      ? data.data.items
+      : [];
 
   const allCityActivities = activities.filter(
     (a) => a.location?.toLowerCase().includes(cityName.toLowerCase())
   );
+  const searchedActivities = selectFilteredActivities({ activity: { searchQuery } }, allCityActivities);
 
-  const filteredActivities = allCityActivities.filter((item) => {
+  const filteredActivities = searchedActivities.filter((item) => {
     const priceMatch = item.price >= priceRange[0] && item.price <= priceRange[1];
-    const allFiltersMatch = Object.entries(filters).every(([key, selectedValues]) => {
-      if (!selectedValues.length) return true;
-      const itemValue = (item[key] || '').toLowerCase();
-      return selectedValues.some(val => itemValue.includes(val.toLowerCase()));
-    });
-    return priceMatch && allFiltersMatch;
+
+    // Check Category_types filter
+    if (filters.Category_types && filters.Category_types.length > 0) {
+      if (!item.type || !filters.Category_types.includes(item.type)) {
+        return false;
+      }
+    }
+
+    // Check Traveler_rating filter
+    if (filters.Traveler_rating && filters.Traveler_rating.length > 0) {
+      const itemRate = parseFloat(item.rate) || 0;
+      const hasMatchingRating = filters.Traveler_rating.some(rating => {
+        const filterRating = parseFloat(rating) || 0;
+        return itemRate >= filterRating;
+      });
+      if (!hasMatchingRating) return false;
+    }
+
+    // Check Duration filter
+    if (filters.Duration && filters.Duration.length > 0) {
+      const duration = item.duration || '';
+      let matchesDuration = false;
+
+      if (filters.Duration.includes('Up to 1 hour') && (duration.includes('h') && parseInt(duration) <= 1)) {
+        matchesDuration = true;
+      }
+      if (filters.Duration.includes('1 to 4 hours') && duration.includes('h') && parseInt(duration) > 1 && parseInt(duration) <= 4) {
+        matchesDuration = true;
+      }
+      if (filters.Duration.includes('4 hours to 1 day') && duration.includes('h') && parseInt(duration) > 4 && parseInt(duration) <= 24) {
+        matchesDuration = true;
+      }
+      if (filters.Duration.includes('Multi-day') && duration.includes('day')) {
+        matchesDuration = true;
+      }
+
+      if (!matchesDuration) return false;
+    }
+
+    return priceMatch;
   });
 
   const totalPages = Math.ceil(filteredActivities.length / itemsPerPage);
@@ -53,10 +122,10 @@ export const AllThings = () => {
   );
 
   const filterOptions = {
-    Category_types: ['Attractions', 'Tours', 'Day Trips', 'Outdoor Activities'],
+    Category_types: ['Recommended for You', 'Full-day Tours', 'Multi-day Tours'],
     Product_Categories: ['Day Trips', 'Rail Tours'],
-    Traveler_rating: ['5 Star', '4 Star', '3 Star'],
-    Duration: ['Up to 1 hour', '1 to 4 hours', '4 hours to 1 day'],
+    Traveler_rating: ['5', '4.5', '4', '3.5', '3'],
+    Duration: ['Up to 1 hour', '1 to 4 hours', '4 hours to 1 day', 'Multi-day'],
   };
 
   const handleCheckboxChange = (category, value) => {
@@ -77,7 +146,14 @@ export const AllThings = () => {
 
   return (
     <>
-      <HeroCar image={car} />
+      <HeroSection
+        image={car}
+        title="Discover Things To Do"
+        subtitle="Experiences, tours & adventures worldwide"
+        placeholder="Search activities or destinations..."
+        onSearch={(query) => dispatch(setActivitySearchQuery(query))}
+        overlayIntensity="medium"
+      />
       <CityContent countryName={cityInfo.name} />
       <h1 className='m-auto my-4' style={{ width: 'fit-content' }}>All Activities in {cityInfo.name}</h1>
       <Container>
@@ -99,6 +175,7 @@ export const AllThings = () => {
                 title={title}
                 option={options}
                 onChange={handleCheckboxChange}
+                selected={filters[title] || []}
               />
             ))}
           </Col>

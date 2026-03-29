@@ -8,9 +8,11 @@ import {
   MDBDropdownItem,
 } from "mdb-react-ui-kit";
 import { Drawer, IconButton, Box, List, ListItem } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const Head = ({ title, options = [], selected, onChange }) => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const { t } = useTranslation();
 
   const handleSelect = (option) => {
   if (selected === option) {
@@ -65,7 +67,7 @@ const Head = ({ title, options = [], selected, onChange }) => {
 
           <MDBDropdownMenu>
             {options.length === 0 ? (
-              <MDBDropdownItem link>No results found.</MDBDropdownItem>
+              <MDBDropdownItem link>{t('no_results')}</MDBDropdownItem>
             ) : (
               options.map((option, index) => (
                 <MDBDropdownItem key={index} onClick={() => handleSelect(option)}>

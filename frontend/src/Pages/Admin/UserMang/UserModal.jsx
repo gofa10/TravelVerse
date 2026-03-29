@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styles from './UserManagement.module.css';
+import { useTranslation } from 'react-i18next';
 
 function UserModal({ isOpen, onClose, onSubmit, initialData }) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
@@ -43,13 +45,13 @@ function UserModal({ isOpen, onClose, onSubmit, initialData }) {
         <span className={styles.close} onClick={onClose} aria-label="Close">×</span>
         <h2>{initialData ? 'Update User' : 'Add User'}</h2>
         <form onSubmit={handleSubmit}>
-          <label htmlFor="name">Name</label>
+          <label htmlFor="name">{t('name')}</label>
           <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required />
 
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">{t('email')}</label>
           <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
 
-          <label htmlFor="role">Role</label>
+          <label htmlFor="role">{t('role')}</label>
           <select id="role" value={role} onChange={(e) => setRole(e.target.value)} required>
             <option value=""> Select Role </option>
             <option value="user">User</option>
@@ -63,7 +65,7 @@ function UserModal({ isOpen, onClose, onSubmit, initialData }) {
             </>
           )}
 
-          <button type="submit" className={styles.modalButton}>Save</button>
+          <button type="submit" className={styles.modalButton}>{t('save')}</button>
         </form>
       </div>
     </div>

@@ -1,24 +1,43 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import API from '../axios';
+const normalizeItems = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.items)) return payload.items;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+};
 
-export const fetchReviews = createAsyncThunk('reviews/fetchAll', async () => {
+export const fetchReviews = createAsyncThunk('reviews/fetchAll', async (_, { rejectWithValue }) => {
+  try {
   const res = await API.get('/reviews');
-  return res.data;
+  return res.data.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
+  }
 });
 
-export const createReview = createAsyncThunk('reviews/create', async (data) => {
+export const createReview = createAsyncThunk('reviews/create', async (data, { rejectWithValue }) => {
+  try {
   const res = await API.post('/reviews', data);
-  return res.data;
+  return res.data.data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
+  }
 });
 
-export const deleteReview = createAsyncThunk('reviews/delete', async (id) => {
+export const deleteReview = createAsyncThunk('reviews/delete', async (id, { rejectWithValue }) => {
+  try {
   await API.delete(`/reviews/${id}`);
   return id;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
+  }
 });
 
 const reviewSlice = createSlice({
   name: 'review',
   initialState: {
+    items: [],
     reviews: [],
     loading: false,
     error: null,
@@ -31,19 +50,25 @@ const reviewSlice = createSlice({
       })
       .addCase(fetchReviews.fulfilled, (state, action) => {
         state.loading = false;
-        state.reviews = action.payload;
+        const items = normalizeItems(action.payload);
+        state.items = items;
+        state.reviews = items;
       })
-      .addCase(fetchReviews.rejected, (state) => {
+      .addCase(fetchReviews.rejected, (state, action) => {
         state.loading = false;
-        state.error = 'Failed to fetch reviews';
+        state.error = action.payload ?? action.error?.message ?? 'Something went wrong';
       })
       .addCase(createReview.fulfilled, (state, action) => {
-        state.reviews.push(action.payload);
+        state.items.push(action.payload);
+        state.reviews = state.items;
       })
       .addCase(deleteReview.fulfilled, (state, action) => {
-        state.reviews = state.reviews.filter(r => r.id !== action.payload);
+        state.items = state.items.filter(r => r.id !== action.payload);
+        state.reviews = state.items;
       });
   },
 });
 
+export const selectReviewItems = (state) =>
+  Array.isArray(state.review?.items) ? state.review.items : [];
 export default reviewSlice.reducer;

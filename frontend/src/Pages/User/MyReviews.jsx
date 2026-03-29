@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star, Trash2, MessageCircle, MapPin, Calendar, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../../Radux/axios';
 import { toast } from 'react-toastify';
 import ErrorBoundary from '../../Components/ErrorBoundary/ErrorBoundary';
@@ -8,6 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { SkeletonCard } from '../../Utility/Cards/ItemCard';
 
 const UserReviews = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -20,16 +22,21 @@ const UserReviews = () => {
     mutationFn: (id) => api.delete(`/reviews/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-reviews'] });
-      toast.success('Review removed successfully');
+      toast.success(t('success'));
     },
     onError: (err) => {
       console.error(err);
-      toast.error('Failed to delete review');
+      // Check if it's a permission error (admin-only endpoint)
+      if (err.response?.status === 403) {
+        toast.error(t('permission_denied_contact_admin'));
+      } else {
+        toast.error(t('error_occurred'));
+      }
     },
   });
 
   const deleteReview = (id) => {
-    if (!window.confirm("Are you sure you want to delete this review?")) return;
+    if (!window.confirm(t('confirm_delete'))) return;
     deleteReviewMutation.mutate(id);
   };
 
@@ -49,13 +56,13 @@ const UserReviews = () => {
 
   const getItemName = (review) => {
     const item = review?.reviewable;
-    if (!item) return 'Deleted Item';
+    if (!item) return t('not_available');
     if (review?.reviewable_type === 'App\\Models\\Flight') {
       const from = item.from_location;
       const to = item.to_location;
-      return (from && to) ? `${from} → ${to}` : 'Flight';
+      return (from && to) ? `${from} → ${to}` : t('not_available');
     }
-    return item.name || item.name_en || item.name_ar || item.title || 'Deleted Item';
+    return item.name || item.name_en || item.name_ar || item.title || t('not_available');
   };
 
   const openReviewItem = (review) => {
@@ -81,7 +88,7 @@ const UserReviews = () => {
         <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-2xl flex items-center justify-center mb-4">
           <Trash2 size={32} />
         </div>
-        <p className="text-red-500 font-bold text-lg mb-2">Oops! Something went wrong</p>
+        <p className="text-red-500 font-bold text-lg mb-2">{t('error_occurred')}</p>
         <p className="text-gray-500 dark:text-gray-400">{error}</p>
       </div>
     );
@@ -91,12 +98,12 @@ const UserReviews = () => {
     <div className="space-y-8 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-2">Your Reviews</h2>
-          <p className="text-gray-500 dark:text-gray-400">Manage all the feedback you've shared with the community.</p>
+          <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-2">{t('review')}</h2>
+          <p className="text-gray-500 dark:text-gray-400">{t('write_review')}</p>
         </div>
         <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-xl border border-blue-100 dark:border-blue-800">
           <span className="text-blue-700 dark:text-blue-400 font-bold text-lg">{reviews.length}</span>
-          <span className="text-blue-600/70 dark:text-blue-400/70 text-sm ml-2 font-medium">Total Reviews</span>
+          <span className="text-blue-600/70 dark:text-blue-400/70 text-sm ml-2 font-medium">{t('review')}</span>
         </div>
       </div>
 
@@ -106,13 +113,13 @@ const UserReviews = () => {
             <div className="w-20 h-20 bg-slate-50 dark:bg-gray-900 text-slate-300 dark:text-gray-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
               <MessageCircle size={40} />
             </div>
-            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">No reviews yet</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">You haven't written any reviews yet.</p>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">{t('no_results')}</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">{t('write_review')}</p>
             <button
               onClick={() => window.location.href = '/trips'}
               className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/25 hover:bg-blue-700 transition-all transform hover:-translate-y-0.5"
             >
-              Explore and Review
+              {t('write_review')}
             </button>
           </div>
         ) : (
@@ -128,7 +135,7 @@ const UserReviews = () => {
                       <div>
                         <div className="flex items-center gap-3 mb-2">
                           <span className="text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                            {r.reviewable_type ? r.reviewable_type.split('\\').pop() : 'Travel'}
+                            {r.reviewable_type ? r.reviewable_type.split('\\').pop() : t('review')}
                           </span>
                           <div className="flex items-center gap-1 text-yellow-400">
                             {[1, 2, 3, 4, 5].map((star) => (
@@ -143,11 +150,10 @@ const UserReviews = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <h3
-                            className={`text-xl font-bold transition-colors ${
-                              r.reviewable
+                            className={`text-xl font-bold transition-colors ${r.reviewable
                                 ? 'text-gray-800 dark:text-white group-hover:text-blue-600 cursor-pointer'
                                 : 'text-gray-800 dark:text-white'
-                            }`}
+                              }`}
                             onClick={() => openReviewItem(r)}
                           >
                             {getItemName(r)}
@@ -157,7 +163,7 @@ const UserReviews = () => {
                               type="button"
                               className="text-blue-600 hover:text-blue-700 transition-colors"
                               onClick={() => openReviewItem(r)}
-                              title="Open item"
+                              title={t('review')}
                             >
                               <ExternalLink size={16} />
                             </button>
@@ -188,7 +194,7 @@ const UserReviews = () => {
                         disabled={deleteReviewMutation.isPending}
                       >
                         <Trash2 size={16} />
-                        Delete Review
+                        {t('delete_review')}
                       </button>
                     </div>
                   </div>

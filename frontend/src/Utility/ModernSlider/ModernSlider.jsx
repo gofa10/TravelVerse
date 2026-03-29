@@ -8,11 +8,65 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../../Radux/axios';
 import { useNavigate } from 'react-router-dom';
 import TypeBadge from '../Cards/TypeBadge';
+import { getStorageBaseUrl } from '../envUtils.js';
 import WatchlistButton from '../Buttons/WatchlistButton';
+import useImageFallback from '../../Components/Common/useImageFallback';
 
 const fetchTrips = async () => {
   const res = await api.get('/trips');
   return res.data;
+};
+
+const TripSlide = ({ trip, isVisible, position, onOpen }) => {
+  const getFullImageUrl = (img) => {
+    if (Array.isArray(img)) img = img[0];
+    if (img && typeof img === 'object' && img.url) img = img.url;
+    if (!img || typeof img !== "string") return "";
+    if (img.startsWith("http") || img.startsWith("data:")) return img;
+
+    const BASE_URL = getStorageBaseUrl();
+    const path = img.startsWith('/') ? img : `/${img}`;
+    return `${BASE_URL}${path}`;
+  };
+
+  const { src: safeImageSrc, onError: handleImageError } = useImageFallback(
+    getFullImageUrl(trip.images)
+  );
+
+  return (
+    <div
+      className={`item ${isVisible ? 'visible' : ''}`}
+      style={{
+        transform: `translateX(${position * 100}%)`,
+        zIndex: isVisible ? 1 : 0,
+      }}
+      onClick={onOpen}
+    >
+      <div className="card">
+        <div style={{ position: 'relative', width: '100%', height: '500px' }}>
+          <LazyLoadImage
+            src={safeImageSrc}
+            alt={trip.title || trip.name}
+            height="500px"
+            width="100%"
+            effect="blur"
+            onError={handleImageError}
+          />
+          <div
+            style={{ position: 'absolute', top: 15, right: 15, zIndex: 10 }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <WatchlistButton type="trip" id={trip.id} title={trip.title || trip.name} />
+          </div>
+        </div>
+        <TypeBadge type="trip" />
+        <h3>{trip.title || trip.name}</h3>
+      </div>
+    </div>
+  );
 };
 
 const ModernSlider = () => {
@@ -21,7 +75,13 @@ const ModernSlider = () => {
     queryFn: fetchTrips,
     staleTime: 1000 * 60 * 5,
   });
-  const tripList = useMemo(() => data?.data || [], [data?.data]);
+  const tripList = useMemo(() => {
+    const payload = data?.data;
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.items)) return payload.items;
+    return [];
+  }, [data?.data]);
+  const safeTripList = Array.isArray(tripList) ? tripList : [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [visibleItemsCount, setVisibleItemsCount] = useState(3);
   const navigate = useNavigate();
@@ -40,31 +100,22 @@ const ModernSlider = () => {
   }, []);
 
   const nextSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % tripList.length);
-  }, [tripList.length]);
+    setCurrentIndex((prev) => (prev + 1) % safeTripList.length);
+  }, [safeTripList.length]);
 
   const prevSlide = useCallback(() => {
     setCurrentIndex((prev) =>
-      prev === 0 ? tripList.length - 1 : prev - 1
+      prev === 0 ? safeTripList.length - 1 : prev - 1
     );
-  }, [tripList.length]);
+  }, [safeTripList.length]);
 
   useEffect(() => {
-    if (tripList.length === 0) return;
+    if (safeTripList.length === 0) return;
     const timer = setInterval(() => {
       nextSlide();
     }, 3000);
     return () => clearInterval(timer);
-  }, [nextSlide, tripList.length]);
-
-  const getFullImageUrl = (img) => {
-    if (Array.isArray(img)) img = img[0];
-    if (img && typeof img === 'object' && img.url) img = img.url;
-    if (!img || typeof img !== "string") return "/fallback.svg";
-    if (img.startsWith("http") || img.startsWith("data:")) return img;
-    return `${import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:8000'}${img}`;
-  };
-
+  }, [nextSlide, safeTripList.length]);
 
   return (
     <SliderWrapper $visibleItems={visibleItemsCount}>
@@ -73,43 +124,18 @@ const ModernSlider = () => {
           <ArrowBackIcon />
         </button>
         <div className="items">
-          {tripList.map((trip, index) => {
-            const position = (index - currentIndex + tripList.length) % tripList.length;
+          {safeTripList.map((trip, index) => {
+            const position = (index - currentIndex + safeTripList.length) % safeTripList.length;
             const isVisible = position < visibleItemsCount;
 
             return (
-              <div
+              <TripSlide
                 key={trip.id}
-                className={`item ${isVisible ? 'visible' : ''}`}
-                style={{
-                  transform: `translateX(${position * 100}%)`,
-                  zIndex: isVisible ? 1 : 0,
-                }}
-                onClick={() => navigate(`/itemdetail/${trip.id}?type=trip`)}
-              >
-                <div className="card">
-                  <div style={{ position: 'relative', width: '100%', height: '500px' }}>
-                    <LazyLoadImage
-                      src={getFullImageUrl(trip.images)}
-                      alt={trip.title || trip.name}
-                      height="500px"
-                      width="100%"
-                      effect="blur"
-                    />
-                    <div
-                      style={{ position: 'absolute', top: 15, right: 15, zIndex: 10 }}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                    >
-                      <WatchlistButton type="trip" id={trip.id} title={trip.title || trip.name} />
-                    </div>
-                  </div>
-                  <TypeBadge type="trip" />
-                  <h3>{trip.title || trip.name}</h3>
-                </div>
-              </div>
+                trip={trip}
+                isVisible={isVisible}
+                position={position}
+                onOpen={() => navigate(`/itemdetail/${trip.id}?type=trip`)}
+              />
             );
           })}
         </div>

@@ -3,8 +3,10 @@ import styles from '../UserMang/UserManagement.module.css';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../../Radux/axios';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 function CarModal({ isOpen, onClose, initialData }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     brand: '',
     model: '',
@@ -118,10 +120,10 @@ function CarModal({ isOpen, onClose, initialData }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['cars']);
-      toast.success('Car added successfully');
+      toast.success(t('car_added_success'));
       onClose();
     },
-    onError: () => toast.error('Failed to add car'),
+    onError: () => toast.error(t('car_add_failed')),
   });
 
   const updateCar = useMutation({
@@ -132,10 +134,10 @@ function CarModal({ isOpen, onClose, initialData }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['cars']);
-      toast.success('Car updated successfully');
+      toast.success(t('car_updated_success'));
       onClose();
     },
-    onError: () => toast.error('Failed to update car'),
+    onError: () => toast.error(t('car_update_failed')),
   });
 
   const handleSubmit = (e) => {
@@ -165,22 +167,22 @@ function CarModal({ isOpen, onClose, initialData }) {
     <div className={styles.modal}>
       <div className={styles.modalContent}>
         <span className={styles.close} onClick={onClose}>×</span>
-        <h2>{initialData ? 'Edit Car' : 'Add Car'}</h2>
+        <h2>{initialData ? t('edit_car') : t('add_car')}</h2>
         <form onSubmit={handleSubmit} encType="multipart/form-data">
           {[
-            ['Brand', 'brand'],
-            ['Model', 'model'],
-            ['Type', 'type'],
-            ['Year', 'year', 'number'],
-            ['Rate', 'rate', 'number'],
-            ['Price', 'price', 'number'],
-            ['Location', 'location'],
-            ['Seats', 'seats', 'number'],
-            ['Large Bag', 'large_bag', 'number'],
-            ['Small Bag', 'small_bag', 'number'],
-            ['Car Specification', 'car_specification'],
-            ['Supplier', 'supplier'],
-            ['Booking Link', 'booking_link'],
+            [t('brand'), 'brand'],
+            [t('model'), 'model'],
+            [t('type'), 'type'],
+            [t('year'), 'year', 'number'],
+            [t('rate'), 'rate', 'number'],
+            [t('price'), 'price', 'number'],
+            [t('location'), 'location'],
+            [t('seats'), 'seats', 'number'],
+            [t('large_bag'), 'large_bag', 'number'],
+            [t('small_bag'), 'small_bag', 'number'],
+            [t('specification'), 'car_specification'],
+            [t('supplier'), 'supplier'],
+            [t('booking_link'), 'booking_link'],
           ].map(([label, name, type = 'text']) => (
             <React.Fragment key={name}>
               <label>{label}</label>
@@ -188,16 +190,16 @@ function CarModal({ isOpen, onClose, initialData }) {
             </React.Fragment>
           ))}
 
-          <label>Description (Arabic)</label>
+          <label>{t('description_arabic')}</label>
           <textarea name="description_ar" value={form.description_ar} onChange={handleChange} required />
 
-          <label>Description (English)</label>
+          <label>{t('description_english')}</label>
           <textarea name="description_en" value={form.description_en} onChange={handleChange} required />
 
-          <label>Upload Images</label>
+          <label>{t('upload_images')}</label>
           <input type="file" accept="image/*" multiple onChange={handleImageChange} />
 
-          <label>Add Image URL</label>
+          <label>{t('add_image_url')}</label>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <input
               type="url"
@@ -206,7 +208,7 @@ function CarModal({ isOpen, onClose, initialData }) {
               placeholder="https://example.com/image.jpg"
               style={{ flex: 1 }}
             />
-            <button type="button" onClick={handleAddImageURL}>Add</button>
+            <button type="button" onClick={handleAddImageURL}>{t('add')}</button>
           </div>
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
@@ -234,7 +236,7 @@ function CarModal({ isOpen, onClose, initialData }) {
           </div>
 
           <button type="submit" className={styles.modalButton} disabled={addCar.isLoading || updateCar.isLoading}>
-            {(addCar.isLoading || updateCar.isLoading) ? 'Saving...' : 'Save'}
+            {(addCar.isLoading || updateCar.isLoading) ? t('loading') : t('save')}
           </button>
         </form>
       </div>

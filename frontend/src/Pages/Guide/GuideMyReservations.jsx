@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import api from '../../Radux/axios';
 
 export default function GuideMyReservations() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [updatingId, setUpdatingId] = useState(null);
 
@@ -11,7 +13,11 @@ export default function GuideMyReservations() {
     queryFn: async () => (await api.get('/guide/reservations')).data,
   });
 
-  const reservations = data?.data || [];
+  const reservations = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data?.data?.items)
+      ? data.data.items
+      : [];
 
   const updateAttendance = async (reservationId, attendanceStatus) => {
     setUpdatingId(reservationId);
@@ -23,7 +29,7 @@ export default function GuideMyReservations() {
         if (!old) return old;
         return {
           ...old,
-          data: old.data.map((r) =>
+          data: (Array.isArray(old.data) ? old.data : Array.isArray(old.data?.items) ? old.data.items : []).map((r) =>
             r.id === reservationId
               ? { ...r, attendance_status: attendanceStatus, attendance_marked_at: new Date().toISOString() }
               : r
@@ -32,7 +38,7 @@ export default function GuideMyReservations() {
       });
     } catch (error) {
       console.error('Failed to update attendance:', error);
-      alert(error.response?.data?.message || 'Failed to update attendance');
+      alert(error.response?.data?.message || t('error_occurred'));
     } finally {
       setUpdatingId(null);
     }
@@ -43,14 +49,14 @@ export default function GuideMyReservations() {
     if (status === 'confirmed_attended') {
       return (
         <span className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-400">
-          Attended
+          {t('attended')}
         </span>
       );
     }
     if (status === 'no_show') {
       return (
         <span className="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/30 px-2.5 py-1 text-xs font-medium text-red-700 dark:text-red-400">
-          No Show
+          {t('no_show')}
         </span>
       );
     }
@@ -63,15 +69,15 @@ export default function GuideMyReservations() {
   return (
     <div style={{ marginTop: '16px' }} className="max-w-5xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Reservations</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t('my_reservations')}</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Bookings made on your trips</p>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="px-6 py-8 text-gray-600 dark:text-gray-300">Loading reservations...</div>
+          <div className="px-6 py-8 text-gray-600 dark:text-gray-300">{t('loading_reservations')}</div>
         ) : isError ? (
-          <div className="px-6 py-8 text-red-600 dark:text-red-400">Failed to load reservations.</div>
+          <div className="px-6 py-8 text-red-600 dark:text-red-400">{t('failed_load_reservations')}</div>
         ) : reservations.length === 0 ? (
           <div className="text-center py-16 text-gray-400 dark:text-gray-500">
             <p className="text-lg font-medium">No reservations yet</p>
@@ -84,11 +90,11 @@ export default function GuideMyReservations() {
                 <tr>
                   <th className="px-6 py-3">Traveler</th>
                   <th className="px-6 py-3">Trip</th>
-                  <th className="px-6 py-3">Date</th>
-                  <th className="px-6 py-3">People</th>
-                  <th className="px-6 py-3">Status</th>
+                  <th className="px-6 py-3">{t('date')}</th>
+                  <th className="px-6 py-3">{t('people')}</th>
+                  <th className="px-6 py-3">{t('status')}</th>
                   <th className="px-6 py-3">Attendance</th>
-                  <th className="px-6 py-3">Actions</th>
+                  <th className="px-6 py-3">{t('actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-gray-700 dark:text-gray-200">
@@ -112,14 +118,14 @@ export default function GuideMyReservations() {
                             disabled={updatingId === reservation.id}
                             className="px-3 py-1.5 text-xs font-medium rounded-lg bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
-                            {updatingId === reservation.id ? 'Saving...' : 'Confirm'}
+                            {updatingId === reservation.id ? t('loading') : t('confirmed')}
                           </button>
                           <button
                             onClick={() => updateAttendance(reservation.id, 'no_show')}
                             disabled={updatingId === reservation.id}
                             className="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
-                            {updatingId === reservation.id ? 'Saving...' : 'No Show'}
+                            {updatingId === reservation.id ? t('loading') : t('no_show')}
                           </button>
                         </div>
                       ) : (

@@ -1,18 +1,20 @@
 import React from 'react';
 import styles from '../UserMang/UserManagement.module.css';
+import { useTranslation } from 'react-i18next';
 
 function TripTable({ trips, onEdit, onDelete }) {
+  const { t } = useTranslation();
   return (
     <table className={styles.table}>
       <thead>
         <tr>
-          <th>ID</th>
+          <th>{t('id')}</th>
           <th>Name (AR)</th>
           <th>Name (EN)</th>
           <th>Description (AR)</th>
           <th>Description (EN)</th>
-          <th>Rate</th>
-          <th>Price</th>
+          <th>{t('rate')}</th>
+          <th>{t('price')}</th>
           <th>Start Date</th>
           <th>End Date</th>
           <th>Duration</th>
@@ -20,7 +22,7 @@ function TripTable({ trips, onEdit, onDelete }) {
           <th>Guide</th>
           <th>Booking Link</th>
           <th>Images</th>
-          <th>Actions</th>
+          <th>{t('actions')}</th>
         </tr>
       </thead>
       <tbody>
@@ -49,18 +51,19 @@ function TripTable({ trips, onEdit, onDelete }) {
                   <img
                     key={i}
                     src={typeof img === 'string' ? img : URL.createObjectURL(img)}
-                    alt={`trip-${i}`}
+                    alt={`Trip image ${i + 1}`}
                     style={{ width: '60px', height: '40px', objectFit: 'cover' }}
+                    loading="lazy"
                   />
                 ))}
               </div>
             </td>
             <td>
               <button className={styles.actionButton} onClick={() => onEdit(trip)}>
-                Edit
+                {t('edit')}
               </button>
               <button className={styles.actionButton} onClick={() => onDelete(trip.id)}>
-                Delete
+                {t('delete_trip')}
               </button>
             </td>
           </tr>

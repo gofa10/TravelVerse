@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const CitySelect = ({ cities = [] }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -10,6 +10,10 @@ const CitySelect = ({ cities = [] }) => {
 
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const searchParams = new URLSearchParams(location.search);
+  const requestedService = searchParams.get('service');
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -31,7 +35,19 @@ const CitySelect = ({ cities = [] }) => {
     setIsNavigating(true);
     // Wait for the animation before actually routing
     setTimeout(() => {
-      navigate(`/city/${encodeURIComponent(city)}`);
+      const encodedCity = encodeURIComponent(city);
+
+      if (requestedService === 'cars') {
+        navigate(`/car/${encodedCity}`);
+        return;
+      }
+
+      if (requestedService === 'cruises') {
+        navigate(`/cruises/${encodedCity}`);
+        return;
+      }
+
+      navigate(`/city/${encodedCity}`);
     }, 1500);
   };
 

@@ -1,0 +1,206 @@
+.root {
+  position: relative;
+}
+
+.triggerDesktop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  height: var(--space-16);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--navbar-text);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.triggerDesktop:hover {
+  color: var(--navbar-text-strong);
+}
+
+.triggerDesktopActive {
+  color: var(--navbar-text-strong);
+}
+
+.triggerDesktopIcon {
+  width: var(--space-4);
+  height: var(--space-4);
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.desktopUnderline {
+  position: absolute;
+  bottom: 0;
+  left: var(--space-4);
+  right: var(--space-4);
+  height: var(--size-nav-underline);
+  border-radius: var(--radius-full);
+  background: var(--navbar-accent);
+}
+
+.chevron {
+  width: var(--font-size-sm);
+  height: var(--font-size-sm);
+  opacity: 0.7;
+  transition: transform var(--transition-fast);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.dropdownDesktop {
+  position: absolute;
+  left: 0;
+  top: calc(100% + var(--space-2));
+  z-index: 60;
+  min-width: var(--size-service-dropdown-min-width);
+  max-height: var(--size-service-dropdown-max-height);
+  overflow-y: auto;
+  background: var(--color-surface-light);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card-floating);
+  border: var(--border-card-floating);
+  padding: var(--space-2);
+  opacity: 0;
+  transform: translateY(calc(var(--space-1) * -1));
+  pointer-events: none;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.dropdownDesktopOpen {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.accordionItem {
+  display: block;
+}
+
+.continentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--size-touch-target);
+  border: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-3);
+  text-align: start;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.continentItem:hover {
+  background: color-mix(in srgb, var(--color-accent-terracotta) 8%, transparent);
+}
+
+.cityPanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition-base);
+}
+
+.cityPanelOpen {
+  grid-template-rows: 1fr;
+}
+
+.cityList {
+  overflow: hidden;
+  display: grid;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-3);
+}
+
+.cityItem {
+  width: 100%;
+  min-height: var(--size-touch-target);
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-3);
+  background: transparent;
+  color: var(--color-text-secondary);
+  text-align: start;
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.cityItem:hover {
+  background: color-mix(in srgb, var(--color-accent-terracotta) 8%, transparent);
+}
+
+.cityItemActive {
+  color: var(--color-accent-terracotta);
+}
+
+.browseContinentItem {
+  border-top: 1px solid var(--border-color);
+  border-radius: 0;
+  margin-top: var(--space-1);
+}
+
+.mobileTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--size-touch-target);
+  border: 0;
+  border-radius: var(--radius-lg);
+  padding: 0 var(--space-3);
+  background: transparent;
+  color: var(--navbar-text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-align: start;
+}
+
+.mobileTriggerActive {
+  color: var(--navbar-text-strong);
+}
+
+.dropdownMobile {
+  margin-inline-start: var(--space-4);
+  border-inline-start: 1px solid var(--navbar-border);
+  padding-inline-start: var(--space-3);
+  display: grid;
+  gap: var(--space-1);
+  max-height: var(--size-service-dropdown-max-height);
+  overflow-y: auto;
+}
+
+.mobileContinentItem {
+  color: var(--navbar-text-strong);
+}
+
+.mobileCityItem {
+  color: var(--navbar-text);
+}
+
+.mobileCityItem:hover {
+  background: color-mix(in srgb, var(--color-accent-terracotta) 8%, transparent);
+}
+
+.mobileCityItem.cityItemActive {
+  color: var(--color-accent-terracotta);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdownDesktop,
+  .chevron,
+  .cityPanel {
+    transition: none;
+  }
+}

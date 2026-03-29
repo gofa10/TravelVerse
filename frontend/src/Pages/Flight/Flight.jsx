@@ -1,30 +1,45 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import api from '../../Radux/axios';
 import CityContent from '../../Component/City/CityContent';
 import citiesData from '../../Component/City/citiesData';
 import FlightCard from '../../Utility/Cards/FlightCard';
 import FlightFilter from '../../Component/Flight/FlightFilter';
 import FlightCardPlaceholder from '../../Utility/Cards/FlightCardPlaceholder';
-import HeroCar from '../../Component/Home/Hero/HeroCar';
+import HeroSection from '../../Component/Shared/HeroSection';
 import car from '../../Assets/images/pexels-marina-hinic-199169-730778.jpg';
+import {
+  setSearchQuery as setFlightSearchQuery,
+  selectFlightSearchQuery,
+  selectFilteredFlights,
+} from '../../Radux/Slices/flightSlice';
 
 const BACKEND = '';
 
 export const Flight = () => {
   const { cityName } = useParams();
   const { t } = useTranslation();
-  const cityInfo = citiesData.find(city => city.name === cityName);
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    document.title = "Flights | TravelVerse";
+  }, []);
+  
+  const searchQuery = useSelector(selectFlightSearchQuery);
+  const normalizedCityName = cityName?.trim().toLowerCase() || 'all';
+  const isAllCities = normalizedCityName === 'all';
+  const cityInfo = isAllCities ? { name: 'All' } : citiesData.find(city => city.name === cityName);
+  const displayLocationName = cityInfo?.name || cityName || 'All';
+  const destinationCode = cityInfo?.airportCode || '';
 
   const [flights, setFlights] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchMeta, setSearchMeta] = useState(null);
-
-  if (!cityInfo) return <p className="text-center mt-5">{t('noCityFound')}</p>;
 
   const handleSearch = async (params) => {
     setIsLoading(true);
@@ -66,19 +81,43 @@ export const Flight = () => {
 
   const [sortKey, setSortKey] = useState('best');
   const sortedFlights = sortFlights(flights, sortKey);
+  const searchedFlights = selectFilteredFlights({ flight: { searchQuery } }, sortedFlights);
+
+  useEffect(() => {
+    return () => {
+      dispatch(setFlightSearchQuery(''));
+    };
+  }, [dispatch]);
+
+  const FlightSearchForm = () => (
+    <FlightFilter
+      destinationCode={destinationCode}
+      onSearch={handleSearch}
+      isSearching={isLoading}
+      heroMode
+    />
+  );
 
   return (
     <div>
-      <HeroCar image={car} />
-
-      {/* Flight Search Filter */}
-      <FlightFilter
-        destinationCode={cityInfo.airportCode}
-        onSearch={handleSearch}
-        isSearching={isLoading}
-      />
-
-      <CityContent countryName={cityInfo.name} />
+      <div
+        style={{
+          '--hero-height': '80vh',
+          '--hero-min-height': '680px',
+          '--hero-content-justify': 'flex-start',
+          '--hero-content-top': '72px',
+        }}
+      >
+        <HeroSection
+          image={car}
+          title="Find the Best Flights"
+          subtitle="Compare and book flights worldwide"
+          heroContent={<FlightSearchForm />}
+          onSearch={(query) => dispatch(setFlightSearchQuery(query))}
+          overlayIntensity="medium"
+        />
+      </div>
+      <CityContent countryName={displayLocationName} />
 
       <Container className="mt-2">
         {/* Results header */}
@@ -86,8 +125,8 @@ export const Flight = () => {
           <Row className="align-items-center mb-3">
             <Col>
               <h5 className="mb-0 fw-bold">
-                {sortedFlights.length > 0
-                  ? `✈️ ${sortedFlights.length} ${t('flightsFound') || 'flights found'}`
+                {searchedFlights.length > 0
+                  ? `✈️ ${searchedFlights.length} ${t('flightsFound') || 'flights found'}`
                   : `${t('noFlightsFound') || 'No flights found'} — try different dates`
                 }
                 {searchMeta?.source === 'mock' && (
@@ -107,7 +146,7 @@ export const Flight = () => {
                 </small>
               )}
             </Col>
-            {sortedFlights.length > 0 && (
+            {searchedFlights.length > 0 && (
               <Col xs="auto">
                 <select
                   className="form-select form-select-sm"
@@ -129,9 +168,12 @@ export const Flight = () => {
         {!hasSearched && (
           <div className="text-center py-5">
             <div style={{ fontSize: "64px", marginBottom: "16px" }}>✈️</div>
-            <h4 className="fw-bold mb-2">Find the best flights to {cityInfo.name}</h4>
+            <h4 className="fw-bold mb-2">Find the best flights to {displayLocationName}</h4>
             <p className="text-muted">
-              Use the search above to find available flights. The destination is pre-filled with {cityInfo.name} ({cityInfo.airportCode}).
+              {destinationCode
+                ? `Use the search above to find available flights. The destination is pre-filled with ${displayLocationName} (${destinationCode}).`
+                : `Use the search above to find available flights to ${displayLocationName}.`
+              }
             </p>
           </div>
         )}
@@ -165,10 +207,10 @@ export const Flight = () => {
         )}
 
         {/* Flight cards */}
-        {!isLoading && sortedFlights.length > 0 && (
+        {!isLoading && searchedFlights.length > 0 && (
           <Row>
             <Col xs={12}>
-              {sortedFlights.map((flight) => (
+              {searchedFlights.map((flight) => (
                 <FlightCard key={flight.id} data={flight} currency={searchMeta?.currency || 'USD'} />
               ))}
             </Col>
@@ -176,7 +218,7 @@ export const Flight = () => {
         )}
 
         {/* No results */}
-        {hasSearched && !isLoading && !error && sortedFlights.length === 0 && (
+        {hasSearched && !isLoading && !error && searchedFlights.length === 0 && (
           <div className="text-center py-5">
             <div style={{ fontSize: "64px" }}>🔍</div>
             <h5 className="mt-3">No flights found</h5>

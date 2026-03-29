@@ -1,48 +1,50 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './UserManagement.module.css';
 
 function UserDetailsModal({ isOpen, onClose, details, isLoading, error }) {
+    const { t } = useTranslation();
     if (!isOpen) return null;
 
     return (
         <div className={styles.modal}>
             <div className={styles.modalContent} style={{ maxWidth: '900px' }}>
                 <span className={styles.close} onClick={onClose} aria-label="Close">×</span>
-                <h2>User Details</h2>
+                <h2>{t('user_details')}</h2>
 
-                {isLoading && <p>Loading...</p>}
-                {!isLoading && error && <p style={{ color: 'red' }}>Failed to load user details.</p>}
+                {isLoading && <p>{t('loading')}</p>}
+                {!isLoading && error && <p style={{ color: 'red' }}>{t('error_occurred')}</p>}
 
                 {!isLoading && !error && details && (
                     <>
                         <div style={{ marginBottom: '12px' }}>
-                            <div><strong>ID:</strong> {details.user?.id}</div>
-                            <div><strong>Name:</strong> {details.user?.name}</div>
-                            <div><strong>Email:</strong> {details.user?.email}</div>
-                            <div><strong>Role:</strong> {details.user?.user_type}</div>
-                            <div><strong>Created At:</strong> {details.user?.created_at ? new Date(details.user.created_at).toLocaleString() : '—'}</div>
+                            <div><strong>{t('id')}:</strong> {details.user?.id}</div>
+                            <div><strong>{t('name')}:</strong> {details.user?.name}</div>
+                            <div><strong>{t('email')}:</strong> {details.user?.email}</div>
+                            <div><strong>{t('role')}:</strong> {details.user?.user_type}</div>
+                            <div><strong>{t('created_at')}:</strong> {details.user?.created_at ? new Date(details.user.created_at).toLocaleString() : '—'}</div>
                         </div>
 
                         <div style={{ marginBottom: '12px' }}>
-                            <h3>Summary</h3>
-                            <div><strong>Favorites:</strong> {details.summary?.favorites_count ?? 0}</div>
-                            <div><strong>Reviews:</strong> {details.summary?.reviews_count ?? 0}</div>
-                            <div><strong>Reservations:</strong> {details.summary?.reservations_count ?? 0}</div>
+                            <h3>{t('summary')}</h3>
+                            <div><strong>{t('favorites')}:</strong> {details.summary?.favorites_count ?? 0}</div>
+                            <div><strong>{t('reviews')}:</strong> {details.summary?.reviews_count ?? 0}</div>
+                            <div><strong>{t('reservations')}:</strong> {details.summary?.reservations_count ?? 0}</div>
                         </div>
 
                         <div style={{ marginBottom: '12px' }}>
-                            <h3>Reservations</h3>
+                            <h3>{t('my_reservations')}</h3>
                             {Array.isArray(details.reservations) && details.reservations.length > 0 ? (
                                 <div style={{ overflowX: 'auto' }}>
                                     <table className={styles.table}>
                                         <thead>
                                             <tr>
-                                                <th>ID</th>
-                                                <th>Status</th>
-                                                <th>Type</th>
-                                                <th>Item ID</th>
-                                                <th>Date</th>
-                                                <th>People</th>
+                                                <th>{t('id')}</th>
+                                                <th>{t('status')}</th>
+                                                <th>{t('type')}</th>
+                                                <th>{t('item_id')}</th>
+                                                <th>{t('date')}</th>
+                                                <th>{t('people')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -60,20 +62,20 @@ function UserDetailsModal({ isOpen, onClose, details, isLoading, error }) {
                                     </table>
                                 </div>
                             ) : (
-                                <p>No reservations.</p>
+                                <p>{t('no_reservations')}</p>
                             )}
                         </div>
 
                         <div style={{ marginBottom: '12px' }}>
-                            <h3>Favorites</h3>
+                            <h3>{t('favorites')}</h3>
                             {Array.isArray(details.favorites) && details.favorites.length > 0 ? (
                                 <div style={{ overflowX: 'auto' }}>
                                     <table className={styles.table}>
                                         <thead>
                                             <tr>
-                                                <th>ID</th>
-                                                <th>Type</th>
-                                                <th>Item ID</th>
+                                                <th>{t('id')}</th>
+                                                <th>{t('type')}</th>
+                                                <th>{t('item_id')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -88,22 +90,22 @@ function UserDetailsModal({ isOpen, onClose, details, isLoading, error }) {
                                     </table>
                                 </div>
                             ) : (
-                                <p>No favorites.</p>
+                                <p>{t('no_favorites')}</p>
                             )}
                         </div>
 
                         <div>
-                            <h3>Reviews</h3>
+                            <h3>{t('reviews')}</h3>
                             {Array.isArray(details.reviews) && details.reviews.length > 0 ? (
                                 <div style={{ overflowX: 'auto' }}>
                                     <table className={styles.table}>
                                         <thead>
                                             <tr>
-                                                <th>ID</th>
-                                                <th>Rate</th>
-                                                <th>Type</th>
-                                                <th>Item ID</th>
-                                                <th>Comment</th>
+                                                <th>{t('id')}</th>
+                                                <th>{t('rate')}</th>
+                                                <th>{t('type')}</th>
+                                                <th>{t('item_id')}</th>
+                                                <th>{t('comment')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -120,7 +122,7 @@ function UserDetailsModal({ isOpen, onClose, details, isLoading, error }) {
                                     </table>
                                 </div>
                             ) : (
-                                <p>No reviews.</p>
+                                <p>{t('no_reviews')}</p>
                             )}
                         </div>
                     </>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 import api from '../../Radux/axios';
 
 function Stars({ rating }) {
@@ -16,6 +17,7 @@ function Stars({ rating }) {
 }
 
 export default function GuideMyReviews() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [drafts, setDrafts] = useState({});
 
@@ -27,27 +29,31 @@ export default function GuideMyReviews() {
   const replyMutation = useMutation({
     mutationFn: async ({ id, reply }) => (await api.post(`/guide/reviews/${id}/reply`, { reply })).data,
     onSuccess: () => {
-      toast.success('Reply saved successfully');
+      toast.success(t('success'));
       queryClient.invalidateQueries({ queryKey: ['guide-reviews'] });
     },
-    onError: (error) => toast.error(error.response?.data?.message || 'Failed to save reply'),
+    onError: (error) => toast.error(error.response?.data?.message || t('error_occurred')),
   });
 
-  const reviews = data?.data || [];
+  const reviews = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data?.data?.items)
+      ? data.data.items
+      : [];
 
   return (
     <div style={{ marginTop: '16px' }} className="max-w-5xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Reviews</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t('review')}</h1>
       </div>
 
       {isLoading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 text-gray-600 dark:text-gray-300">Loading reviews...</div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 text-gray-600 dark:text-gray-300">{t('loading_reviews')}</div>
       ) : isError ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 text-red-600 dark:text-red-400">Failed to load reviews.</div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 text-red-600 dark:text-red-400">{t('error_occurred')}</div>
       ) : reviews.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm text-center py-16 text-gray-400 dark:text-gray-500">
-          <p className="text-lg font-medium">No reviews yet</p>
+          <p className="text-lg font-medium">{t('no_reviews_yet')}</p>
           <p className="text-sm mt-1">New traveler feedback will appear here</p>
         </div>
       ) : (

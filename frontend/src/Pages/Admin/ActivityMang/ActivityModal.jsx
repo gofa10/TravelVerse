@@ -3,8 +3,10 @@ import styles from '../UserMang/UserManagement.module.css';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../../Radux/axios';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 
 function ActivityModal({ isOpen, onClose, initialData }) {
+  const { t } = useTranslation();
   const [nameEn, setNameEn] = useState('');
   const [nameAr, setNameAr] = useState('');
   const [descriptionEn, setDescriptionEn] = useState('');
@@ -101,11 +103,11 @@ function ActivityModal({ isOpen, onClose, initialData }) {
     onSuccess: () => {
       queryClient.invalidateQueries(['activities']);
       onClose();
-      toast.success('Activity saved successfully');
+      toast.success(t('activity_saved_success'));
     },
     onError: (error) => {
       console.error("❌ Error:", error.response?.data);
-      toast.error('Failed to save activity');
+      toast.error(t('activity_save_failed'));
     }
   });
 
@@ -142,42 +144,42 @@ function ActivityModal({ isOpen, onClose, initialData }) {
     <div className={styles.modal}>
       <div className={styles.modalContent}>
         <span className={styles.close} onClick={onClose}>×</span>
-        <h2>{initialData ? 'Update Activity' : 'Add Activity'}</h2>
+        <h2>{initialData ? t('update_activity') : t('add_activity_modal')}</h2>
         <form onSubmit={handleSubmit}>
-          <label>Name (English)</label>
+          <label>{t('english_name')}</label>
           <input value={nameEn} onChange={(e) => setNameEn(e.target.value)} required />
 
-          <label>الاسم (عربي)</label>
+          <label>{t('arabic_name')}</label>
           <input value={nameAr} onChange={(e) => setNameAr(e.target.value)} required />
 
-          <label>Description (English)</label>
+          <label>{t('description_english')}</label>
           <textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} />
 
-          <label>الوصف (عربي)</label>
+          <label>{t('description_arabic')}</label>
           <textarea value={descriptionAr} onChange={(e) => setDescriptionAr(e.target.value)} />
 
-          <label>Rate</label>
+          <label>{t('rate')}</label>
           <input type="number" step="0.1" value={rate} onChange={(e) => setRate(e.target.value)} />
 
-          <label>Location</label>
+          <label>{t('location')}</label>
           <input value={location} onChange={(e) => setLocation(e.target.value)} required />
 
-          <label>Booking Link</label>
+          <label>{t('booking_link')}</label>
           <input value={bookingLink} onChange={(e) => setBookingLink(e.target.value)} />
 
-          <label>Price</label>
+          <label>{t('price')}</label>
           <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} />
 
-          <label>Duration</label>
+          <label>{t('duration')}</label>
           <input value={duration} onChange={(e) => setDuration(e.target.value)} />
 
-          <label>Type</label>
+          <label>{t('type')}</label>
           <input value={type} onChange={(e) => setType(e.target.value)} />
 
-          <label>Start Times</label>
+          <label>{t('start_times')}</label>
           <div style={{ display: 'flex', gap: '10px' }}>
             <input value={startInput} onChange={(e) => setStartInput(e.target.value)} />
-            <button type="button" onClick={addStartTime}>Add</button>
+            <button type="button" onClick={addStartTime}>{t('add')}</button>
           </div>
           <ul>
             {startTime.map((t, i) => (
@@ -185,12 +187,12 @@ function ActivityModal({ isOpen, onClose, initialData }) {
             ))}
           </ul>
 
-          <label>Live Guide</label>
+          <label>{t('live_guide')}</label>
           <input type="checkbox" checked={liveGuide} onChange={(e) => setLiveGuide(e.target.checked)} />
 
           {liveGuide && (
             <>
-              <label>Guide Languages</label>
+              <label>{t('guide_languages')}</label>
               <select multiple value={guideLanguages} onChange={(e) => {
                 const selected = Array.from(e.target.selectedOptions).map(o => o.value);
                 setGuideLanguages(selected);
@@ -202,14 +204,14 @@ function ActivityModal({ isOpen, onClose, initialData }) {
             </>
           )}
 
-          <label>Upload Images</label>
+          <label>{t('upload_images')}</label>
           <input type="file" accept="image/*" multiple onChange={handleImageChange} />
 
-          <label>Image URLs</label>
+          <label>{t('image_urls')}</label>
           {imageUrls.map((url, i) => (
             <input key={i} value={url} onChange={(e) => handleUrlsChange(i, e.target.value)} />
           ))}
-          <button type="button" onClick={() => setImageUrls([...imageUrls, ''])}>+ Add Image URL</button>
+          <button type="button" onClick={() => setImageUrls([...imageUrls, ''])}>{t('add_image_url')}</button>
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
             {previewImages.map((src, i) => (
@@ -218,7 +220,7 @@ function ActivityModal({ isOpen, onClose, initialData }) {
           </div>
 
           <button type="submit" className={styles.modalButton} disabled={mutation.isLoading}>
-            {mutation.isLoading ? 'Saving...' : 'Save'}
+            {mutation.isLoading ? t('loading') : t('save')}
           </button>
         </form>
       </div>

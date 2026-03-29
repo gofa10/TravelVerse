@@ -12,7 +12,7 @@ class ImageController extends Controller
     {
         // Restrict who can upload images to Admin only
         if (auth()->user()->user_type !== 'admin') {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $validator = Validator::make($request->all(), [
@@ -25,7 +25,7 @@ class ImageController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return $this->error('Validation failed', 422, $validator->errors());
         }
 
         $savedImages = [];
@@ -59,10 +59,7 @@ class ImageController extends Controller
             }
         }
 
-        return response()->json([
-            'message' => 'Images saved successfully',
-            'images' => $savedImages
-        ], 201);
+        return $this->success($savedImages, 'Images saved successfully', 201);
     }
 
 
@@ -71,12 +68,12 @@ class ImageController extends Controller
     {
         // Only Admin can delete images
         if (auth()->user()->user_type !== 'admin') {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $image = Image::findOrFail($id);
         $image->delete();
 
-        return response()->json(['message' => 'Image deleted']);
+        return $this->success(null, 'Deleted successfully');
     }
 }

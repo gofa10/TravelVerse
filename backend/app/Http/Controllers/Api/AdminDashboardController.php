@@ -18,7 +18,7 @@ class AdminDashboardController extends Controller
     public function index()
     {
         if (!Auth::check() || Auth::user()->user_type !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $funnelCountsRaw = Reservation::selectRaw('status, COUNT(*) as total')
@@ -135,7 +135,7 @@ class AdminDashboardController extends Controller
             'activities' => $stats['total_activities'],
         ];
 
-        return response()->json([
+        return $this->success([
             'stats' => $stats,
             'reservation_funnel' => $reservationFunnel,
             'recent_reservations' => $recentReservations,

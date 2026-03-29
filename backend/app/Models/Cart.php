@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class Cart extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'user_id',
+        'cartable_id',
+        'cartable_type',
+        'quantity',
+    ];
+
     public function cartable()
 {
     return $this->morphTo();

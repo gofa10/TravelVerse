@@ -42,7 +42,7 @@ class Flight extends Model
 
     public function favorites()
     {
-        return $this->morphMany(Favorite::class, 'favorable');
+        return $this->morphMany(Favorite::class, 'favoritable');
     }
 
     public function reservations()

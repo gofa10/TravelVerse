@@ -33,7 +33,7 @@ const Footer = () => {
       >
         <div className='me-5 d-none d-lg-block'>
           <span style={{ fontSize: 'var(--font-size-sm, 0.875rem)' }}>
-            {t('footer.social_connect')}
+            {t('connect_social')}
           </span>
         </div>
 
@@ -95,7 +95,7 @@ const Footer = () => {
                 lineHeight: '1.7',
                 color: 'var(--color-slate-400, #94a3b8)',
               }}>
-                Discover breathtaking destinations, curated experiences, and unforgettable journeys with TravelVerse.
+                {t('footer_company_description')}
               </p>
             </MDBCol>
 
@@ -105,9 +105,9 @@ const Footer = () => {
                 className='text-uppercase fw-bold mb-4'
                 style={{ color: 'white', fontSize: 'var(--font-size-sm, 0.875rem)' }}
               >
-                {t('footer.products_title')}
+                {t('products')}
               </h6>
-              {['Destinations', 'Tours & Trips', 'Hotels', 'Experiences'].map((item, i) => (
+              {[t('destinations'), t('tours_and_trips'), t('hotels'), t('experiences')].map((item, i) => (
                 <p key={i} className="mb-2">
                   <Link
                     to={i === 0 ? '/destination/europe' : i === 1 ? '/trips' : '#'}
@@ -132,13 +132,13 @@ const Footer = () => {
                 className='text-uppercase fw-bold mb-4'
                 style={{ color: 'white', fontSize: 'var(--font-size-sm, 0.875rem)' }}
               >
-                {t('footer.useful_links')}
+                {t('useful_links')}
               </h6>
               {[
-                { text: t('footer.links.help'), link: '#' },
-                { text: 'About Us', link: '#' },
-                { text: 'Privacy Policy', link: '#' },
-                { text: 'Terms of Service', link: '#' },
+                { text: t('help'), link: '#' },
+                { text: t('about_us'), link: '#' },
+                { text: t('privacy_policy'), link: '#' },
+                { text: t('terms_of_service'), link: '#' },
               ].map((item, i) => (
                 <p key={i} className="mb-2">
                   <a
@@ -164,7 +164,7 @@ const Footer = () => {
                 className='text-uppercase fw-bold mb-4'
                 style={{ color: 'white', fontSize: 'var(--font-size-sm, 0.875rem)' }}
               >
-                {t('footer.contact_title')}
+                {t('contacts')}
               </h6>
               <p style={{ fontSize: 'var(--font-size-sm, 0.875rem)', marginBottom: '12px' }}>
                 <MDBIcon icon="home" className="me-2" style={{ color: 'var(--color-primary-400, #60a5fa)' }} />
@@ -191,11 +191,10 @@ const Footer = () => {
           fontSize: 'var(--font-size-sm, 0.875rem)',
         }}
       >
-        © {new Date().getFullYear()} {t('footer.company_name')}. All rights reserved.
+        © {new Date().getFullYear()} {t('footer.company_name')}. {t('all_rights_reserved')}
       </div>
     </MDBFooter>
   );
 }
 
 export default Footer;
-

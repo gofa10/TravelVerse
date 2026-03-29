@@ -9,8 +9,8 @@ export default function GuideDashboard() {
       <Header />
       <GuideSidebar />
       <main
-        className="ml-52 min-h-screen bg-gray-100 dark:bg-gray-900"
-        style={{ paddingTop: '72px' }}
+        className="ml-64 min-h-screen bg-gray-100 dark:bg-gray-900"
+        style={{ paddingTop: '64px' }}
       >
         <div className="p-6">
           <Outlet />

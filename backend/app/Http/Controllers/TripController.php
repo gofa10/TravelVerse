@@ -6,6 +6,9 @@ use App\Models\Trip;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TripController extends Controller
 {
@@ -17,7 +20,7 @@ class TripController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($trips);
+        return $this->success($trips);
     }
 
     public function index(Request $request)
@@ -26,9 +29,9 @@ class TripController extends Controller
 
         $query = Trip::with('images', 'guide')->withCount('reviews');
 
-        // فلترة حسب النوع
-        if ($request->has('type') && $request->type) {
-            $query->where('type', $request->type); // تأكد أن لديك عمود "type" في جدول trips
+        // Filter by type only if the column exists to avoid SQL errors.
+        if ($request->filled('type') && Schema::hasColumn('trips', 'type')) {
+            $query->where('type', $request->type);
         }
 
         // فلترة حسب الدولة (country)
@@ -43,10 +46,12 @@ class TripController extends Controller
             }
 
             if ($request->has('min_duration')) {
-                $query->whereRaw("CAST(SUBSTRING_INDEX(duration, ' ', 1) AS UNSIGNED) >= ?", [$request->min_duration]);
+                $query->whereRaw("duration REGEXP '^[0-9]+'")
+                    ->whereRaw("CAST(SUBSTRING_INDEX(duration, ' ', 1) AS UNSIGNED) >= ?", [$request->min_duration]);
             }
             if ($request->has('max_duration')) {
-                $query->whereRaw("CAST(SUBSTRING_INDEX(duration, ' ', 1) AS UNSIGNED) <= ?", [$request->max_duration]);
+                $query->whereRaw("duration REGEXP '^[0-9]+'")
+                    ->whereRaw("CAST(SUBSTRING_INDEX(duration, ' ', 1) AS UNSIGNED) <= ?", [$request->max_duration]);
             }
 
         }
@@ -63,6 +68,40 @@ class TripController extends Controller
         $trips = $query->paginate(30);
 
         $data = $trips->getCollection()->map(function ($trip) use ($locale) {
+            // Get images using direct query since morph relationship isn't working
+            $images = DB::table('images')
+                ->where('imageable_id', $trip->id)
+                ->where('imageable_type', 'trip')
+                ->pluck('url')
+                ->map(function ($url) {
+                    if (!is_string($url) || trim($url) === '') {
+                        return null;
+                    }
+
+                    $trimmed = trim($url);
+
+                    if (str_contains($trimmed, '/storage/')) {
+                        $relativePath = explode('/storage/', $trimmed, 2)[1] ?? '';
+                        if ($relativePath === '' || !Storage::disk('public')->exists($relativePath)) {
+                            return null;
+                        }
+                        return url('/storage/' . ltrim($relativePath, '/'));
+                    }
+
+                    if (str_starts_with($trimmed, 'storage/')) {
+                        $relativePath = substr($trimmed, strlen('storage/'));
+                        if ($relativePath === '' || !Storage::disk('public')->exists($relativePath)) {
+                            return null;
+                        }
+                        return url('/storage/' . ltrim($relativePath, '/'));
+                    }
+
+                    return $trimmed;
+                })
+                ->filter()
+                ->values()
+                ->toArray();
+
             return [
                 'id' => $trip->id,
                 'name' => $locale === 'ar' ? $trip->name_ar : $trip->name_en,
@@ -74,7 +113,7 @@ class TripController extends Controller
                 'continent' => $trip->continent,
                 'difficulty' => $trip->difficulty,
                 'reviews_count' => $trip->reviews_count,
-                'images' => $trip->images->pluck('url'),
+                'images' => $images,
                 'booking_link' => $trip->booking_link,
                 'guide' => [
                     'id' => $trip->guide?->id,
@@ -83,12 +122,12 @@ class TripController extends Controller
             ];
         });
 
-        return response()->json([
+        return $this->success([
             'current_page' => $trips->currentPage(),
             'last_page' => $trips->lastPage(),
             'per_page' => $trips->perPage(),
             'total' => $trips->total(),
-            'data' => $data,
+            'items' => $data,
         ]);
     }
 
@@ -129,7 +168,7 @@ class TripController extends Controller
         } elseif ($user->user_type === 'admin') {
             $validated['guide_id'] = $validated['guide_id'] ?? null;
         } else {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return $this->error('Unauthorized', 403);
         }
 
         $trip = Trip::create($validated);
@@ -149,7 +188,7 @@ class TripController extends Controller
             }
         }
 
-        return response()->json($trip->load('images'), 201);
+        return $this->success($trip->load('images'), '', 201);
     }
 
 
@@ -160,12 +199,50 @@ class TripController extends Controller
     {
         $locale = $request->header('Accept-Language') ?? app()->getLocale();
 
-        $trip = Trip::with('images', 'guide', 'reviews')->findOrFail($id);
+        $trip = Trip::with('guide', 'reviews')->findOrFail($id);
+        
+        // Get images using direct query since morph relationship isn't working
+        $images = DB::table('images')
+            ->where('imageable_id', $trip->id)
+            ->where('imageable_type', 'trip')
+            ->pluck('url')
+            ->map(function ($url) {
+                if (!is_string($url) || trim($url) === '') {
+                    return null;
+                }
 
-        return response()->json([
+                $trimmed = trim($url);
+
+                if (str_contains($trimmed, '/storage/')) {
+                    $relativePath = explode('/storage/', $trimmed, 2)[1] ?? '';
+                    if ($relativePath === '' || !Storage::disk('public')->exists($relativePath)) {
+                        return null;
+                    }
+                    return url('/storage/' . ltrim($relativePath, '/'));
+                }
+
+                if (str_starts_with($trimmed, 'storage/')) {
+                    $relativePath = substr($trimmed, strlen('storage/'));
+                    if ($relativePath === '' || !Storage::disk('public')->exists($relativePath)) {
+                        return null;
+                    }
+                    return url('/storage/' . ltrim($relativePath, '/'));
+                }
+
+                return $trimmed;
+            })
+            ->filter()
+            ->values()
+            ->toArray();
+
+        return $this->success([
             'id' => $trip->id,
             'name' => $locale === 'ar' ? $trip->name_ar : $trip->name_en,
+            'name_en' => $trip->name_en,
+            'name_ar' => $trip->name_ar,
             'description' => $locale === 'ar' ? $trip->description_ar : $trip->description_en,
+            'description_en' => $trip->description_en,
+            'description_ar' => $trip->description_ar,
             'location' => $trip->location,
             'price' => $trip->price,
             'rate' => $trip->rate,
@@ -173,7 +250,7 @@ class TripController extends Controller
             'continent' => $trip->continent,
             'difficulty' => $trip->difficulty,
             'reviews_count' => $trip->reviews->count(),
-            'images' => $trip->images->pluck('url'),
+            'images' => $images,
             'booking_link' => $trip->booking_link,
             'guide' => [
                 'id' => $trip->guide?->id,
@@ -202,7 +279,7 @@ class TripController extends Controller
             }
         }
 
-        return response()->json([
+        return $this->success([
             'message' => 'Images uploaded successfully',
             'images' => $uploadedImages,
         ]);
@@ -214,7 +291,7 @@ class TripController extends Controller
         $user = Auth::user();
 
         if ($user->user_type === 'tour_guide' && (int) $trip->guide_id !== (int) $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return $this->error('Forbidden', 403);
         }
 
 
@@ -277,7 +354,7 @@ class TripController extends Controller
             }
         }
 
-        return response()->json($trip->load('images'));
+        return $this->success($trip->load('images'));
     }
 
 
@@ -289,13 +366,13 @@ class TripController extends Controller
         $user = Auth::user();
 
         if ($user->user_type === 'tour_guide' && (int) $trip->guide_id !== (int) $user->id) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            return $this->error('Forbidden', 403);
         }
 
 
         $trip->delete();
 
-        return response()->json(['message' => 'Deleted']);
+        return $this->success(null, 'Deleted successfully');
     }
 
 }

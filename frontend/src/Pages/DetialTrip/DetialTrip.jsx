@@ -19,36 +19,92 @@ import CommentCard from '../../Utility/Cards/CommentCard';
 import { ArrowBigLeft, MessageSquare, Star } from 'lucide-react';
 import ErrorBoundary from '../../Components/ErrorBoundary/ErrorBoundary';
 import ReviewForm from '../../Component/Reviews/ReviewForm';
+import { getApiEndpoint, normalizeType } from '../../Utility/typeUtils.js';
 
-// Map singular types to plural API endpoints
-const getApiEndpoint = (type) => {
-  const pluralMap = {
-    'activity': 'activities',
-    'trip': 'trips',
-    'hotel': 'hotels',
-    'restaurant': 'restaurants',
-    'cruise': 'cruises',
-    'car': 'cars',
-    'flight': 'flights',
-  };
-  return pluralMap[type] || `${type}s`; // fallback to adding 's' if not in map
+const normalizePayload = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.items)) return payload.items;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return payload ?? null;
 };
 
 const fetchItem = async ({ queryKey }) => {
   const [_key, { type, id }] = queryKey;
   const endpoint = getApiEndpoint(type);
   const res = await api.get(`/${endpoint}/${id}`);
-  return { ...res.data, endpoint };
+  const payload = normalizePayload(res.data?.data ?? res.data);
+  if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+    return { ...payload, endpoint };
+  }
+  return { endpoint };
 };
 
 const fetchReviews = async () => {
   try {
     const res = await api.get('/reviews');
-    return res.data.data || [];
+    const payload = res.data?.data ?? res.data;
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.items)) return payload.items;
+    if (Array.isArray(payload?.data)) return payload.data;
+    return [];
   } catch (error) {
     console.error('Failed to fetch reviews:', error);
     return [];
   }
+};
+
+const translateListValue = (t, value) => {
+  if (!value || typeof value !== 'string') return value;
+
+  return value
+    .split(',')
+    .map((part) => {
+      const trimmed = part.trim();
+      if (!trimmed) return trimmed;
+
+      const key = trimmed.toLowerCase().replace(/\s+/g, '_');
+      const translated = t(key);
+      return translated && translated !== key ? translated : trimmed;
+    })
+    .join(', ');
+};
+
+const hasValue = (value) => {
+  if (value == null) return false;
+  if (typeof value === 'string') return value.trim() !== '';
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+};
+
+const getItemTitle = (item, type) => {
+  if (!item) return 'Details';
+  if (hasValue(item.name)) return item.name;
+  if (hasValue(item.name_en)) return item.name_en;
+  if (hasValue(item.title)) return item.title;
+  if (type === 'car') {
+    const carName = [item.brand, item.model].filter(hasValue).join(' ');
+    if (hasValue(carName)) return carName;
+  }
+  if (type === 'flight') {
+    const flightName = [item.from_location, item.to_location].filter(hasValue).join(' → ');
+    if (hasValue(flightName)) return flightName;
+  }
+  return 'Details';
+};
+
+const getItemLocation = (item, type, t) => {
+  if (!item) return null;
+  if (hasValue(item.location)) return translateListValue(t, item.location);
+  if (type === 'flight') {
+    const route = [item.from_location, item.to_location].filter(hasValue).join(' - ');
+    return hasValue(route) ? route : null;
+  }
+  return null;
+};
+
+const getItemRating = (item) => {
+  const rawRating = item?.rate ?? item?.rating ?? item?.average_rating;
+  return hasValue(rawRating) ? Number(rawRating) : null;
 };
 
 const DetialItem = () => {
@@ -56,7 +112,8 @@ const DetialItem = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const type = searchParams.get('type')?.toLowerCase() || 'trip';
+  const rawType = searchParams.get('type')?.toLowerCase() || 'trip';
+  const type = normalizeType(rawType);
 
 
 
@@ -106,6 +163,9 @@ const DetialItem = () => {
       return r.reviewable_id === Number(id) && reviewType === type;
     })
     .slice(0, visibleCount);
+  const itemTitle = getItemTitle(selectedItem, type);
+  const itemLocation = getItemLocation(selectedItem, type, t);
+  const itemRating = getItemRating(selectedItem);
 
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + 3);
@@ -125,7 +185,7 @@ const DetialItem = () => {
         }}
         type={type}
       />
-      <h1>{itemLoading ? <Skeleton width={300} /> : selectedItem?.name || (type === 'flight' ? `${selectedItem?.from_location} → ${selectedItem?.to_location}` : 'Details')}</h1>
+      <h1>{itemLoading ? <Skeleton width={300} /> : itemTitle}</h1>
       <div className="flex items-center mb-4">
         <Link
           to={-1}
@@ -144,50 +204,50 @@ const DetialItem = () => {
         <Col>
           {itemLoading ? (
             <Skeleton width={120} />
-          ) : (
+          ) : itemRating != null ? (
             <Rating
               name="rating"
-              defaultValue={Number(selectedItem?.rate) || 3.5}
+              value={itemRating}
               precision={0.5}
               readOnly
             />
-          )}
+          ) : null}
         </Col>
         <Col>
-          {itemLoading ? <Skeleton width={80} /> : <p>{t('location')}: {selectedItem?.location || (type === 'flight' ? `${selectedItem?.from_location} - ${selectedItem?.to_location}` : <Skeleton width={100} />)}</p>}
+          {itemLoading ? <Skeleton width={80} /> : itemLocation ? <p>{t('location')}: {itemLocation}</p> : null}
         </Col>
         {/* Duration+Guide col — shown only for trip and activity */}
         {(type === 'trip' || type === 'activity') && (
           <Col>
             <ul>
-              {selectedItem?.duration && <li>{t('duration')}: {selectedItem.duration} {t('hours')}</li>}
-              {selectedItem?.guide && <li>🧭 {t('guide')}: {selectedItem.guide.name}</li>}
+              {hasValue(selectedItem?.duration) && <li>{t('duration')}: {selectedItem.duration} {t('hours')}</li>}
+              {hasValue(selectedItem?.guide?.name) && <li>🧭 {t('guide')}: {selectedItem.guide.name}</li>}
             </ul>
           </Col>
         )}
 
         {/* Hotel-specific col */}
-        {type === 'hotel' && (selectedItem?.class || selectedItem?.style) && (
+        {type === 'hotel' && (hasValue(selectedItem?.class) || hasValue(selectedItem?.style)) && (
           <Col>
             <ul>
-              {selectedItem.class && <li>⭐ Class: {selectedItem.class}</li>}
-              {selectedItem.style && <li>🎨 Style: {selectedItem.style}</li>}
+              {hasValue(selectedItem?.class) && <li>⭐ Class: {selectedItem.class}</li>}
+              {hasValue(selectedItem?.style) && <li>🎨 Style: {selectedItem.style}</li>}
             </ul>
           </Col>
         )}
 
         {/* Restaurant-specific col */}
-        {type === 'restaurant' && (selectedItem?.cuisine || selectedItem?.property_type) && (
+        {type === 'restaurant' && (hasValue(selectedItem?.cuisine) || hasValue(selectedItem?.property_type)) && (
           <Col>
             <ul style={{ display: 'flex', gap: '1.5em', flexWrap: 'nowrap', listStyle: 'none', padding: 0, margin: 0 }}>
-              {selectedItem.cuisine && <li style={{ whiteSpace: 'nowrap' }}>🍽️ Cuisine: {selectedItem.cuisine}</li>}
-              {selectedItem.property_type && <li style={{ whiteSpace: 'nowrap' }}>🏠 Type: {selectedItem.property_type}</li>}
+              {hasValue(selectedItem?.cuisine) && <li style={{ whiteSpace: 'nowrap' }}>🍽️ {t('cuisine')}: {translateListValue(t, selectedItem.cuisine)}</li>}
+              {hasValue(selectedItem?.property_type) && <li style={{ whiteSpace: 'nowrap' }}>🏠 {t('type')}: {translateListValue(t, selectedItem.property_type)}</li>}
             </ul>
           </Col>
         )}
 
         {/* Flight style col */}
-        {type === 'flight' && selectedItem?.style && (
+        {type === 'flight' && hasValue(selectedItem?.style) && (
           <Col>
             <ul>
               <li>💺 {t('class') || 'Class'}: {selectedItem.style}</li>
@@ -228,10 +288,12 @@ const DetialItem = () => {
               <div className="flex items-center gap-4 bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-50 dark:border-gray-700">
                 <div className="flex text-yellow-400">
                   {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} size={18} fill={s <= Math.round(selectedItem?.rate || 4) ? 'currentColor' : 'none'} />
+                    <Star key={s} size={18} fill={itemRating != null && s <= Math.round(itemRating) ? 'currentColor' : 'none'} />
                   ))}
                 </div>
-                <span className="font-bold text-gray-800 dark:text-gray-200">{selectedItem?.rate || '4.0'} / 5.0</span>
+                {itemRating != null ? (
+                  <span className="font-bold text-gray-800 dark:text-gray-200">{itemRating} / 5.0</span>
+                ) : null}
               </div>
             )}
           </div>

@@ -27,11 +27,21 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user
-        ]);
+        return $this->success(
+            [
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user,
+            ],
+            'Registered successfully',
+            200,
+            [
+                // Legacy keys kept for backward compatibility.
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'user' => $user,
+            ]
+        );
     }
 
 
@@ -51,20 +61,32 @@ class AuthController extends Controller
         }
         $token = $user->createToken('authToken')->plainTextToken;
 
-        return response()->json([
-            'token' => $token,
-            'user' => $user,
-        ]);
+        return $this->success(
+            [
+                'token' => $token,
+                'user' => $user,
+            ],
+            'Logged in successfully',
+            200,
+            [
+                // Legacy keys kept for backward compatibility.
+                'token' => $token,
+                'user' => $user,
+            ]
+        );
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out successfully']);
+        return $this->success(null, 'Logged out successfully');
     }
 
     public function profile(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user();
+        $legacy = $user ? $user->toArray() : [];
+
+        return $this->success($legacy, '', 200, $legacy);
     }
 }

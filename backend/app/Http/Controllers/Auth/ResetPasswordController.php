@@ -31,7 +31,7 @@ class ResetPasswordController extends Controller
         );
 
         return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => 'Password reset successful.'])
-            : response()->json(['message' => 'Invalid token or email.'], 400);
+            ? $this->success(null, 'Password reset successful.')
+            : $this->error('Invalid token or email.', 400);
     }
 }

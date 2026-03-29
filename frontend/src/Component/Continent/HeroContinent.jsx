@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "../../Style/Continent/HeroContinent.module.css";
-import ModernSearchBar from "./ModernSearchBar";
+import CitySelect from "./CitySelect";
 
 const HeroContinent = ({ backgroundImage, countryName, description, images, cities }) => {
   // console.log(backgroundImage)
@@ -19,8 +19,11 @@ const HeroContinent = ({ backgroundImage, countryName, description, images, citi
           <span>{countryName}</span>
         </h1>
         <p>{description}</p>
-        <div className="hero-search-wrapper" style={{ marginTop: '20px' }}>
-          <ModernSearchBar countries={cities} />
+        <div
+          className={`hero-search-wrapper ${styles.heroSearchWrapper}`}
+          style={{ marginTop: '20px' }}
+        >
+          <CitySelect cities={cities} />
         </div>
       </header>
 

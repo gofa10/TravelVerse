@@ -12,6 +12,7 @@ use App\Models\Hotel;
 use App\Models\Restaurant;
 use App\Models\Trip;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -32,27 +33,49 @@ class HomeController extends Controller
      {
           $limit = 8; // cards per carousel section
 
-          $activities = Activity::with(['images'])->withCount('reviews')
-               ->latest()
-               ->limit($limit)
-               ->get();
+          $activities = Activity::latest()->limit($limit)->get();
+          $trips = Trip::latest()->limit($limit)->get();
+          $hotels = Hotel::latest()->limit($limit)->get();
+          $restaurants = Restaurant::latest()->limit($limit)->get();
 
-          $trips = Trip::with(['images'])->withCount('reviews')
-               ->latest()
-               ->limit($limit)
-               ->get();
+          // Manually attach images using direct queries
+          $activities->each(function ($activity) {
+               $images = DB::table('images')
+                    ->where('imageable_id', $activity->id)
+                    ->where('imageable_type', 'activity')
+                    ->pluck('url')
+                    ->toArray();
+               $activity->setRelation('images', collect($images)->map(fn($url) => (object)['url' => $url]));
+          });
 
-          $hotels = Hotel::with(['images'])->withCount('reviews')
-               ->latest()
-               ->limit($limit)
-               ->get();
+          $trips->each(function ($trip) {
+               $images = DB::table('images')
+                    ->where('imageable_id', $trip->id)
+                    ->where('imageable_type', 'trip')
+                    ->pluck('url')
+                    ->toArray();
+               $trip->setRelation('images', collect($images)->map(fn($url) => (object)['url' => $url]));
+          });
 
-          $restaurants = Restaurant::with(['images'])->withCount('reviews')
-               ->latest()
-               ->limit($limit)
-               ->get();
+          $hotels->each(function ($hotel) {
+               $images = DB::table('images')
+                    ->where('imageable_id', $hotel->id)
+                    ->where('imageable_type', 'hotel')
+                    ->pluck('url')
+                    ->toArray();
+               $hotel->setRelation('images', collect($images)->map(fn($url) => (object)['url' => $url]));
+          });
 
-          return response()->json([
+          $restaurants->each(function ($restaurant) {
+               $images = DB::table('images')
+                    ->where('imageable_id', $restaurant->id)
+                    ->where('imageable_type', 'restaurant')
+                    ->pluck('url')
+                    ->toArray();
+               $restaurant->setRelation('images', collect($images)->map(fn($url) => (object)['url' => $url]));
+          });
+
+          return $this->success([
                'activities' => ActivityResource::collection($activities),
                'trips' => TripResource::collection($trips),
                'hotels' => HotelResource::collection($hotels),
@@ -71,27 +94,27 @@ class HomeController extends Controller
           $limit = 8;
 
           return match ($category) {
-               'activities' => response()->json(
+               'activities' => $this->success(
                     ActivityResource::collection(
                          Activity::with(['images', 'reviews'])->latest()->limit($limit)->get()
                     )
                ),
-               'trips' => response()->json(
+               'trips' => $this->success(
                     TripResource::collection(
                          Trip::with(['images', 'reviews'])->latest()->limit($limit)->get()
                     )
                ),
-               'hotels' => response()->json(
+               'hotels' => $this->success(
                     HotelResource::collection(
                          Hotel::with(['images', 'reviews'])->latest()->limit($limit)->get()
                     )
                ),
-               'restaurants' => response()->json(
+               'restaurants' => $this->success(
                     RestaurantResource::collection(
                          Restaurant::with(['images', 'reviews'])->latest()->limit($limit)->get()
                     )
                ),
-               default => response()->json(['error' => 'Unknown category: ' . $category], 422),
+               default => $this->error('Unknown category: ' . $category, 422),
           };
      }
 }

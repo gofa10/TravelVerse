@@ -16,6 +16,10 @@ class Cruise extends Model
     'property_type', 'style', 'amenities',
 ];
 
+    protected $casts = [
+        'amenities' => 'array',
+    ];
+
 
     public function images()
     {
@@ -23,7 +27,7 @@ class Cruise extends Model
     }
     public function favorites()
 {
-    return $this->morphMany(Favorite::class, 'favorable');
+    return $this->morphMany(Favorite::class, 'favoritable');
 }
 public function carts()
 {

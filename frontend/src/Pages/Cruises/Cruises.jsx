@@ -2,43 +2,80 @@ import React, { useEffect, useState } from 'react';
 import { Col, Container, Row, Button } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useDispatch, useSelector } from 'react-redux';
 import api from '../../Radux/axios';
 
 import CityContent from '../../Component/City/CityContent';
 import citiesData from '../../Component/City/citiesData';
 import Head from '../../Component/Trips/Head';
-import HeroCar from '../../Component/Home/Hero/HeroCar';
-import FlightFilter from '../../Component/Flight/FlightFilter';
+import HeroSection from '../../Component/Shared/HeroSection';
 import { CheckboxFilter } from '../../Utility/Buttons/CheckboxFilter/CheckboxFilter';
 import HotelCard from '../../Utility/Cards/HotelCard';
+import LoadingSpinner from '../../Component/Shared/LoadingSpinner';
+import ErrorMessage from '../../Component/Shared/ErrorMessage';
+import EmptyState from '../../Component/Shared/EmptyState';
+import {
+  setSearchQuery as setCruiseSearchQuery,
+  selectCruiseSearchQuery,
+  selectFilteredCruises,
+} from '../../Radux/Slices/cruiseSlice';
 
 import style from '../../Style/Hotel/Hotel.module.css';
 import cruiseBg from '../../Assets/images/tecnomar-for-lamborghini-63-superyacht-motor-yacht-luxury-5026x3348-6233.jpg';
 
 export const Cruises = () => {
   const { cityName } = useParams();
-  const cityInfo = citiesData.find(city => city.name === cityName);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    document.title = "Cruises | TravelVerse";
+  }, []);
+  const searchQuery = useSelector(selectCruiseSearchQuery);
+  const normalizedCityName = cityName?.trim().toLowerCase() || 'all';
+  const isAllCities = normalizedCityName === 'all';
+  const cityInfo = isAllCities ? { name: 'All' } : citiesData.find(city => city.name === cityName);
+  const displayLocationName = cityInfo?.name || cityName || 'All';
 
   const [sortOption, setSortOption] = useState(null);
-  const [filters, setFilters] = useState({});
-  const [flightFilters, setFlightFilters] = useState({});
+  const [filters, setFilters] = useState({
+    propertyTypes: [],
+    amenities: [],
+    style: [],
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
 
-  const { data: cruises = [], isLoading: loading } = useQuery({
+  useEffect(() => {
+    return () => {
+      dispatch(setCruiseSearchQuery(''));
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const { data: response = [], isLoading: loading, error, refetch } = useQuery({
     queryKey: ['cruises'],
     queryFn: async () => {
       const res = await api.get('/cruises');
-      return res.data.data;
+      return res.data;
     },
   });
+
+  const cruises = Array.isArray(response?.data)
+    ? response.data
+    : Array.isArray(response?.data?.items)
+      ? response.data.items
+      : [];
+  const searchedCruises = selectFilteredCruises({ cruise: { searchQuery } }, cruises);
 
   const travelStyles = ['Best Value', 'Traveler Ranked', 'Price (low to high)', 'Price (high to low)'];
 
   const filterOptions = {
-    propertyTypes: ['Resort', 'Yacht', 'Luxury', 'Standard'],
-    amenities: ['Pool', 'Free Wifi', 'All inclusive', 'Kids Friendly'],
-    style: ['Romantic', 'Family', 'Adventure', 'Relax'],
+    propertyTypes: ['resort', 'yacht', 'luxury', 'standard'],
+    amenities: ['pool', 'free_wifi', 'breakfast_included', 'beach'],
+    style: ['romantic', 'family_friendly', 'modern', 'business'],
   };
 
   const handleFilterChange = (title, option) => {
@@ -49,36 +86,34 @@ export const Cruises = () => {
         : [...current, option];
       return { ...prev, [title]: updated };
     });
+    setCurrentPage(1);
   };
 
-  const handleFlightFiltersChange = (newFilters) => {
-    setFlightFilters(newFilters);
-  };
-
-  if (!cityInfo) return <p>No city found.</p>;
-
-  let filteredCruises = cruises.filter(c => {
-    if (!c || !c.location) return false;
-    return c.location.toLowerCase().includes(cityName.toLowerCase());
-  });
-
-  filteredCruises = filteredCruises.filter(c => {
-    const fromMatch = flightFilters.from ? c.from?.toLowerCase().includes(flightFilters.from.toLowerCase()) : true;
-    const toMatch = flightFilters.to ? c.to?.toLowerCase().includes(flightFilters.to.toLowerCase()) : true;
-    const departMatch = flightFilters.departDate ? c.start_date?.includes(flightFilters.departDate) : true;
-    const returnMatch = flightFilters.returnDate ? c.end_date?.includes(flightFilters.returnDate) : true;
-    return fromMatch && toMatch && departMatch && returnMatch;
-  });
-
-  filteredCruises = filteredCruises.filter(c => {
-    return Object.entries(filters).every(([key, values]) => {
-      if (values.length === 0) return true;
-      const fieldValue = c[key.toLowerCase()];
-      if (Array.isArray(fieldValue)) {
-        return values.every(v => fieldValue.includes(v));
+  let filteredCruises = searchedCruises.filter(cruise => {
+    // Check propertyTypes filter
+    if (filters.propertyTypes && filters.propertyTypes.length > 0) {
+      if (!cruise.property_type || !filters.propertyTypes.includes(cruise.property_type)) {
+        return false;
       }
-      return values.includes(fieldValue);
-    });
+    }
+
+    // Check amenities filter
+    if (filters.amenities && filters.amenities.length > 0) {
+      const cruiseAmenities = cruise.amenities || [];
+      const hasAllAmenities = filters.amenities.every(amenity =>
+        cruiseAmenities.includes(amenity)
+      );
+      if (!hasAllAmenities) return false;
+    }
+
+    // Check style filter
+    if (filters.style && filters.style.length > 0) {
+      if (!cruise.style || !filters.style.includes(cruise.style)) {
+        return false;
+      }
+    }
+
+    return true;
   });
 
   if (sortOption === 'Price (low to high)') {
@@ -93,16 +128,20 @@ export const Cruises = () => {
     currentPage * itemsPerPage
   );
 
+  if (loading) return <LoadingSpinner size="lg" fullPage />;
+  if (error) return <ErrorMessage message={error?.message ?? error.toString()} onRetry={refetch} />;
+
   return (
     <div>
-      <HeroCar image={cruiseBg} />
-      <CityContent countryName={cityInfo.name} />
-
-      <FlightFilter
-        countryName={cityInfo.name}
-        title="Cruises"
-        onFilterChange={handleFlightFiltersChange}
+      <HeroSection
+        image={cruiseBg}
+        title="Explore the Open Sea"
+        subtitle="Unforgettable cruise experiences"
+        placeholder="Search cruises or destinations..."
+        onSearch={(query) => dispatch(setCruiseSearchQuery(query))}
+        overlayIntensity="medium"
       />
+      <CityContent countryName={displayLocationName} />
 
       <Container>
         <Row className={style.head}>
@@ -117,19 +156,23 @@ export const Cruises = () => {
         <Row className={style.head}>
           <Col xs={2}>
             {Object.entries(filterOptions).map(([title, options], index) => (
-              <CheckboxFilter key={index} title={title} option={options} onChange={handleFilterChange} />
+              <CheckboxFilter
+                key={index}
+                title={title}
+                option={options}
+                onChange={handleFilterChange}
+                selected={filters[title] || []}
+              />
             ))}
           </Col>
 
           <Col xs={10}>
-            {loading ? (
-              <p>Loading cruises...</p>
-            ) : filteredCruises.length === 0 ? (
-              <p>No cruises found in {cityName}</p>
+            {filteredCruises.length === 0 ? (
+              <EmptyState title="No cruises found" subtitle="Try different dates" icon="🚢" />
             ) : (
               <>
                 {paginatedCruises.map((cruise, i) => (
-                  <HotelCard key={i} data={cruise} type={'cruise'}/>
+                  <HotelCard key={i} data={cruise} type={'cruise'} />
                 ))}
                 <div className="d-flex justify-content-center mt-4 gap-2">
                   <Button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>

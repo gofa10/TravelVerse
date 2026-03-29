@@ -18,15 +18,18 @@ class RestaurantResource extends JsonResource
      {
           // Build images array - filter out empty/null URLs
           $images = $this->whenLoaded('images', function () {
-               return $this->images
-                    ->map(fn($img) => $this->resolveImageUrl($img->url))
-                    ->filter() // Remove null/empty values
-                    ->values()
-                    ->toArray();
-          }, []);
-
-          // Return null if no valid images (allows frontend to use fallback)
-          $images = !empty($images) ? $images : null;
+               $imageUrls = $this->images->pluck('url')
+                    ->filter()
+                    ->map(function ($url) {
+                         // Convert relative URLs to absolute
+                         if (str_starts_with($url, '/storage/')) {
+                              return url($url);
+                         }
+                         return $url;
+                    })
+                    ->values();
+               return $imageUrls->isEmpty() ? null : $imageUrls->toArray();
+          }, null);
 
           $rating = $this->relationLoaded('reviews') && $this->reviews->count() > 0
                ? round($this->reviews->avg('rating'), 1)

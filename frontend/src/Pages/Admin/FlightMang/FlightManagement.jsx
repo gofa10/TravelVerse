@@ -5,8 +5,10 @@ import FlightTable from './FlightTable';
 import FlightModal from './FlightModal';
 import styles from '../UserMang/UserManagement.module.css';
 import { toast } from 'react-toastify';
+import { useTranslation } from 'react-i18next';
 
 function FlightManagement() {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentFlight, setCurrentFlight] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,32 +28,36 @@ function FlightManagement() {
     mutationFn: flightData => api.post('/flights', flightData).then(res => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries(['flights']);
-      toast.success('Flight added');
+      toast.success(t('flight_added_success'));
       closeModal();
     },
-    onError: () => toast.error('Error adding flight')
+    onError: () => toast.error(t('flight_add_failed'))
   });
 
   const updateFlight = useMutation({
     mutationFn: flightData => api.put(`/flights/${flightData.id}`, flightData).then(res => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries(['flights']);
-      toast.success('Flight updated');
+      toast.success(t('flight_updated_success'));
       closeModal();
     },
-    onError: () => toast.error('Error updating flight')
+    onError: () => toast.error(t('flight_update_failed'))
   });
 
   const deleteFlight = useMutation({
     mutationFn: id => api.delete(`/flights/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries(['flights']);
-      toast.success('Flight deleted');
+      toast.success(t('flight_deleted_success'));
     },
-    onError: () => toast.error('Error deleting flight')
+    onError: () => toast.error(t('flight_delete_failed'))
   });
 
-  const flights = data?.data || [];
+  const flights = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data?.data?.items)
+      ? data.data.items
+      : [];
 
   const filteredFlights = (flights || []).filter(flight => {
     if (!flight || typeof flight !== 'object') return false; // ✅ حماية من undefined/null
@@ -91,12 +97,12 @@ function FlightManagement() {
   };
 
   const renderPagination = () => {
-    const totalPages = data?.last_page || 1;
+    const totalPages = data?.data?.last_page || data?.last_page || 1;
     if (totalPages <= 1) return null;
 
     return (
       <div className="d-flex justify-content-center mt-4 gap-2">
-        <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</button>
+        <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>{t('previous')}</button>
         {[...Array(totalPages)].map((_, i) => (
           <button
             key={i}
@@ -106,7 +112,7 @@ function FlightManagement() {
             {i + 1}
           </button>
         ))}
-        <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next</button>
+        <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>{t('next')}</button>
       </div>
     );
   };
@@ -114,64 +120,32 @@ function FlightManagement() {
   return (
     <div className={`${styles.content} `}>
       <div className={styles.card}>
-        {/* <h2>Flights</h2> */}
-
-        {/* <div className={styles.filters}>
-          <input
-            type="text"
-            placeholder="Search by origin or destination"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-
-          <select
-            value={filterClass}
-            onChange={(e) => setFilterClass(e.target.value)}
-            className={styles.searchInput}
-          >
-            <option value="">All Classes</option>
-            <option value="economy">Economy</option>
-            <option value="business">Business</option>
-            <option value="first">First Class</option>
-            <option value="premium">Premium</option>
-          </select>
-
-          <select
-            value={filterStops}
-            onChange={(e) => setFilterStops(e.target.value)}
-            className={styles.searchInput}
-          >
-            <option value="">All Stops</option>
-            <option value="direct">Direct</option>
-            <option value="with_stops">With Stops</option>
-          </select>
-
-          <input
-            type="date"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            className={styles.searchInput}
-          />
-
-          <input
-            type="number"
-            placeholder="Max Price"
-            value={filterPrice}
-            onChange={(e) => setFilterPrice(e.target.value)}
-            className={styles.searchInput}
-          />
-
-
-        </div> */}
-        <button className={`${styles.btn} w-80! hover:bg-blue-700!`} onClick={openAddModal}>Add Flight</button>
-        {isLoading ? <p>Loading...</p> : (
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 px-8">
+          <div>
+            <h1 className="text-2xl font-bold dark:text-white">{t('flights_management')}</h1>
+            <p className="text-sm text-gray-500">{t('manage_flights_catalog')}</p>
+          </div>
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative w-full md:w-80">
+              <input
+                type="text"
+                placeholder={t('search_by_origin')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-white dark:bg-gray-800! border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white!"
+              />
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <button className={`${styles.btn} w-80! hover:bg-blue-700! whitespace-nowrap !rounded-lg`} onClick={openAddModal}>{t('add_flight')}</button>
+          </div>
+        </div>
+        {isLoading ? <p>{t('loading')}</p> : (
           <>
             <FlightTable
               flights={filteredFlights}
               onEdit={openEditModal}
               onDelete={(id) => {
-                if (window.confirm("Delete this flight?")) deleteFlight.mutate(id);
+                if (window.confirm(t('confirm_delete_flight'))) deleteFlight.mutate(id);
               }}
             />
             {renderPagination()}

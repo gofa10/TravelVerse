@@ -1,0 +1,36 @@
+{
+  "ResponseHeadersPolicyConfig": {
+    "Name": "travelverse-images-cors-policy",
+    "Comment": "CORS headers for image delivery to local dev and production origins",
+    "CorsConfig": {
+      "AccessControlAllowCredentials": false,
+      "AccessControlAllowHeaders": {
+        "Quantity": 1,
+        "Items": [
+          "*"
+        ]
+      },
+      "AccessControlAllowMethods": {
+        "Quantity": 2,
+        "Items": [
+          "GET",
+          "HEAD"
+        ]
+      },
+      "AccessControlAllowOrigins": {
+        "Quantity": 3,
+        "Items": [
+          "http://localhost:5174",
+          "http://localhost:3000",
+          "https://[production-domain]"
+        ]
+      },
+      "AccessControlExposeHeaders": {
+        "Quantity": 0
+      },
+      "AccessControlMaxAgeSec": 3000,
+      "OriginOverride": true
+    }
+  }
+}
+

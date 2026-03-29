@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../UserMang/UserManagement.module.css';
+import { useTranslation } from 'react-i18next';
 
 function HotelModal({ isOpen, onClose, onSubmit, initialData }) {
+  const { t } = useTranslation();
   const [nameAr, setNameAr] = useState('');
   const [nameEn, setNameEn] = useState('');
   const [descriptionAr, setDescriptionAr] = useState('');
@@ -118,48 +120,48 @@ function HotelModal({ isOpen, onClose, onSubmit, initialData }) {
     <div className={styles.modal}>
       <div className={styles.modalContent}>
         <span className={styles.close} onClick={onClose}>×</span>
-        <h2>{initialData ? 'Update Hotel' : 'Add Hotel'}</h2>
+        <h2>{initialData ? t('update_hotel') : t('add_hotel')}</h2>
         <form onSubmit={handleSubmit}>
-          <label>اسم الفندق (عربي)</label>
+          <label>{t('arabic_name')}</label>
           <input type="text" value={nameAr} onChange={(e) => setNameAr(e.target.value)} required />
 
-          <label>Hotel Name (English)</label>
+          <label>{t('english_name')}</label>
           <input type="text" value={nameEn} onChange={(e) => setNameEn(e.target.value)} required />
 
-          <label>الوصف (عربي)</label>
+          <label>{t('arabic_description')}</label>
           <textarea value={descriptionAr} onChange={(e) => setDescriptionAr(e.target.value)} />
 
-          <label>Description (English)</label>
+          <label>{t('english_description')}</label>
           <textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} />
 
-          <label>Rate</label>
+          <label>{t('rate')}</label>
           <input type="number" step="0.1" min="0" max="5" value={rate} onChange={(e) => setRate(e.target.value)} />
 
-          <label>Price</label>
+          <label>{t('price')}</label>
           <input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} />
 
-          <label>Old Price</label>
+          <label>{t('old_price')}</label>
           <input type="number" min="0" value={oldPrice} onChange={(e) => setOldPrice(e.target.value)} />
 
-          <label>Class</label>
+          <label>{t('class')}</label>
           <input type="text" value={hotelClass} onChange={(e) => setHotelClass(e.target.value)} />
 
-          <label>Style</label>
+          <label>{t('style')}</label>
           <input type="text" value={styleField} onChange={(e) => setStyleField(e.target.value)} />
 
-          <label>Amenities (comma-separated)</label>
+          <label>{t('amenities_comma')}</label>
           <input type="text" value={amenities.join(', ')} onChange={handleAmenitiesChange} />
 
-          <label>Location</label>
+          <label>{t('location')}</label>
           <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} required />
 
-          <label>Booking Link</label>
+          <label>{t('booking_link')}</label>
           <input type="url" value={bookingLink} onChange={(e) => setBookingLink(e.target.value)} />
 
-          <label>Hotel Images</label>
+          <label>{t('hotel_images')}</label>
           <input type="file" accept="image/*" multiple onChange={handleImageChange} />
 
-          <label>Image URLs (optional)</label>
+          <label>{t('image_urls_optional')}</label>
           {imageUrls.map((url, i) => (
             <input
               key={i}
@@ -174,7 +176,7 @@ function HotelModal({ isOpen, onClose, onSubmit, initialData }) {
             />
           ))}
           <button type="button" onClick={() => setImageUrls([...imageUrls, ''])}>
-            + Add another URL
+            {t('add_another_url')}
           </button>
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
@@ -183,7 +185,7 @@ function HotelModal({ isOpen, onClose, onSubmit, initialData }) {
             ))}
           </div>
 
-          <button type="submit" className={styles.modalButton}>Save</button>
+          <button type="submit" className={styles.modalButton}>{t('save')}</button>
         </form>
       </div>
     </div>
