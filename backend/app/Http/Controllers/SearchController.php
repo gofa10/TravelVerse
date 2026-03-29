@@ -44,11 +44,12 @@ class SearchController extends Controller
             return $this->success([]);
         }
 
-        $categoriesToSearch = $category ? [$category] : array_keys($searchDefinitions);
+        $categoriesToSearch = $category
+            ? [$category => $searchDefinitions[$category]]
+            : $searchDefinitions;
         $results = collect();
 
-        foreach ($categoriesToSearch as $type) {
-            $model = $searchDefinitions[$type];
+        foreach ($categoriesToSearch as $type => $model) {
             $query = $model::query()->with('images');
 
             if ($q !== '') {
@@ -59,10 +60,6 @@ class SearchController extends Controller
                         $builder->orWhere('name_ar', 'LIKE', "%{$q}%");
                     }
                 });
-            }
-
-            if ($category !== '') {
-                $query->where('type', $category);
             }
 
             if ($location !== '') {
