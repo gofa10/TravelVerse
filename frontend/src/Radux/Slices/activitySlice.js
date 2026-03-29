@@ -9,8 +9,8 @@ const normalizeItems = (payload) => {
 
 export const fetchActivities = createAsyncThunk('activities/fetchAll', async (_, { rejectWithValue }) => {
   try {
-  const res = await API.get('/activities');
-  return res.data.data;
+    const res = await API.get('/activities');
+    return res.data.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
   }
@@ -18,8 +18,8 @@ export const fetchActivities = createAsyncThunk('activities/fetchAll', async (_,
 
 export const getActivityById = createAsyncThunk('activities/fetchOne', async (id, { rejectWithValue }) => {
   try {
-  const res = await API.get(`/activities/${id}`);
-  return res.data.data;
+    const res = await API.get(`/activities/${id}`);
+    return res.data.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
   }
@@ -27,8 +27,8 @@ export const getActivityById = createAsyncThunk('activities/fetchOne', async (id
 
 export const createActivity = createAsyncThunk('activities/create', async (data, { rejectWithValue }) => {
   try {
-  const res = await API.post('/activities', data);
-  return res.data.data;
+    const res = await API.post('/activities', data);
+    return res.data.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
   }
@@ -36,8 +36,8 @@ export const createActivity = createAsyncThunk('activities/create', async (data,
 
 export const updateActivity = createAsyncThunk('activities/update', async ({ id, data }, { rejectWithValue }) => {
   try {
-  const res = await API.put(`/activities/${id}`, data);
-  return res.data.data;
+    const res = await API.put(`/activities/${id}`, data);
+    return res.data.data;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
   }
@@ -45,8 +45,8 @@ export const updateActivity = createAsyncThunk('activities/update', async ({ id,
 
 export const deleteActivity = createAsyncThunk('activities/delete', async (id, { rejectWithValue }) => {
   try {
-  await API.delete(`/activities/${id}`);
-  return id;
+    await API.delete(`/activities/${id}`);
+    return id;
   } catch (err) {
     return rejectWithValue(err.response?.data?.message ?? 'Something went wrong');
   }

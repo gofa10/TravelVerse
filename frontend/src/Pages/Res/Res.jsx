@@ -26,11 +26,11 @@ import {
 const Restaurants = () => {
   const { cityName } = useParams();
   const { t } = useTranslation();
-  
+
   React.useEffect(() => {
     document.title = "Restaurants | TravelVerse";
   }, []);
-  
+
   const cityInfo = citiesData.find(city => city.name === cityName);
   const dispatch = useDispatch();
   const searchQuery = useSelector(selectRestaurantSearchQuery);

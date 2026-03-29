@@ -24,11 +24,11 @@ import {
 export const AllThings = () => {
   const { cityName } = useParams();
   const { t } = useTranslation();
-  
+
   useEffect(() => {
     document.title = "Activity Details | TravelVerse";
   }, []);
-  
+
   const cityInfo = citiesData.find(city => city.name === cityName);
   const dispatch = useDispatch();
   const searchQuery = useSelector(selectActivitySearchQuery);

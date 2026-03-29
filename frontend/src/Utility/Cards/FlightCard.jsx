@@ -129,7 +129,7 @@ const FlightDetailModal = ({ data, onClose }) => {
               alt={data.airline ?? 'Airline logo'}
               onError={handleAirlineLogoError}
               loading="lazy"
-              style={{ width: 44, height: 44, objectFit: "contain", borderRadius: "8px", background: "var(--bg-secondary)", padding: "4px" }}
+              style={{ width: 44, height: 44, objectFit: "contain", borderRadius: "8px", background: "#fff", padding: "4px" }}
             />
             <div>
               <h5 style={{ color: "var(--text-inverse)", margin: 0, fontWeight: 700 }}>{data.airline}</h5>
@@ -340,7 +340,7 @@ const FlightCard = ({ data, currency = "USD" }) => {
                       alt={data.airline ?? 'Airline logo'}
                       onError={handleAirlineLogoError}
                       loading="lazy"
-                      style={{ width: 38, height: 38, objectFit: "contain", borderRadius: "8px", background: 'var(--bg-tertiary)', padding: '2px' }}
+                      style={{ width: 38, height: 38, objectFit: "contain", borderRadius: "8px", background: '#fff', padding: '2px' }}
                     />
                     <div>
                       <div className="fw-bold dark:text-white!" style={{ fontSize: "13px", color: 'var(--text-primary)' }}>

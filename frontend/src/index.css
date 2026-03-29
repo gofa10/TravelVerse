@@ -52,7 +52,7 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
 
-  --color-success: #10b981;
+  --color-success: #6a8d73; /* Sage Green */
   --color-warning: #b8943f;
   --color-error: #ef4444;
   --color-info: #5f8196;
@@ -932,11 +932,11 @@ img.loaded {
 
   0%,
   100% {
-    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    box-shadow: 0 4px 14px rgba(106, 141, 115, 0.35); /* Greenish glow */
   }
 
   50% {
-    box-shadow: 0 8px 28px rgba(59, 130, 246, 0.60);
+    box-shadow: 0 8px 28px rgba(106, 141, 115, 0.60);
   }
 }
 
@@ -948,7 +948,7 @@ img.loaded {
   gap: 8px;
   width: 100%;
   height: 52px;
-  background: linear-gradient(135deg, #2768b3 0%, #3b82f6 100%) !important;
+  background: linear-gradient(135deg, #6a8d73 0%, #88a68f 100%) !important;
   background-size: 200% auto !important;
   border: none !important;
   outline: none !important;
@@ -964,7 +964,7 @@ img.loaded {
 }
 
 .btn-premium-success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  background: linear-gradient(135deg, #4a6350 0%, #6a8d73 100%) !important;
 }
 
 

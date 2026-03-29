@@ -9,7 +9,7 @@ import { Map } from "lucide-react";
 import DarkModeToggle from "../Buttons/DarkBtn/DarkBtn";
 import logo from "../../Assets/images/Black-unscreen.gif";
 import WatchlistDropdown from "../../Component/Navbar/WatchlistDropdown";
-import { fetchPlans, selectAllPlans } from "../../store/tripBuilderSlice";
+import { fetchPlans, selectAllPlans, selectTripBuilderHasFetched, selectTripBuilderLoading } from "../../store/tripBuilderSlice";
 import { continents } from "./continentsData";
 import ServiceDropdown from "./ServiceDropdown";
 import DestinationSearch from "../../Component/Shared/DestinationSearch";
@@ -106,6 +106,8 @@ const Header = () => {
     const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const plans = useSelector(selectAllPlans);
+    const hasFetched = useSelector(selectTripBuilderHasFetched);
+    const plansLoading = useSelector(selectTripBuilderLoading);
     const isGuest = !user && !hasValidToken();
     const tripPlanCount = plans.reduce(
         (sum, plan) => sum + (typeof plan.items_count === "number" ? plan.items_count : plan.items?.length || 0),
@@ -153,10 +155,10 @@ const Header = () => {
     }, [destOpen]);
 
     useEffect(() => {
-        if (!isGuest && user?.user_type === 'user' && !plans.length) {
+        if (!isGuest && user?.user_type === 'user' && !hasFetched && !plansLoading) {
             dispatch(fetchPlans());
         }
-    }, [dispatch, isGuest, user?.user_type, plans.length]);
+    }, [dispatch, isGuest, user?.user_type, hasFetched, plansLoading]);
 
     const handleLogout = () => {
         dispatch(logout());

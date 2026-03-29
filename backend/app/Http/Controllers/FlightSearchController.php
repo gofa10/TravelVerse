@@ -140,12 +140,12 @@ class FlightSearchController extends Controller
      private static function getMockFlights(string $from, string $to, string $date, int $adults): array
      {
           $airlines = [
-               ['name' => 'Emirates', 'logo' => 'https://www.gstatic.com/flights/airline_logos/70px/EK.png', 'code' => 'EK'],
-               ['name' => 'Qatar Airways', 'logo' => 'https://www.gstatic.com/flights/airline_logos/70px/QR.png', 'code' => 'QR'],
-               ['name' => 'Turkish Airlines', 'logo' => 'https://www.gstatic.com/flights/airline_logos/70px/TK.png', 'code' => 'TK'],
-               ['name' => 'Lufthansa', 'logo' => 'https://www.gstatic.com/flights/airline_logos/70px/LH.png', 'code' => 'LH'],
-               ['name' => 'Air France', 'logo' => 'https://www.gstatic.com/flights/airline_logos/70px/AF.png', 'code' => 'AF'],
-               ['name' => 'British Airways', 'logo' => 'https://www.gstatic.com/flights/airline_logos/70px/BA.png', 'code' => 'BA'],
+               ['name' => 'Emirates', 'logo' => 'https://www.google.com/s2/favicons?domain=emirates.com&sz=128', 'code' => 'EK'],
+               ['name' => 'Qatar Airways', 'logo' => 'https://www.google.com/s2/favicons?domain=qatarairways.com&sz=128', 'code' => 'QR'],
+               ['name' => 'Turkish Airlines', 'logo' => 'https://www.google.com/s2/favicons?domain=turkishairlines.com&sz=128', 'code' => 'TK'],
+               ['name' => 'Lufthansa', 'logo' => 'https://www.google.com/s2/favicons?domain=lufthansa.com&sz=128', 'code' => 'LH'],
+               ['name' => 'Air France', 'logo' => 'https://www.google.com/s2/favicons?domain=airfrance.com&sz=128', 'code' => 'AF'],
+               ['name' => 'British Airways', 'logo' => 'https://www.google.com/s2/favicons?domain=britishairways.com&sz=128', 'code' => 'BA'],
           ];
 
           $basePrices = [420, 380, 310, 550, 490, 295];

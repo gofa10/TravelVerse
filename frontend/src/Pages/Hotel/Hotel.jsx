@@ -214,10 +214,10 @@ const Hotel = () => {
 
           <Col xs={10}>
             {filteredHotels.length > 0
-                ? filteredHotels.map((hotel, index) => (
-                  <HotelCard key={index} data={hotel} type="hotel" />
-                ))
-                : <EmptyState title="No hotels found" subtitle="Try different filters" icon="🏨" />}
+              ? filteredHotels.map((hotel, index) => (
+                <HotelCard key={index} data={hotel} type="hotel" />
+              ))
+              : <EmptyState title="No hotels found" subtitle="Try different filters" icon="🏨" />}
           </Col>
         </Row>
       </Container>

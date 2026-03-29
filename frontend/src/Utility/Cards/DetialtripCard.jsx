@@ -459,30 +459,9 @@ const StyledWrapper = styled.div`
     margin-top: 1em;
   }
 
-  .btn-premium {
-    width: 100%;
-    padding: 10px;
-    border-radius: 12px;
-    border: 1px solid var(--accent-primary, #2768b3);
-    background: transparent;
-    color: var(--accent-primary, #2768b3);
-    font-weight: 600;
-    transition: all 0.3s ease;
-  }
-
-  .btn-premium:hover {
-    background: var(--accent-primary, #2768b3);
-    color: white;
-  }
-
-  :global(.dark) .btn-premium {
-    border-color: #3b82f6;
-    color: #3b82f6;
-  }
-
   :global(.dark) .btn-premium:hover {
-    background: #3b82f6;
-    color: white;
+    background: #88a68f !important;
+    color: #1e293b !important;
   }
 `;
 

@@ -103,7 +103,7 @@
 .price {
   font-size: var(--font-size-base, 1rem);
   font-weight: 600;
-  color: var(--color-success, #10b981);
+  color: var(--color-success, #6a8d73);
 }
 
 .rate {

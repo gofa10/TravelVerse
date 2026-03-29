@@ -162,6 +162,7 @@ const initialState = {
   error: null,
   errorStatus: null,
   authBlocked: false,
+  hasFetched: false,
 };
 
 const replacePlan = (plans, updatedPlan) =>
@@ -188,12 +189,14 @@ const tripBuilderSlice = createSlice({
         state.loading = false;
         state.plans = action.payload;
         state.authBlocked = false;
+        state.hasFetched = true;
       })
       .addCase(fetchPlans.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || action.payload;
         state.errorStatus = action.payload?.status ?? null;
         state.authBlocked = action.payload?.status === 401 || action.payload?.status === 403;
+        state.hasFetched = true;
       })
       .addCase(fetchPlanDetail.pending, (state) => {
         state.loading = true;
@@ -348,6 +351,7 @@ export const selectTripBuilderLoading = (state) => state.tripBuilder.loading;
 export const selectItemLoading = (state) => state.tripBuilder.itemLoading;
 export const selectTripBuilderBlocked = (state) => state.tripBuilder.authBlocked;
 export const selectTripBuilderErrorStatus = (state) => state.tripBuilder.errorStatus;
+export const selectTripBuilderHasFetched = (state) => state.tripBuilder.hasFetched;
 export const selectIsInAnyPlan = (plannableId, plannableType) => (state) =>
   state.tripBuilder.plans.some((plan) =>
     (plan.items || []).some(

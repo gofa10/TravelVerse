@@ -23,11 +23,11 @@ export const Flight = () => {
   const { cityName } = useParams();
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  
+
   useEffect(() => {
     document.title = "Flights | TravelVerse";
   }, []);
-  
+
   const searchQuery = useSelector(selectFlightSearchQuery);
   const normalizedCityName = cityName?.trim().toLowerCase() || 'all';
   const isAllCities = normalizedCityName === 'all';
@@ -49,15 +49,15 @@ export const Flight = () => {
 
     try {
       const res = await api.get(`${BACKEND}/google-flights`, { params });
-      const data = res.data;
-      setFlights(data.flights || []);
+      const responseData = res.data.data;
+      setFlights(responseData?.flights || []);
       setSearchMeta({
-        from: data.from,
-        to: data.to,
-        date: data.date,
-        currency: data.currency,
-        source: data.source,
-        total: data.total,
+        from: responseData?.from,
+        to: responseData?.to,
+        date: responseData?.date,
+        currency: responseData?.currency,
+        source: responseData?.source,
+        total: responseData?.total,
       });
     } catch (err) {
       console.error('Flight search error:', err);
