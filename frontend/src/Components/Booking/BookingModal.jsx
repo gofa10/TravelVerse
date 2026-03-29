@@ -50,6 +50,7 @@ export default function BookingModal({ reservation, onClose, onStatusUpdate }) {
   };
 
   const updateReservationStatus = async (status) => {
+    if (!reservation?.id) return null;
     const response = await patchStatus(status);
     onStatusUpdate?.();
     return response;
@@ -139,7 +140,11 @@ export default function BookingModal({ reservation, onClose, onStatusUpdate }) {
     try {
       clearAutoCloseTimer();
       const response = await updateReservationStatus(nextStatus);
-      toast.success(response.message || 'Reservation updated');
+      const message = response?.message || response?.data?.message || 'Reservation updated';
+      
+      if (message !== 'Status already set') {
+        toast.success(message);
+      }
       onClose?.();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update booking result');

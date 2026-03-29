@@ -1,19 +1,65 @@
-.container {
+.stats_wrapper {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
-    margin-top: 0;
-    margin-bottom: var(--space-4, 16px);
-    padding: 0 var(--space-4, 16px);
+    justify-content: center;
+    padding: 0 24px;
     position: relative;
-    z-index: 2;
-    background: transparent;
+    z-index: 1;
 }
 
-.col {
-    width: fit-content;
-    margin: auto;
-    padding-top: var(--space-2, 8px);
-    padding-bottom: var(--space-2, 8px);
+.stats_bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 860px;
+    background: rgba(37, 53, 65, 0.95);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.stat_item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 24px;
+    gap: 6px;
+    text-align: center;
+}
+
+.stat_num {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #c9935a;
+    line-height: 1;
+}
+
+.stat_label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.65);
+    letter-spacing: 0.4px;
+}
+
+.stat_divider {
+    width: 1px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.12);
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .stats_bar {
+        flex-direction: column;
+        border-radius: 12px;
+    }
+
+    .stat_divider {
+        width: 80%;
+        height: 1px;
+    }
+
+    .stat_item {
+        padding: 20px 16px;
+    }
 }

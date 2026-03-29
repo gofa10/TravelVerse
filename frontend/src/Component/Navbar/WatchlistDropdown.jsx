@@ -162,10 +162,12 @@ const WatchlistDropdown = ({ anchorEl, open, onClose }) => {
                   const typeName = getTypeFromFavorite(f);
                   const itemId = f.reservable?.id ?? f.favoritable_id ?? f.reservable_id;
 
-                  const image =
+                  const imageRaw =
                     Array.isArray(source.images)
                       ? source.images[0]
                       : source.image || '/fallback.jpg';
+
+                  const image = typeof imageRaw === 'object' ? imageRaw.url : imageRaw;
 
                   const title =
                     source.name || source.title || source.name_en || 'Item';

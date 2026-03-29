@@ -78,7 +78,7 @@ import { setCurrency } from './Radux/Slices/currencySlice.js';
 const DefaultLayout = () => (
   <>
     <Header />
-    <main className="min-h-screen">
+    <main className="min-h-screen" style={{ paddingTop: '72px' }}>
       <Outlet />
     </main>
     <Footer />

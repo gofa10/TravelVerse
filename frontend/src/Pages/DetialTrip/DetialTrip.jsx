@@ -257,12 +257,12 @@ const DetialItem = () => {
       </Row>
 
       <Row className={style.info}>
-        <Col>
+        <Col md={7}>
           <ErrorBoundary>
             <ImageGallery images={selectedItem?.images || []} />
           </ErrorBoundary>
         </Col>
-        <Col>
+        <Col md={5}>
           <ErrorBoundary>
             <DetialtripCard trip={selectedItem} loading={itemLoading} reservable_type={type} />
           </ErrorBoundary>

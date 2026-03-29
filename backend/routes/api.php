@@ -118,12 +118,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/reviews', [ReviewController::class, 'store']);
     });
 
-    // Reservations - user only
+    // Reservations - user only (read/store)
     Route::middleware('usertype:user')->group(function () {
         Route::get('/reservations', [ReservationController::class, 'index']);
         Route::post('/reservations', [ReservationController::class, 'store']);
-        Route::patch('/reservations/{id}/status', [ReservationController::class, 'updateStatus']);
         Route::delete('/reservations/{id}', [ReservationController::class, 'destroy']);
+    });
+
+    // Reservations - shared (status update)
+    Route::patch('/reservations/{id}/status', [ReservationController::class, 'updateStatus']);
+    
+    // Trip plans
+    Route::middleware('usertype:user')->group(function () {
         Route::apiResource('trip-plans', TripPlanController::class);
         Route::post('trip-plans/{plan}/items', [TripPlanItemController::class, 'store']);
         Route::put('trip-plan-items/{item}', [TripPlanItemController::class, 'update']);

@@ -5,13 +5,13 @@
 
 .video_container {
     position: relative;
-    height: calc(70vh - 72px);
-    min-height: calc(760px - 72px);
-    max-height: 800px;
+    height: calc(78vh - 72px);
+    min-height: calc(580px - 72px);
+    max-height: 780px;
     width: 100%;
     overflow: visible;
-    padding-bottom: 80px;
-    margin-bottom: -80px;
+    padding-bottom: 0;
+    margin-bottom: 0;
     background-size: cover;
     background-position: center;
 }
@@ -51,12 +51,10 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-      135deg,
-      var(--overlay-medium, rgba(0, 0, 0, 0.4)) 0%,
-      var(--overlay-light, rgba(0, 0, 0, 0.2)) 50%,
-      var(--overlay-strong, rgba(0, 0, 0, 0.5)) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--overlay-medium, rgba(0, 0, 0, 0.4)) 0%,
+            var(--overlay-light, rgba(0, 0, 0, 0.2)) 50%,
+            var(--overlay-strong, rgba(0, 0, 0, 0.5)) 100%);
     z-index: 0;
 }
 
@@ -64,10 +62,10 @@
     position: relative;
     z-index: 10;
     color: var(--text-inverse);
-    padding-top: calc(80px + 72px);
+    padding-top: calc(30px + 72px);
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     height: 100%;
 }
 
@@ -85,7 +83,8 @@
 /* Plane Animation - Subtle floating effect */
 .row_plane img {
     position: relative;
-    left: 10%;
+    left: 40%;
+    top: -43px;
     transform: rotateZ(-8deg);
     animation: float 4s infinite ease-in-out;
     max-width: 500px;
@@ -115,14 +114,11 @@
 .hero_search {
     position: absolute;
     left: 50%;
-    bottom: 8%;
+    bottom: 28px;
     transform: translateX(-50%);
-    width: min(100%, 1080px);
+    width: min(100%, 860px);
     padding: 0 24px;
-    z-index: 10;
-    border-radius: 20px;
-    padding: 20px 28px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
 }
 
 .container_text {
@@ -204,6 +200,66 @@
 
 :global(.dark) .big_text p {
     color: var(--text-secondary);
+}
+
+.stats_bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+    background: rgba(37, 53, 65, 0.95);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.stat_item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 24px;
+    gap: 6px;
+    text-align: center;
+}
+
+.stat_num {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #c9935a;
+    line-height: 1;
+}
+
+.stat_label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.65);
+    letter-spacing: 0.4px;
+}
+
+.stat_divider {
+    width: 1px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.12);
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .stats_bar {
+        flex-direction: column;
+        border-radius: 12px;
+        padding: 0 16px;
+    }
+
+    .stat_divider {
+        width: 80%;
+        height: 1px;
+    }
+
+    .stat_item {
+        padding: 20px 16px;
+    }
 }
 
 /* Responsive Adjustments */

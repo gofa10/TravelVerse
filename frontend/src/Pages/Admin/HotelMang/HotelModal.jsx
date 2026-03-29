@@ -121,42 +121,168 @@ function HotelModal({ isOpen, onClose, onSubmit, initialData }) {
       <div className={styles.modalContent}>
         <span className={styles.close} onClick={onClose}>×</span>
         <h2>{initialData ? t('update_hotel') : t('add_hotel')}</h2>
-        <form onSubmit={handleSubmit}>
-          <label>{t('arabic_name')}</label>
-          <input type="text" value={nameAr} onChange={(e) => setNameAr(e.target.value)} required />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-name-ar" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('arabic_name')}
+            </label>
+            <input
+              id="hotel-name-ar"
+              type="text"
+              value={nameAr}
+              onChange={(e) => setNameAr(e.target.value)}
+              required
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('english_name')}</label>
-          <input type="text" value={nameEn} onChange={(e) => setNameEn(e.target.value)} required />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-name-en" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('english_name')}
+            </label>
+            <input
+              id="hotel-name-en"
+              type="text"
+              value={nameEn}
+              onChange={(e) => setNameEn(e.target.value)}
+              required
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('arabic_description')}</label>
-          <textarea value={descriptionAr} onChange={(e) => setDescriptionAr(e.target.value)} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-desc-ar" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('arabic_description')}
+            </label>
+            <textarea
+              id="hotel-desc-ar"
+              value={descriptionAr}
+              onChange={(e) => setDescriptionAr(e.target.value)}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none min-h-[100px]"
+            />
+          </div>
 
-          <label>{t('english_description')}</label>
-          <textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-desc-en" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('english_description')}
+            </label>
+            <textarea
+              id="hotel-desc-en"
+              value={descriptionEn}
+              onChange={(e) => setDescriptionEn(e.target.value)}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none min-h-[100px]"
+            />
+          </div>
 
-          <label>{t('rate')}</label>
-          <input type="number" step="0.1" min="0" max="5" value={rate} onChange={(e) => setRate(e.target.value)} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-rate" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('rate')}
+            </label>
+            <input
+              id="hotel-rate"
+              type="number"
+              step="0.1"
+              min="0"
+              max="5"
+              value={rate}
+              onChange={(e) => setRate(e.target.value)}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('price')}</label>
-          <input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-price" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('price')}
+            </label>
+            <input
+              id="hotel-price"
+              type="number"
+              min="0"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('old_price')}</label>
-          <input type="number" min="0" value={oldPrice} onChange={(e) => setOldPrice(e.target.value)} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-old-price" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('old_price')}
+            </label>
+            <input
+              id="hotel-old-price"
+              type="number"
+              min="0"
+              value={oldPrice}
+              onChange={(e) => setOldPrice(e.target.value)}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('class')}</label>
-          <input type="text" value={hotelClass} onChange={(e) => setHotelClass(e.target.value)} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-class" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('class')}
+            </label>
+            <input
+              id="hotel-class"
+              type="text"
+              value={hotelClass}
+              onChange={(e) => setHotelClass(e.target.value)}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('style')}</label>
-          <input type="text" value={styleField} onChange={(e) => setStyleField(e.target.value)} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-style" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('style')}
+            </label>
+            <input
+              id="hotel-style"
+              type="text"
+              value={styleField}
+              onChange={(e) => setStyleField(e.target.value)}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('amenities_comma')}</label>
-          <input type="text" value={amenities.join(', ')} onChange={handleAmenitiesChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-amenities" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('amenities_comma')}
+            </label>
+            <input
+              id="hotel-amenities"
+              type="text"
+              value={amenities.join(', ')}
+              onChange={handleAmenitiesChange}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('location')}</label>
-          <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} required />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-location" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('location')}
+            </label>
+            <input
+              id="hotel-location"
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('booking_link')}</label>
-          <input type="url" value={bookingLink} onChange={(e) => setBookingLink(e.target.value)} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="hotel-booking-link" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('booking_link')}
+            </label>
+            <input
+              id="hotel-booking-link"
+              type="url"
+              value={bookingLink}
+              onChange={(e) => setBookingLink(e.target.value)}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
           <label>{t('hotel_images')}</label>
           <input type="file" accept="image/*" multiple onChange={handleImageChange} />

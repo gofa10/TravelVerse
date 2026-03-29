@@ -97,14 +97,18 @@ class ReservationController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        if (!$this->isUser()) {
-            return $this->error('Unauthorized', 403);
+        $user = Auth::user();
+
+        // Roles allowed to access this action
+        if (!in_array($user->user_type, ['user', 'admin', 'tour_guide'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $reservation = Reservation::findOrFail($id);
 
-        if ((int) $reservation->user_id !== (int) Auth::id()) {
-            return $this->error('Unauthorized', 403);
+        // Regular users can only update their own reservations
+        if ($user->user_type === 'user' && (int) $reservation->user_id !== (int) $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $validated = $request->validate([
@@ -126,8 +130,8 @@ class ReservationController extends Controller
             'saved' => ['redirect_pending', 'cancelled'],
             'redirect_pending' => ['booking_claimed', 'booking_declined', 'left_without_booking', 'cancelled'],
             'booking_claimed' => ['cancelled'],
-            'booking_declined' => ['redirect_pending', 'cancelled'],
-            'left_without_booking' => ['redirect_pending', 'left_without_booking', 'cancelled'],
+            'booking_declined' => ['redirect_pending', 'booking_claimed', 'booking_declined', 'cancelled'],
+            'left_without_booking' => ['redirect_pending', 'booking_claimed', 'booking_declined', 'left_without_booking', 'cancelled'],
             'cancelled' => [],
         ];
 
@@ -145,10 +149,10 @@ class ReservationController extends Controller
             $reservation->user->notify(new ReservationConfirmed($reservation));
         }
 
-        return $this->success([
-            'message' => 'Status updated successfully',
-            'reservation' => $reservation->load('reservable'),
-        ]);
+        return $this->success(
+            $reservation->load('reservable'),
+            'Status updated successfully'
+        );
     }
 
     public function destroy($id)

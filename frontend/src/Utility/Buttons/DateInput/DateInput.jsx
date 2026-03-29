@@ -2,11 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 
 const DateInput = ({ label, value, onChange }) => {
+  const inputId = `date-input-${label.toLowerCase().replace(/\s+/g, '-')}`;
   return (
     <StyledWrapper>
-      <label htmlFor="date-input">{label}</label>
+      <label htmlFor={inputId}>{label}</label>
       <br />
       <input
+        id={inputId}
         className="input"
         type="date"
         value={value}

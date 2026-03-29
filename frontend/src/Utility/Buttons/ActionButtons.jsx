@@ -122,13 +122,6 @@ const ActionButtons = ({ data, type = "trip" }) => {
           {t('common.bookNow') || 'Book Now'}
         </button>
 
-        <button
-          onClick={handleAddToFavorites}
-          className={`btn-premium btn-sm ${isFavorited ? 'btn-premium-success' : ''}`}
-        >
-          {isFavorited ? `✓ ${t('favorites')}` : t('addToWishList')}
-        </button>
-
         {tripPlanType ? (
           <TripPlanMenuButton
             serviceId={data?.id}

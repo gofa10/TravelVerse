@@ -232,9 +232,7 @@ const DetialtripCard = ({ trip, loading, reservable_type }) => {
         type={reservable_type}
       />
       <article className="job-card" style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
-          <WatchlistButton type={reservable_type} id={trip?.id} title={localizedName} />
-        </div>
+
 
         <div>
           <p className="text-title">{localizedName}</p>
@@ -362,11 +360,27 @@ const StyledWrapper = styled.div`
   .job-card {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    box-shadow: #091e4240 0px 1px 1px, #091e4221 0px 0px 1px 1px;
-    border-radius: 0.6em;
-    padding: 1em;
-    max-width: 30em;
+    justify-content: flex-start;
+    background: var(--bg-secondary, white);
+    color: var(--text-primary, #333);
+    box-shadow: var(--shadow-md, 0 10px 25px -5px rgba(0, 0, 0, 0.05));
+    border: 1px solid var(--border-color, rgba(0, 0, 0, 0.05));
+    border-radius: 1.25em;
+    padding: 2em;
+    width: 100%;
+    max-width: 32em;
+    margin-top: -1px;
+    transition: all 0.3s ease;
+  }
+
+  :global(.dark) .job-card {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .job-card:hover {
+    box-shadow: var(--shadow-lg);
   }
 
   .text-title {
@@ -378,6 +392,7 @@ const StyledWrapper = styled.div`
     font-weight: 600;
     font-family: "Noto Sans", sans-serif;
     margin-bottom: 0;
+    color: var(--text-primary);
   }
 
   .text-body {
@@ -387,10 +402,11 @@ const StyledWrapper = styled.div`
     overflow: hidden;
     font-family: "Poppins", sans-serif;
     letter-spacing: 0.4px;
+    color: var(--text-secondary, #666);
   }
 
-  .post-date {
-    color: #2768b3;
+  :global(.dark) .text-body {
+    color: #94a3b8;
   }
 
   .budget-exp {
@@ -402,23 +418,17 @@ const StyledWrapper = styled.div`
     font-size: 1em;
     font-weight: 600;
     margin-bottom: 0;
+    color: var(--text-primary);
   }
 
   .budget-exp .label {
     font-size: 1em;
-    color: #2768b3;
+    color: var(--accent-primary, #2768b3);
   }
 
   .budget-exp .label span {
-    color: black;
+    color: var(--text-secondary, black);
     font-size: 0.8em;
-  }
-
-  .tags article {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6em;
-    align-items: center;
   }
 
   .info-badges {
@@ -427,12 +437,16 @@ const StyledWrapper = styled.div`
     align-items: center;
     gap: 0.4em;
     font-size: 0.82em;
-    color: #555;
+    color: var(--text-secondary, #555);
     margin: 0.2em 0;
   }
 
+  :global(.dark) .info-badges {
+    color: #94a3b8;
+  }
+
   .info-badges .sep {
-    color: #bbb;
+    color: var(--border-color, #bbb);
     margin: 0 0.1em;
   }
 
@@ -445,23 +459,30 @@ const StyledWrapper = styled.div`
     margin-top: 1em;
   }
 
-  .card-btn {
-    display: block;
-    text-align: center;
-    text-decoration: none;
-    border: none;
-    font-size: 1rem;
-    background-color: #2768b3;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 2em;
-    padding: 0.6em 1em;
+  .btn-premium {
     width: 100%;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--accent-primary, #2768b3);
+    background: transparent;
+    color: var(--accent-primary, #2768b3);
+    font-weight: 600;
+    transition: all 0.3s ease;
   }
 
-  .card-btn:hover {
-    background-color: rgb(27, 71, 121);
+  .btn-premium:hover {
+    background: var(--accent-primary, #2768b3);
+    color: white;
+  }
+
+  :global(.dark) .btn-premium {
+    border-color: #3b82f6;
+    color: #3b82f6;
+  }
+
+  :global(.dark) .btn-premium:hover {
+    background: #3b82f6;
+    color: white;
   }
 `;
 

@@ -175,7 +175,7 @@ const SearchResults = () => {
       <div className="bg-[linear-gradient(135deg,#082f49_0%,#0369a1_55%,#38bdf8_100%)] px-4 py-14 text-white sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-100">{t('search')}</p>
-          <h1 className="mt-3 text-3xl font-black sm:text-5xl">{resultHeadline}</h1>
+          <h1 className="mt-3 text-3xl font-black sm:text-5xl text-white">{resultHeadline}</h1>
           <p className="mt-4 max-w-2xl text-sm text-sky-50/90">{t('filter_results')}</p>
         </div>
       </div>

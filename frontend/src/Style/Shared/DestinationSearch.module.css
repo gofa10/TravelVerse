@@ -10,10 +10,9 @@
   width: 280px;
   height: 40px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.25s ease;
   padding: 0 16px 0 36px;
   display: flex;
@@ -23,7 +22,7 @@
 .searchIcon {
   position: absolute;
   left: 14px;
-  color: rgba(255, 255, 255, 0.85);
+  color: #64748b;
   font-size: 13px;
   pointer-events: none;
 }
@@ -32,13 +31,13 @@
   width: 100%;
   border: 0;
   background: transparent;
-  color: #fff;
+  color: #1e293b;
   font-size: 0.9rem;
   outline: none;
 }
 
 .input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: #94a3b8;
 }
 
 .dropdown {

@@ -113,45 +113,186 @@ function RestaurantModal({ isOpen, onClose, onSubmit, initialData }) {
       <div className={styles.modalContent}>
         <span className={styles.close} onClick={onClose}>×</span>
         <h2>{initialData ? t('edit_restaurant') : t('add_restaurant')}</h2>
-        <form onSubmit={handleSubmit}>
-          <label>{t('arabic_name')}</label>
-          <input name="name_ar" value={form.name_ar} onChange={handleChange} required />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-name-ar" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('arabic_name')}
+            </label>
+            <input
+              id="res-name-ar"
+              name="name_ar"
+              value={form.name_ar}
+              onChange={handleChange}
+              required
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('english_name')}</label>
-          <input name="name_en" value={form.name_en} onChange={handleChange} required />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-name-en" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('english_name')}
+            </label>
+            <input
+              id="res-name-en"
+              name="name_en"
+              value={form.name_en}
+              onChange={handleChange}
+              required
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('arabic_description')}</label>
-          <textarea name="description_ar" value={form.description_ar} onChange={handleChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-desc-ar" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('arabic_description')}
+            </label>
+            <textarea
+              id="res-desc-ar"
+              name="description_ar"
+              value={form.description_ar}
+              onChange={handleChange}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none min-h-[80px]"
+            />
+          </div>
 
-          <label>{t('english_description')}</label>
-          <textarea name="description_en" value={form.description_en} onChange={handleChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-desc-en" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('english_description')}
+            </label>
+            <textarea
+              id="res-desc-en"
+              name="description_en"
+              value={form.description_en}
+              onChange={handleChange}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none min-h-[80px]"
+            />
+          </div>
 
-          <label>{t('location')}</label>
-          <input name="location" value={form.location} onChange={handleChange} required />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-location" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('location')}
+            </label>
+            <input
+              id="res-location"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              required
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('rate')}</label>
-          <input type="number" step="0.1" min="0" max="5" name="rate" value={form.rate} onChange={handleChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-rate" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('rate')}
+            </label>
+            <input
+              id="res-rate"
+              type="number"
+              step="0.1"
+              min="0"
+              max="5"
+              name="rate"
+              value={form.rate}
+              onChange={handleChange}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('booking_link')}</label>
-          <input type="url" name="booking_link" value={form.booking_link} onChange={handleChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-booking-link" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('booking_link')}
+            </label>
+            <input
+              id="res-booking-link"
+              type="url"
+              name="booking_link"
+              value={form.booking_link}
+              onChange={handleChange}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('property_type')}</label>
-          <input name="property_type" value={form.property_type} onChange={handleChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-property-type" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('property_type')}
+            </label>
+            <input
+              id="res-property-type"
+              name="property_type"
+              value={form.property_type}
+              onChange={handleChange}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('cuisine')}</label>
-          <input name="cuisine" value={form.cuisine} onChange={handleChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-cuisine" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('cuisine')}
+            </label>
+            <input
+              id="res-cuisine"
+              name="cuisine"
+              value={form.cuisine}
+              onChange={handleChange}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('features_comma')}</label>
-          <input name="featuresInput" value={form.featuresInput} onChange={handleFeaturesChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-features" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('features_comma')}
+            </label>
+            <input
+              id="res-features"
+              name="featuresInput"
+              value={form.featuresInput}
+              onChange={handleFeaturesChange}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('price')}</label>
-          <input type="number" name="price" value={form.price} onChange={handleChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-price" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('price')}
+            </label>
+            <input
+              id="res-price"
+              type="number"
+              name="price"
+              value={form.price}
+              onChange={handleChange}
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
 
-          <label>{t('upload_images')}</label>
-          <input type="file" accept="image/*" multiple onChange={handleImagesChange} />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-images" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('upload_images')}
+            </label>
+            <input
+              id="res-images"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImagesChange}
+              className="px-3 py-2 border rounded-lg text-sm"
+            />
+          </div>
 
-          <label>{t('image_urls_per_line')}</label>
-          <textarea value={imageUrls} onChange={handleUrlsChange} rows={3} placeholder="https://..." />
+          <div className="flex flex-col gap-1">
+            <label htmlFor="res-image-urls" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {t('image_urls_per_line')}
+            </label>
+            <textarea
+              id="res-image-urls"
+              value={imageUrls}
+              onChange={handleUrlsChange}
+              rows={3}
+              placeholder="https://..."
+              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none min-h-[60px]"
+            />
+          </div>
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
             {previewImages.map((src, i) => (
