@@ -40,10 +40,11 @@ const HeroPlane = () => {
                     muted
                     loop
                     playsInline
+                    preload="none"
+                    poster={cloudPoster}
+                    onCanPlay={(e) => e.target.play()}
                     width="1920"
                     height="400"
-                    preload="auto"
-                    poster={cloudPoster}
                     aria-label="خلفية فيديو تعرض مشهد السحاب"
                     style={{ objectFit: "cover" }}
                 >

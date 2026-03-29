@@ -80,7 +80,7 @@ const GlobalSearch = () => {
                setLoading(true);
                try {
                     const { data } = await api.get(`/search?q=${encodeURIComponent(query.trim())}`);
-                    setResults(data);
+                    setResults(Array.isArray(data.data) ? data.data : []);
                     setSearched(true);
                } catch {
                     setResults([]);

@@ -194,9 +194,9 @@ class ReservationController extends Controller
                 'created_at',
                 'updated_at',
             ])->with([
-                'user:id,name,email,user_type',
-                'user.image',
-            ])
+                        'user:id,name,email,user_type',
+                        'user.image',
+                    ])
         )->latest();
 
         $counts = Reservation::selectRaw('status, COUNT(*) as total')

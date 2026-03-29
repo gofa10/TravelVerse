@@ -220,7 +220,8 @@ const Header = () => {
                     {/* Destination */}
                     <div ref={destRef} className="relative">
                         <button
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 if (isMobileViewport) {
                                     setDestOpen(v => !v);
                                     return;
@@ -250,14 +251,16 @@ const Header = () => {
                         </button>
 
                         {!isMobileViewport && destSearchOpen ? (
-                            <DestinationSearch
-                                onSelect={handleDestinationSelect}
-                                onClose={() => setDestSearchOpen(false)}
-                                onBrowseRegion={() => {
-                                    setDestSearchOpen(false);
-                                    setDestOpen(true);
-                                }}
-                            />
+                            <div onClick={(e) => e.stopPropagation()}>
+                                <DestinationSearch
+                                    onSelect={handleDestinationSelect}
+                                    onClose={() => setDestSearchOpen(false)}
+                                    onBrowseRegion={() => {
+                                        setDestSearchOpen(false);
+                                        setDestOpen(true);
+                                    }}
+                                />
+                            </div>
                         ) : null}
 
                         <NavDropdown open={destOpen}>

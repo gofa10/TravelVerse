@@ -30,6 +30,7 @@
     top: 0;
     left: 0;
     filter: brightness(0.86) saturate(0.94);
+    transition: opacity 0.5s ease;
 }
 
 /* Clip layer: sits behind content, clips the video to hero bounds */

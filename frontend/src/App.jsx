@@ -58,10 +58,6 @@ const DeleteAccount = lazy(() => import('./Pages/User/DeleteAccount.jsx'));
 const DetialItem = lazy(() => import('./Pages/DetialTrip/DetialTrip.jsx'));
 const Restaurants = lazy(() => import('./Pages/Res/Res.jsx'));
 const SearchResults = lazy(() => import('./Pages/SearchResults.jsx'));
-const HotelsListing = lazy(() => import('./Pages/Listing/HotelsListing.jsx'));
-const CarsListing = lazy(() => import('./Pages/Listing/CarsListing.jsx'));
-const CruisesListing = lazy(() => import('./Pages/Listing/CruisesListing.jsx'));
-const ActivitiesListing = lazy(() => import('./Pages/Listing/ActivitiesListing.jsx'));
 const NotFound = lazy(() => import('./Pages/NotFound.jsx'));
 
 import RedirectByRole from './RedirectByRole.jsx';
