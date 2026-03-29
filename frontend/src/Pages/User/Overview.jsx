@@ -41,14 +41,19 @@ const Overview = () => {
           const fetchStats = async () => {
                try {
                     const [resReservations, resFavorites, resReviews] = await Promise.all([
-                         api.get('/reservations').catch(() => ({ data: [] })),
-                         api.get('/favorites').catch(() => ({ data: [] })),
-                         api.get('/reviews').catch(() => ({ data: [] })), // Assuming this endpoint exists based on prompt
+                         api.get('/reservations').catch(() => ({ data: { data: [] } })),
+                         api.get('/favorites').catch(() => ({ data: { data: [] } })),
+                         api.get('/reviews').catch(() => ({ data: { data: [] } })),
                     ]);
 
-                    const reservationsData = resReservations.data || [];
-                    const favoritesData = resFavorites.data || [];
-                    const reviewsData = resReviews.data || [];
+                    const reservationsRaw = resReservations.data?.data || resReservations.data || [];
+                    const reservationsData = Array.isArray(reservationsRaw) ? reservationsRaw : (reservationsRaw.items || []);
+
+                    const favoritesRaw = resFavorites.data?.data || resFavorites.data || [];
+                    const favoritesData = Array.isArray(favoritesRaw) ? favoritesRaw : (favoritesRaw.items || []);
+
+                    const reviewsRaw = resReviews.data?.data || resReviews.data || [];
+                    const reviewsData = Array.isArray(reviewsRaw) ? reviewsRaw : (reviewsRaw.items || []);
 
                     setStats({
                          reservations: reservationsData.length || 0,

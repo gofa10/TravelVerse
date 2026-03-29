@@ -50,8 +50,10 @@ const toAbsoluteImage = (url) => {
 
 const fetchReservations = async () => {
   const res = await api.get('/reservations');
+  const reservationData = res.data?.data || res.data || [];
+  const reservationList = Array.isArray(reservationData) ? reservationData : (reservationData.items || []);
 
-  return (res.data || []).map((r) => {
+  return reservationList.map((r) => {
     const source = r.reservable || {};
     const rawImages = source.images;
     const imageCandidate =

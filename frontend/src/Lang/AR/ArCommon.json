@@ -736,5 +736,14 @@
   "selectDestination": "اختر الوجهة",
   "travelStyle": "نمط السفر",
   "view": "عرض",
-  "whereTraveling": "إلى أين ستسافر؟"
+  "whereTraveling": "إلى أين ستسافر؟",
+  "notFound": {
+    "title": "الصفحة غير موجودة",
+    "subtitle": "الصفحة التي تبحث عنها غير موجودة.",
+    "button": "العودة للرئيسية"
+  },
+  "common": {
+    "bookNow": "احجز الآن",
+    "comingSoon": "قريباً"
+  }
 }

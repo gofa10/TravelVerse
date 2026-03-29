@@ -26,7 +26,7 @@ export const AllThings = () => {
   const { t } = useTranslation();
   
   useEffect(() => {
-    document.title = "Activities | TravelVerse";
+    document.title = "Activity Details | TravelVerse";
   }, []);
   
   const cityInfo = citiesData.find(city => city.name === cityName);

@@ -58,6 +58,7 @@ const DeleteAccount = lazy(() => import('./Pages/User/DeleteAccount.jsx'));
 const DetialItem = lazy(() => import('./Pages/DetialTrip/DetialTrip.jsx'));
 const Restaurants = lazy(() => import('./Pages/Res/Res.jsx'));
 const SearchResults = lazy(() => import('./Pages/SearchResults.jsx'));
+const NotFound = lazy(() => import('./Pages/NotFound.jsx'));
 
 import RedirectByRole from './RedirectByRole.jsx';
 import 'react-toastify/dist/ReactToastify.css';
@@ -194,6 +195,7 @@ const App = () => {
                 <Route path="/forgotPassword" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/search" element={<SearchResults />} />
+                <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
           </ErrorBoundary>

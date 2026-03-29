@@ -56,7 +56,11 @@ function CarManagement() {
     setCurrentCar(null);
     setIsModalOpen(false);
   };
-// console.log(data);
+  const carsList = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data?.data?.items)
+      ? data.data.items
+      : [];
 
   return (
     <div className={styles.content}>
@@ -98,7 +102,7 @@ function CarManagement() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.data.map(car => (
+                  {carsList.map(car => (
                     <tr key={car.id}>
                       <td>{car.id}</td>
                       <td>{car.brand}</td>
@@ -147,8 +151,8 @@ function CarManagement() {
 
             <div className={styles.pagination}>
               <button onClick={() => setPage(prev => Math.max(prev - 1, 1))} disabled={page === 1}>{t('previous')}</button>
-              <span>{t('page')} {data.current_page} {t('of')} {data.last_page}</span>
-              <button onClick={() => setPage(prev => (prev < data.last_page ? prev + 1 : prev))} disabled={page === data.last_page}>{t('next')}</button>
+              <span>{t('page')} {data?.data?.current_page || page} {t('of')} {data?.data?.last_page || 1}</span>
+              <button onClick={() => setPage(prev => (prev < (data?.data?.last_page || 1) ? prev + 1 : prev))} disabled={page === (data?.data?.last_page || 1)}>{t('next')}</button>
             </div>
           </>
         )}

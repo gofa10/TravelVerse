@@ -12,7 +12,7 @@ import api from '../../Radux/axios';
 import LoginPromptModal from '../../Utility/LoginPromptModal';
 
 import style from '../../Style/DetialTrip/DetialTrip.module.css';
-import ImageGallery from '../../Component/DetialTrip/ImageList';
+import ImageGallery from '../../Utility/ImageGallery/ImageGallery';
 import DetialtripCard from '../../Utility/Cards/DetialtripCard';
 import ContainerCatCard from '../../Component/Home/ContainerCatCard/ContainerCatCard';
 import CommentCard from '../../Utility/Cards/CommentCard';

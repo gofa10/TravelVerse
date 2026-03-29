@@ -18,10 +18,11 @@ export default function GuideSidebar() {
         const token = localStorage.getItem('token');
         if (!token) return;
         const res = await api.get('/profile');
+        const userData = res.data?.data || res.data || {};
         setUser({
-          name: res.data.name || 'Guide',
-          email: res.data.email || '',
-          avatar: res.data.image?.url || null
+          name: userData.name || 'Guide',
+          email: userData.email || '',
+          avatar: userData.image?.url || null
         });
       } catch (err) {
         console.error("Failed to fetch guide data for sidebar", err);

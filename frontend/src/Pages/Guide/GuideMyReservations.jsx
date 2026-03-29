@@ -10,7 +10,10 @@ export default function GuideMyReservations() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['guide-reservations'],
-    queryFn: async () => (await api.get('/guide/reservations')).data,
+    queryFn: async () => {
+      const res = await api.get('/guide/reservations');
+      return res.data?.data || res.data || [];
+    },
   });
 
   const reservations = Array.isArray(data?.data)

@@ -28,7 +28,7 @@ function UserManagement() {
 
   useEffect(() => {
     api.get('/users/all')
-      .then(res => setAllUsers(res.data))
+      .then(res => setAllUsers(res.data?.data || []))
       .catch(() => toast.error('Failed to load all users'));
   }, [queryClient]);
 
@@ -81,13 +81,18 @@ function UserManagement() {
     onError: () => toast.error('Error deleting user')
   });
 
-  const filteredUsers = search.trim()
-    ? allUsers.filter(user => user.name.toLowerCase().includes(search.toLowerCase()))
-    : Array.isArray(data?.data)
-      ? data.data
-      : Array.isArray(data?.data?.items)
-        ? data.data.items
+  const extractedUsers = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data?.data?.items)
+      ? data.data.items
+      : Array.isArray(data?.data?.data)
+        ? data.data.data
         : [];
+
+  const filteredUsers = (search.trim() ? allUsers : extractedUsers).filter(user =>
+    user.name?.toLowerCase().includes(search.toLowerCase()) ||
+    user.email?.toLowerCase().includes(search.toLowerCase())
+  );
 
   const openAddModal = () => {
     setCurrentUser(null);

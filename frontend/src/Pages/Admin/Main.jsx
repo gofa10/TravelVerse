@@ -181,8 +181,9 @@ const DashboardSkeleton = () => (
 
 const getCollectionCount = (payload) => {
   if (Array.isArray(payload)) return payload.length;
-  if (Array.isArray(payload?.data)) return payload.total ?? payload.meta?.total ?? payload.data.length;
-  return payload?.total ?? 0;
+  const data = payload?.data;
+  if (Array.isArray(data)) return data.length;
+  return data?.total ?? data?.items?.length ?? payload?.total ?? 0;
 };
 
 const Main = () => {
@@ -230,11 +231,11 @@ const Main = () => {
     );
   }
 
-  const stats = data?.stats || {};
-  const funnel = data?.reservation_funnel || {};
-  const recentReservations = data?.recent_reservations || [];
-  const recentReviews = data?.recent_reviews || [];
-  const topRatedTrips = data?.top_rated_trips || [];
+  const stats = data?.data?.stats || {};
+  const funnel = data?.data?.reservation_funnel || {};
+  const recentReservations = data?.data?.recent_reservations || [];
+  const recentReviews = data?.data?.recent_reviews || [];
+  const topRatedTrips = data?.data?.top_rated_trips || [];
 
   return (
     <main className="bg-gray-100 dark:bg-gray-900 min-h-screen p-5">

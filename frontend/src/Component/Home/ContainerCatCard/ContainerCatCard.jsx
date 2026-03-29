@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../../../Radux/axios';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import SkeletonGrid from '../../../Utility/Skeletons/SkeletonGrid';
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 
@@ -176,7 +177,7 @@ const ContainerCatCard = ({
         <h2 className="global-recommendations-title">{sectionTitle}</h2>
 
         {loading ? (
-          <div className="loading-text">Loading {sectionTitle}...</div>
+          <SkeletonGrid count={4} />
         ) : data.length > 0 ? (
           <div className="global-recommendations-grid">
             {data.map((item, index) => (

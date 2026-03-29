@@ -102,11 +102,16 @@ function HotelManagement() {
     }
   };
 
-  const filteredHotels = data?.filter((hotel) => {
+  const hotelsList = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.items)
+      ? data.items
+      : [];
+
+  const filteredHotels = hotelsList.filter((hotel) => {
     const matchesSearch = hotel.name?.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesSearch;
-  }) || [];
-// console.log(filteredHotels);
+  });
 
   return (
     <div className={styles.content}>

@@ -29,7 +29,10 @@ export default function GuideMyTrips() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['guide-trips'],
-    queryFn: async () => (await api.get('/guide/trips')).data,
+    queryFn: async () => {
+      const res = await api.get('/guide/trips');
+      return res.data?.data || res.data || [];
+    },
   });
 
   const trips = useMemo(() => {
@@ -39,7 +42,10 @@ export default function GuideMyTrips() {
   }, [data]);
 
   const createMutation = useMutation({
-    mutationFn: async (payload) => (await api.post('/guide/trips', payload)).data,
+    mutationFn: async (payload) => {
+      const res = await api.post('/guide/trips', payload);
+      return res.data?.data || res.data;
+    },
     onSuccess: () => {
       toast.success(t('success'));
       queryClient.invalidateQueries({ queryKey: ['guide-trips'] });
@@ -51,7 +57,8 @@ export default function GuideMyTrips() {
   const updateMutation = useMutation({
     mutationFn: async ({ id, payload }) => {
       payload.append('_method', 'PUT');
-      return (await api.post(`/guide/trips/${id}`, payload)).data;
+      const res = await api.post(`/guide/trips/${id}`, payload);
+      return res.data?.data || res.data;
     },
     onSuccess: () => {
       toast.success(t('success'));
@@ -62,7 +69,10 @@ export default function GuideMyTrips() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id) => (await api.delete(`/guide/trips/${id}`)).data,
+    mutationFn: async (id) => {
+      const res = await api.delete(`/guide/trips/${id}`);
+      return res.data?.data || res.data;
+    },
     onSuccess: () => {
       toast.success(t('success'));
       queryClient.invalidateQueries({ queryKey: ['guide-trips'] });

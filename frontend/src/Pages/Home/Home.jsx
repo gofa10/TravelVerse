@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
+import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -6,6 +7,7 @@ import api from '../../Radux/axios';
 import CarsCard from '../../Utility/Cards/CarsCard';
 import HotelCard from '../../Utility/Cards/HotelCard';
 import CruiseCard from '../../Utility/Cards/CruiseCard';
+import SkeletonGrid from '../../Utility/Skeletons/SkeletonGrid';
 
 const HeroPlane = lazy(() => import('../../Component/Home/Hero/HeroPlane'));
 const FeaturedContainer = lazy(() => import('../../Component/Home/FeaturedContainer/FeaturedContainer'));
@@ -171,48 +173,37 @@ const Home = () => {
   useEffect(() => {
     let cancelled = false;
 
-    const fetchCars = async () => {
+    const fetchCarsAndCruises = async () => {
       setCarsLoading(true);
-      try {
-        const { data } = await api.get('/cars');
-        const carsPayload = data?.data ?? data;
-        if (!cancelled) {
-          setCars(normalizeList(carsPayload));
-        }
-      } catch (err) {
-        if (!cancelled) {
-          console.error('[Home] Failed to load /api/cars:', err);
+      setCruisesLoading(true);
+
+      const [carsRes, cruisesRes] = await Promise.allSettled([
+        api.get('/cars'),
+        api.get('/cruises')
+      ]);
+
+      if (!cancelled) {
+        if (carsRes.status === 'fulfilled') {
+          const payload = carsRes.value.data?.data ?? carsRes.value.data;
+          setCars(normalizeList(payload));
+        } else {
+          console.error('[Home] Failed to load /api/cars:', carsRes.reason);
           setCars([]);
         }
-      } finally {
-        if (!cancelled) {
-          setCarsLoading(false);
-        }
-      }
-    };
+        setCarsLoading(false);
 
-    const fetchCruises = async () => {
-      setCruisesLoading(true);
-      try {
-        const { data } = await api.get('/cruises');
-        const cruisesPayload = data?.data ?? data;
-        if (!cancelled) {
-          setCruises(normalizeList(cruisesPayload));
-        }
-      } catch (err) {
-        if (!cancelled) {
-          console.error('[Home] Failed to load /api/cruises:', err);
+        if (cruisesRes.status === 'fulfilled') {
+          const payload = cruisesRes.value.data?.data ?? cruisesRes.value.data;
+          setCruises(normalizeList(payload));
+        } else {
+          console.error('[Home] Failed to load /api/cruises:', cruisesRes.reason);
           setCruises([]);
         }
-      } finally {
-        if (!cancelled) {
-          setCruisesLoading(false);
-        }
+        setCruisesLoading(false);
       }
     };
 
-    fetchCars();
-    fetchCruises();
+    fetchCarsAndCruises();
 
     return () => {
       cancelled = true;
@@ -254,9 +245,9 @@ const Home = () => {
       >
         {/* Optional error banner */}
         {error && !isLoading && (
-          <ErrorMessage 
-            message={error?.message ?? error.toString()} 
-            onRetry={() => window.location.reload()} 
+          <ErrorMessage
+            message={error?.message ?? error.toString()}
+            onRetry={() => window.location.reload()}
           />
         )}
 
@@ -313,10 +304,12 @@ const Home = () => {
             </h2>
           </div>
 
-          {!carsLoading && cars.length === 0 ? (
+          {carsLoading ? (
+            <SkeletonGrid count={4} />
+          ) : cars.length === 0 ? (
             <EmptyState title="No cars available" subtitle="Check back later" icon="🚗" inline />
           ) : (
-            <CarsCard products={cars.slice(0, 4)} loading={carsLoading} />
+            <CarsCard products={cars.slice(0, 4)} />
           )}
         </div>
 
@@ -345,10 +338,12 @@ const Home = () => {
             </h2>
           </div>
 
-          {!cruisesLoading && cruises.length === 0 ? (
+          {cruisesLoading ? (
+            <SkeletonGrid count={4} />
+          ) : cruises.length === 0 ? (
             <EmptyState title="No cruises available" subtitle="Check back later" icon="🚢" inline />
           ) : (
-            <CruiseCard cruises={cruises.slice(0, 4)} loading={cruisesLoading} />
+            <CruiseCard cruises={cruises.slice(0, 4)} />
           )}
         </div>
       </section>

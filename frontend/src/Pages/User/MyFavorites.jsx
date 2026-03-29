@@ -48,7 +48,8 @@ const MyFavorites = () => {
     queryKey: ['favorites'],
     queryFn: async () => {
       const res = await api.get('/favorites');
-      return res.data?.data ?? res.data;
+      const favData = res.data?.data || res.data;
+      return Array.isArray(favData) ? favData : (favData.items || []);
     },
   });
 
@@ -63,10 +64,11 @@ const MyFavorites = () => {
     onError: () => toast.error(t('error_occurred')),
   });
 
+  const favList = Array.isArray(data) ? data : [];
   const filteredData =
     filter === 'all'
-      ? data
-      : data?.filter((fav) => fav.favoritable_type === `App\\Models\\${filter}`);
+      ? favList
+      : favList.filter((fav) => fav.favoritable_type === `App\\Models\\${filter}`);
 
   if (isLoading) {
     return (

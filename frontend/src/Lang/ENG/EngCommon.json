@@ -736,5 +736,14 @@
   "selectDestination": "Select destination",
   "travelStyle": "Travel Style",
   "view": "View",
-  "whereTraveling": "Where are you traveling?"
+  "whereTraveling": "Where are you traveling?",
+  "notFound": {
+    "title": "Page Not Found",
+    "subtitle": "The page you're looking for doesn't exist.",
+    "button": "Go Home"
+  },
+  "common": {
+    "bookNow": "Book Now",
+    "comingSoon": "Coming Soon"
+  }
 }

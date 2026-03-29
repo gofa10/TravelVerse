@@ -31,7 +31,7 @@ export const Cars = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    document.title = "Car Rentals | TravelVerse";
+    document.title = "Car Details | TravelVerse";
   }, []);
   const searchQuery = useSelector(selectCarSearchQuery);
   const normalizedCityName = cityName?.trim().toLowerCase() || 'all';

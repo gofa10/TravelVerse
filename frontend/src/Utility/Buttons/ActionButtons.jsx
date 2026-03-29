@@ -119,7 +119,7 @@ const ActionButtons = ({ data, type = "trip" }) => {
           onClick={handleReservationClick}
           className="btn-premium btn-premium-success btn-sm"
         >
-          {t('bookTickets')}
+          {t('common.bookNow') || 'Book Now'}
         </button>
 
         <button

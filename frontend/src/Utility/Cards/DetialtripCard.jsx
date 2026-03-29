@@ -156,7 +156,7 @@ const DetialtripCard = ({ trip, loading, reservable_type }) => {
     }
 
     if (!bookingLink) {
-      toast.warning(t('bookingNotAvailable') || 'Booking link not available');
+      toast.info(t('common.comingSoon') || 'Coming Soon');
       return;
     }
 
@@ -336,18 +336,13 @@ const DetialtripCard = ({ trip, loading, reservable_type }) => {
         </div>
 
         <div className="reservation-fields">
-          {bookingLink ? (
-            <button
-              onClick={handleBookNow}
-              className="btn-premium btn-premium-success"
-            >
-              {t('bookTickets') || 'Book Tickets'}
-            </button>
-          ) : (
-            <button className="btn-premium disabled" disabled style={{ opacity: 0.65, cursor: 'not-allowed' }}>
-              {t('bookingUnavailable') || 'Booking Unavailable'}
-            </button>
-          )}
+          <button
+            onClick={handleBookNow}
+            className="btn btn-primary btn-lg w-100 font-weight-bold"
+            style={{ borderRadius: '12px', padding: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}
+          >
+            {t('common.bookNow') || 'Book Now'}
+          </button>
         </div>
 
       </article>

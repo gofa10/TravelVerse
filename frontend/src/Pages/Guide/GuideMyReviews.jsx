@@ -23,11 +23,17 @@ export default function GuideMyReviews() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['guide-reviews'],
-    queryFn: async () => (await api.get('/guide/reviews')).data,
+    queryFn: async () => {
+      const res = await api.get('/guide/reviews');
+      return res.data?.data || res.data || [];
+    },
   });
 
   const replyMutation = useMutation({
-    mutationFn: async ({ id, reply }) => (await api.post(`/guide/reviews/${id}/reply`, { reply })).data,
+    mutationFn: async ({ id, reply }) => {
+      const res = await api.post(`/guide/reviews/${id}/reply`, { reply });
+      return res.data?.data || res.data;
+    },
     onSuccess: () => {
       toast.success(t('success'));
       queryClient.invalidateQueries({ queryKey: ['guide-reviews'] });

@@ -28,11 +28,12 @@ const ProfileSettings = () => {
     const fetchProfile = async () => {
       try {
         const res = await api.get('/profile');
+        const userData = res.data?.data || res.data;
         setProfile(prev => ({
           ...prev,
-          name: res.data.name,
-          email: res.data.email,
-          serverImage: res.data.image?.url || null,
+          name: userData.name,
+          email: userData.email,
+          serverImage: userData.image?.url || null,
         }));
       } catch (err) {
         console.error(err);
@@ -61,10 +62,11 @@ const ProfileSettings = () => {
       const res = await api.post('/update-profile', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+      const userData = res.data?.data?.user || res.data?.user || {};
       toast.success(t('profile.profileUpdated'));
-      setProfile(prev => ({ ...prev, preview: null, avatar: null, serverImage: res.data.user?.image?.url || prev.serverImage }));
-      if (res.data.user?.image?.url) {
-        dispatch(updateUserAvatar(res.data.user.image.url));
+      setProfile(prev => ({ ...prev, preview: null, avatar: null, serverImage: userData.image?.url || prev.serverImage }));
+      if (userData.image?.url) {
+        dispatch(updateUserAvatar(userData.image.url));
       }
     } catch (err) {
       if (err.response?.status === 422 && err.response.data?.errors) {

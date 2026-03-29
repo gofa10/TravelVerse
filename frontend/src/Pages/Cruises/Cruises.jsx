@@ -28,7 +28,7 @@ export const Cruises = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    document.title = "Cruises | TravelVerse";
+    document.title = "Cruise Details | TravelVerse";
   }, []);
   const searchQuery = useSelector(selectCruiseSearchQuery);
   const normalizedCityName = cityName?.trim().toLowerCase() || 'all';

@@ -15,7 +15,10 @@ const UserReviews = () => {
 
   const { data: reviews = [], isLoading, error } = useQuery({
     queryKey: ['my-reviews'],
-    queryFn: () => api.get('/my-reviews').then((r) => r.data),
+    queryFn: () => api.get('/my-reviews').then((r) => {
+      const respData = r.data?.data || r.data;
+      return Array.isArray(respData) ? respData : (respData?.items || []);
+    }),
   });
 
   const deleteReviewMutation = useMutation({
