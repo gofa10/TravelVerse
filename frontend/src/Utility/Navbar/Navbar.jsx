@@ -146,14 +146,6 @@ const Header = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const [isScrolled, setIsScrolled] = useState(false);
-    useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.scrollY > 20);
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        handleScroll();
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
-
     useEffect(() => {
         if (destOpen) {
             setDestSearchOpen(false);
@@ -192,12 +184,18 @@ const Header = () => {
 
     return (
         <nav
-            className={`travelverse-navbar fixed top-0 left-0 right-0 z-[9999] h-16 transition-all duration-300 ${isScrolled ? 'shadow-md' : ''}`}
+            className="travelverse-navbar"
             style={{
-                backgroundColor: isScrolled ? "var(--color-primary-900, #253541)" : "rgba(37, 53, 65, 0.4)",
-                borderBottom: isScrolled ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid transparent",
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "72px",
+                zIndex: 9999,
+                backgroundColor: "var(--color-primary-900, #253541)",
                 backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
+                borderBottom: "1px solid rgba(255,255,255,0.1)",
+                transition: "background-color 0.3s ease",
             }}
         >
             <div className="flex items-center justify-between h-full px-6 max-w-screen-2xl mx-auto">
