@@ -54,10 +54,20 @@ class SearchController extends Controller
 
             if ($q !== '') {
                 $query->where(function ($builder) use ($q) {
-                    $builder->where('name_en', 'LIKE', "%{$q}%");
-
-                    if (\Schema::hasColumn($builder->getModel()->getTable(), 'name_ar')) {
-                        $builder->orWhere('name_ar', 'LIKE', "%{$q}%");
+                    $table = $builder->getModel()->getTable();
+                    if (\Schema::hasColumn($table, 'name_en')) {
+                        $builder->where('name_en', 'LIKE', "%{$q}%");
+                        if (\Schema::hasColumn($table, 'name_ar')) {
+                            $builder->orWhere('name_ar', 'LIKE', "%{$q}%");
+                        }
+                    } elseif (\Schema::hasColumn($table, 'name')) {
+                        $builder->where('name', 'LIKE', "%{$q}%");
+                    } elseif (\Schema::hasColumn($table, 'brand')) {
+                        $builder->where('brand', 'LIKE', "%{$q}%")
+                                ->orWhere('model', 'LIKE', "%{$q}%");
+                    } elseif (\Schema::hasColumn($table, 'from_location')) {
+                        $builder->where('from_location', 'LIKE', "%{$q}%")
+                                ->orWhere('to_location', 'LIKE', "%{$q}%");
                     }
                 });
             }
@@ -80,9 +90,17 @@ class SearchController extends Controller
 
             $results = $results->merge(
                 $query->get()->map(function ($item) use ($type, $locale) {
-                    $title = $locale === 'ar'
-                        ? ($item->name_ar ?? $item->name_en)
-                        : ($item->name_en ?? $item->name_ar);
+                    $title = (function() use ($item, $locale) {
+                        if (isset($item->name_en) || isset($item->name_ar)) {
+                            return $locale === 'ar'
+                                ? ($item->name_ar ?? $item->name_en)
+                                : ($item->name_en ?? $item->name_ar);
+                        }
+                        if (isset($item->name)) return $item->name;
+                        if (isset($item->brand)) return trim(($item->brand ?? '') . ' ' . ($item->model ?? ''));
+                        if (isset($item->from_location)) return ($item->from_location ?? '') . ' to ' . ($item->to_location ?? '');
+                        return 'Untitled';
+                    })();
 
                     return [
                         'id' => $item->id,
