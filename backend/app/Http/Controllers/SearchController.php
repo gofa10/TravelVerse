@@ -17,13 +17,13 @@ class SearchController extends Controller
     {
         $locale = $request->header('Accept-Language') ?? app()->getLocale();
         $q = trim((string) $request->input('q', ''));
-        $category = $request->input('category');
+        $category = trim((string) $request->input('category', ''));
         $location = trim((string) $request->input('location', ''));
         $minPrice = $request->input('min_price');
         $maxPrice = $request->input('max_price');
         $full = filter_var($request->input('full', false), FILTER_VALIDATE_BOOLEAN);
 
-        if ($q === '' && $location === '' && $minPrice === null && $maxPrice === null) {
+        if ($q === '' && $category === '' && $location === '' && $minPrice === null && $maxPrice === null) {
             return $this->success([]);
         }
 
@@ -59,6 +59,10 @@ class SearchController extends Controller
                         $builder->orWhere('name_ar', 'LIKE', "%{$q}%");
                     }
                 });
+            }
+
+            if ($category !== '') {
+                $query->where('type', $category);
             }
 
             if ($location !== '') {
