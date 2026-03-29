@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Search, MapPin, Tag, DollarSign } from 'lucide-react';
 import api from '../Radux/axios';
+import ItemCard from '../Utility/Cards/ItemCard';
 
 const TYPE_META = {
   hotel: { icon: '🏨', labelKey: 'hotels', badge: 'bg-violet-100 text-violet-700' },
@@ -263,8 +264,8 @@ const SearchResults = () => {
         </div>
 
         {loading && (
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, index) => (
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, index) => (
               <SearchSkeletonCard key={index} />
             ))}
           </div>
@@ -298,40 +299,19 @@ const SearchResults = () => {
                     <span className="text-sm text-slate-500">{items.length}</span>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {items.map((item) => (
-                      <button
-                        type="button"
-                        key={`${type}-${item.id}`}
+                      <ItemCard
+                        key={`${item.type}-${item.id}`}
+                        id={item.id}
+                        title={item.title}
+                        image={item.image}
+                        type={item.type}
+                        price={item.price}
+                        meta={item.location ? [{ label: 'Location', value: item.location }] : []}
                         onClick={() => handleSelect(item)}
-                        className="overflow-hidden rounded-[28px] border border-slate-200 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
-                      >
-                        <div className="relative h-52 bg-slate-100">
-                          {item.image ? (
-                            <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="flex h-full items-center justify-center text-5xl">{meta.icon}</div>
-                          )}
-                          <span className={`absolute left-4 top-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${meta.badge}`}>
-                            <span>{meta.icon}</span>
-                            {t(meta.labelKey)}
-                          </span>
-                        </div>
-
-                        <div className="space-y-3 p-5">
-                          <h3 className="line-clamp-2 text-lg font-bold text-slate-900">{item.title}</h3>
-
-                          <div className="flex items-center gap-2 text-sm text-slate-500">
-                            <MapPin className="h-4 w-4 text-sky-600" />
-                            <span className="truncate">{item.location || t('not_available')}</span>
-                          </div>
-
-                          <div className="flex items-center gap-2 text-sm text-slate-700">
-                            <DollarSign className="h-4 w-4 text-sky-600" />
-                            <span>{item.price ?? t('not_available')}</span>
-                          </div>
-                        </div>
-                      </button>
+                        $fluid
+                      />
                     ))}
                   </div>
                 </section>
